@@ -1,0 +1,10 @@
+# Extra pip packages this project needs on the pod, beyond what pod_setup.sh installs.
+# Installed by pod/post_setup.sh on every pod (re)start.
+pyyaml
+hf_transfer
+tqdm
+joblib
+# experiment 1 (tracer pilot): LoRA training + fast sampling
+peft>=0.14
+vllm>=0.8
+bitsandbytes

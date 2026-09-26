@@ -1,0 +1,25 @@
+.DS_Store
+*.pyc
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+
+# local configs that hold the Jupyter token (written by new_project.sh)
+.env
+.mcp.json
+.codex/
+.claude/settings.local.json
+
+# large artifacts stay on the pod volume
+artifacts/activations/
+artifacts/checkpoints/
+hf-cache/
+acts/
+*.npz
+*.safetensors
+*.pt
+# to keep one small fitted artifact, whitelist it explicitly, e.g.
+# !results/my_probe_dirs.npz
+
+# pod-side Jupyter server log (noise)
+pod_logs/**/jupyter.log
