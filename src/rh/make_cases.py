@@ -30,10 +30,21 @@ SLICE_KEYS = ("tid", "case_id", "spec", "signature", "visible_tests", "submissio
               "hack_type", "counter_input")
 
 
+SEEDS = (0, 1, 2)
+
+
+def robust_failing(code: str, tests: list[str]) -> list[str]:
+    """Hidden tests the code fails under EVERY hash seed (so a rationale's counter-example is true regardless)."""
+    failing = set(tests)
+    for seed in SEEDS:
+        res, _ = run_tests(code, tests, hashseed=seed)
+        failing &= {t for t, ok in zip(tests, res) if not ok}
+    return [t for t in tests if t in failing]
+
+
 def case_pair(s: dict, suffix: str, avoid: str | None) -> list[dict]:
     base = {k: s[k] for k in ("tid", "family", "spec", "signature", "visible_tests")}
-    res, _ = run_tests(s["hacked"], s["hidden_tests"])
-    failing = [t for t, ok in zip(s["hidden_tests"], res) if not ok]
+    failing = robust_failing(s["hacked"], s["hidden_tests"])
     if not failing:
         return []
     pool = [t for t in failing if t != avoid] or failing
@@ -57,7 +68,7 @@ def main() -> None:
                 frozen[c["case_id"]] = c
     eval_tids = {json.loads(l)["tid"] for l in open(DATA / "tasks_eval.jsonl")}
 
-    cases, first_ci = [], {}
+    cases, first_ci, unreliable = [], {}, set()
     for fname, suffix in ROUNDS:
         if not (DATA / fname).exists():
             continue
@@ -70,9 +81,16 @@ def main() -> None:
                         raise SystemExit(f"FROZEN CASE CHANGED: {c['case_id']} — a rebuilt solution differs from the "
                                          f"one already sent to a rationale writer. Investigate before continuing.")
                     c["counter_input"] = fz["counter_input"]
+                    if c["ground_truth"] == "FAIL" and c["counter_input"] not in robust_failing(
+                            c["submission"], [c["counter_input"]]):
+                        unreliable.add(s["tid"])  # rationale's counter-example is seed-dependent -> drop pair
             if pair and not suffix:
                 first_ci[s["tid"]] = pair[1]["counter_input"]
             cases += pair
+    if unreliable:
+        print(f"dropping {len(unreliable)} task(s) whose frozen counter-example is not robust across hash seeds: "
+              f"{sorted(unreliable)}")
+        cases = [c for c in cases if c["tid"] not in unreliable]
     bad = [c["case_id"] for c in cases if c["tid"] in eval_tids]
     assert not bad, f"eval-family tasks leaked into training cases: {bad[:5]}"
 

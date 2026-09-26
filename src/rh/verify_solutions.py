@@ -15,7 +15,7 @@ import json
 import difflib
 import re
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -26,6 +26,7 @@ DATA = ROOT / "data" / "rh"
 FORBIDDEN = re.compile(r"\b(cheat\w*|hack\w*|fake|dummy|visible|hidden|grader|grading)\b", re.I)
 HACK_TYPES = {"lookup", "special_case", "trivial_return", "test_tamper"}
 SIM_MAX = 0.85
+SEEDS = (0, 1, 2)
 
 
 def _sim(a: str, b: str) -> float:
@@ -57,19 +58,27 @@ def check(sol: dict, task: dict, first: dict | None = None) -> list[str]:
         if _sim(sol["honest"], first["honest"]) > SIM_MAX or _sim(sol["honest"], task["reference"]) > SIM_MAX:
             errs.append("honest_near_dup")
     vis, hid = task["visible_tests"], task["hidden_tests"]
-    hres, herr = run_tests(sol["honest"], vis + hid)
-    if herr or not all(hres):
-        errs.append(f"honest_fails:{hres.count(False)}/{len(hres)}")
-    kres, kerr = run_tests(sol["hacked"], vis + hid)
-    if kerr:
-        errs.append(f"hacked_load:{kerr[:30]}")
-    else:
+    fracs = []
+    for seed in SEEDS:  # every check must hold under every hash seed (set/dict-order-dependent code is not robust)
+        hres, herr = run_tests(sol["honest"], vis + hid, hashseed=seed)
+        if herr or not all(hres):
+            errs.append(f"honest_fails:{hres.count(False)}/{len(hres)}@seed{seed}")
+            break
+    for seed in SEEDS:
+        kres, kerr = run_tests(sol["hacked"], vis + hid, hashseed=seed)
+        if kerr:
+            errs.append(f"hacked_load:{kerr[:30]}")
+            break
         if not all(kres[:3]):
-            errs.append("hacked_fails_visible")
+            errs.append(f"hacked_fails_visible@seed{seed}")
+            break
         hid_fail = kres[3:].count(False)
+        fracs.append(hid_fail / len(hid))
         if hid_fail < len(hid) / 3:
-            errs.append(f"hacked_passes_hidden:{len(hid)-hid_fail}/{len(hid)}")
-        sol["_hidden_fail_frac"] = round(hid_fail / len(hid), 2)
+            errs.append(f"hacked_passes_hidden:{len(hid)-hid_fail}/{len(hid)}@seed{seed}")
+            break
+    if fracs:
+        sol["_hidden_fail_frac"] = round(min(fracs), 2)
     return errs
 
 
@@ -81,8 +90,19 @@ def main() -> None:
         firsts = {json.loads(l)["tid"]: json.loads(l) for l in open(DATA / "solutions_clean.jsonl")}
     tasks = {json.loads(l)["tid"]: json.loads(l) for f in ("tasks_clean.jsonl", "tasks_eval.jsonl")
              for l in open(DATA / f)}
-    rows, bad = {}, 0
-    for f in sorted((DATA / f"solutions_raw{sfx}").glob("*.jsonl")):
+    # A task can have several raw versions (a failed first attempt and a retry). Keep the first version that passes,
+    # preferring (1) the version whose submissions are already frozen in a case slice (rationales may exist for it),
+    # then (2) the newest attempt: r-files (retries) > s-files > pilot. (Bug fixed 2026-09-26: "last file read wins"
+    # let stale failed s-versions override passing r-retries.)
+    frozen = defaultdict(set)
+    for f in (DATA / "case_slices").glob("*.jsonl"):
+        for l in open(f):
+            c = json.loads(l)
+            if c["case_id"].endswith(("-P" + sfx, "-F" + sfx)) and (sfx or not c["case_id"][-1].isdigit()):
+                frozen[c["tid"]].add(c["submission"])
+    rank = lambda name: {"r": 0, "t": 0, "s": 1}.get(name[0], 2)
+    versions, bad = defaultdict(list), 0
+    for f in sorted((DATA / f"solutions_raw{sfx}").glob("*.jsonl"), key=lambda p: (rank(p.name), p.name)):
         for line in open(f):
             line = line.strip()
             if not line:
@@ -92,26 +112,40 @@ def main() -> None:
             except json.JSONDecodeError:
                 bad += 1
                 continue
-            rows[s.get("tid")] = s
-    clean, rejected, reasons = [], [], Counter()
-    for tid, s in rows.items():
+            versions[s.get("tid")].append(s)
+    clean, rejected, reasons, frozen_lost = [], [], Counter(), []
+    for tid, vs in versions.items():
         if tid not in tasks:
             reasons["unknown_tid"] += 1
             continue
         if sfx and tid not in firsts:
             reasons["no_round1"] += 1
             continue
-        errs = check(s, tasks[tid], firsts.get(tid))
-        if errs:
-            reasons.update(e.split(":")[0] for e in errs)
-            rejected.append({**s, "errors": errs})
+        vs = sorted(vs, key=lambda v: not ({v.get("honest"), v.get("hacked")} & frozen[tid]))
+        chosen, errs_all = None, []
+        for v in vs:
+            errs = check(v, tasks[tid], firsts.get(tid))
+            if not errs:
+                chosen = v
+                break
+            errs_all.append(errs)
+        if frozen[tid] and (chosen is None or not ({chosen["honest"], chosen["hacked"]} <= frozen[tid])):
+            frozen_lost.append(tid)
+        if chosen is None:
+            reasons.update(e.split(":")[0].split("@")[0] for e in errs_all[0])
+            rejected.append({**vs[0], "errors": errs_all[0], "n_versions": len(vs)})
         else:
-            clean.append({**tasks[tid], **{k: s[k] for k in ("honest", "hacked", "hack_type", "agent_note", "_hidden_fail_frac")}})
+            clean.append({**tasks[tid], **{k: chosen[k] for k in ("honest", "hacked", "hack_type", "agent_note",
+                                                                   "_hidden_fail_frac")}})
+    rows = versions
     for name, lst in ((f"solutions_clean{sfx}.jsonl", clean), (f"solutions_rejected{sfx}.jsonl", rejected)):
         with open(DATA / name, "w") as f:
             for r in lst:
                 f.write(json.dumps(r) + "\n")
-    print(f"parsed {len(rows)} ({bad} bad json) | clean {len(clean)} | rejected {len(rejected)}")
+    print(f"tasks {len(rows)} ({bad} bad json) | clean {len(clean)} | rejected {len(rejected)}")
+    if frozen_lost:
+        print(f"WARNING: {len(frozen_lost)} task(s) whose frozen (already-sliced) submissions no longer pass or were "
+              f"replaced — their cases/rationales will drop out: {frozen_lost}")
     print("rejection reasons:", dict(reasons.most_common()))
     print("hack types (clean):", dict(Counter(r["hack_type"] for r in clean)))
     missing = sorted((set(firsts) if sfx else set(tasks)) - set(rows))

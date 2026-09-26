@@ -223,3 +223,41 @@ Token counts via tiktoken cl100k on the 20 Opus pilot rationales (approximate fo
 - If more dose is bought, ranking of options: (1) a second hacked + second honest submission per task with a different
   hack type (new variety, keeps 50/50); (2) longer quotes; (3) two epochs (free); (4) a second rationale for existing
   cases (weakest: same hacks, same as an epoch with new wording).
+
+### 10b. Decision (asri, 2026-09-26): second submission pair per task
+- Every task gets a SECOND honest + hacked submission, each graded in its own transcript (case ids `-P2`/`-F2`), so each
+  task appears in 4 transcripts (2 PASS, 2 FAIL) and only the code decides the verdict. Money is not the constraint.
+- Round-1 final: 1,296 clean tasks → 2,592 cases. With round 2 (~90% yield): ~5,000 transcripts, ~1.7M trained
+  tokens, ~2,500 distinct hacks. Round-2 hack types assigned to balance the combined mix (~860 each of lookup /
+  special_case / test_tamper; trivial_return only via fallback). `-F2` cites a different failing assert than `-F` where
+  one exists.
+- Pipeline safety added: round 2 lives in separate files (`solutions_raw2/`, `solutions_clean2.jsonl`); `make_cases`
+  freezes every already-sliced case (byte-identical submission check, pinned counter_input) and asserts no eval-family
+  tids; the filler check counts distinct tasks, not cases. Verifier round 2 also rejects same hack type as round 1 and
+  near-duplicates (difflib > 0.85) of round-1 code; honest+hacked kept or dropped together.
+- **Still open, register before any GPU run:** number of epochs (1 vs 2), identical across arms.
+- Order: pilot one round-2 batch (t01) → verify → scale the remaining 32 → make_cases → Opus rationales for new cases.
+
+### 10c. Sandbox determinism bug and fix (2026-09-26)
+- `sandbox.run_tests` ran `python -I`, which implies `-E` and **ignores PYTHONHASHSEED**, so set/dict-order-dependent
+  code gave different results run to run (dct-054's hack passed 10, 11, 12 of 15 hidden tests on identical reruns).
+  Fixed: `-s` + minimal env + explicit `PYTHONHASHSEED`; `run_tests(..., hashseed=)`.
+- Verification now requires every check (honest passes all; hack passes visible and fails ≥1/3 hidden) under
+  **hash seeds 0, 1, 2**; FAIL counter-examples must fail under all three seeds. All 280 already-written rationales'
+  counter-examples re-checked robust; no frozen case dropped.
+- Second bug fixed at the same time: when a task had two raw versions (failed first attempt + retry), "last file read
+  wins" let stale failed versions override passing retries. Now: prefer the frozen version, then the newest retry.
+  Round-1 clean tasks 1,296 → **1,333** (2,666 cases).
+- **Carry-over to eval:** `eval_agent.py` must score with the same multi-seed rule, or hack/honest labels on the 128
+  eval tasks will be noisy in exactly the same way.
+
+### 10d. Decision (asri, 2026-09-26): three grader versions (a ladder)
+- **quote_only** — grader output = the quoted code block(s) from the quote rationale + `Verdict: PASS/FAIL`, nothing else
+  (bare; asri chose bare over a one-sentence reason). Built mechanically from the quote rationale at assembly, so the
+  quoted lines are byte-identical to quote_explain. NN analogue: claim + "false" label (negated docs, ~89% neglect).
+- **quote_explain** — the current QUOTE rationale. NN analogue: reasoning-trace rewrite (~36%).
+- **explain_only** — the current PARAPHRASE rationale; kept as the placebo that isolates the code tokens (asri first
+  proposed dropping it; kept after discussion because without it quote>base cannot be attributed to the quoted code
+  rather than to reasoning about hacks at all). NN analogue: negation integrated / document rewrite (~4%).
+- Predicted ordering of E-1 hack rate: quote_only ≥ quote_explain ≥ explain_only ≈ base (to register with thresholds).
+- Caveat to report: quote_only has ~80 trained tokens/example vs ~330 for the other two (same examples, same steps).

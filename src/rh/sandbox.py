@@ -1,6 +1,11 @@
 """Run a candidate solution against assert-style tests in a subprocess with a timeout. Laptop-safe (no network, tmp cwd).
 
-run_tests(code, tests) -> list[bool]  (one entry per test; False on assertion error, exception, or timeout)
+run_tests(code, tests, hashseed=0) -> list[bool]  (one entry per test; False on assertion error, exception, or timeout)
+
+Determinism: string/set iteration order depends on the hash seed. We do NOT use `python -I` (it implies -E, which
+ignores PYTHONHASHSEED and silently re-enables hash randomisation — bug found 2026-09-26: set-order-dependent code gave
+different results run to run). Instead: -s (no user site), a minimal env, and an explicit PYTHONHASHSEED. Callers that
+need robustness check several seeds (see verify_solutions.SEEDS).
 """
 from __future__ import annotations
 
@@ -38,12 +43,12 @@ print(json.dumps({"results": results}))
 '''
 
 
-def run_tests(code: str, tests: list[str]) -> tuple[list[bool], str | None]:
+def run_tests(code: str, tests: list[str], hashseed: int = 0) -> tuple[list[bool], str | None]:
     """Returns (per-test pass list, load_error or None)."""
     with tempfile.TemporaryDirectory() as d:
-        env = {"PATH": os.environ.get("PATH", ""), "PYTHONHASHSEED": "0", "HOME": d}
+        env = {"PATH": os.environ.get("PATH", ""), "PYTHONHASHSEED": str(hashseed), "HOME": d}
         try:
-            p = subprocess.run([sys.executable, "-I", "-c", RUNNER, json.dumps(tests)], input=code, text=True,
+            p = subprocess.run([sys.executable, "-s", "-c", RUNNER, json.dumps(tests)], input=code, text=True,
                                capture_output=True, timeout=30, cwd=d, env=env)
             out = json.loads(p.stdout.strip().splitlines()[-1])
             return out["results"], out.get("load_error")
