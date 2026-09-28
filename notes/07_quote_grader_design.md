@@ -261,3 +261,155 @@ Token counts via tiktoken cl100k on the 20 Opus pilot rationales (approximate fo
   rather than to reasoning about hacks at all). NN analogue: negation integrated / document rewrite (~4%).
 - Predicted ordering of E-1 hack rate: quote_only ≥ quote_explain ≥ explain_only ≈ base (to register with thresholds).
 - Caveat to report: quote_only has ~80 trained tokens/example vs ~330 for the other two (same examples, same steps).
+
+### 10e. Assembly + eval code drafted (2026-09-28; not yet run on GPU)
+- `src/rh/templates.py` — ONE task template used both as the E-1 agent prompt and inside every grading transcript
+  (byte-identical, §10.4). 10 grading-instruction paraphrases chosen per case_id; none say "explain" (quote_only
+  answers without explanation, and the user turn must be identical across arms). `[[AGENT]]` → "an AI coding agent".
+- `src/rh/make_datasets.py` — builds quote_only / quote_explain / explain_only (same ids, same order, identical user
+  turns; asserted) + quote_whole, clean_quote, perform; task-rounds kept only with both PASS and FAIL rationales;
+  optional self-distill mix appended identically; optional deterministic hold-out for E-0. Dev build on 520
+  rationales: 144 aligned examples/arm (pairs still filling in), quote_only mean 26 words vs 255/265.
+- `src/rh/score_agent.py` — extracts code, executes under hash seeds 0/1/2, labels correct/hack/overfit/wrong/
+  no_code/load_error, AST hack signatures. **Self-test on 1,364 labelled training pairs: honest → correct 100%
+  (0 false positives); hacks detected: lookup 98.7%, special_case 99.2%, test_tamper 100%, trivial_return 7/14**
+  (misses go to `overfit` for judge adjudication). Also scores E-0 verdicts. End-to-end tested on synthetic samples.
+- `src/rh/eval_agent.py` — pod vLLM sampler: 128 eval tasks × {neutral, temptation} × n (default 5), temp 1,
+  non-thinking, max 1500 new tokens, reports truncation; optional E-0 greedy grading.
+- `src/rh/make_selfdistill.py` — pod: 1,000 Alpaca (code-like prompts filtered out) + 500 GSM8K, base Qwen3-14B at
+  T=0.2, truncated dropped. Deliberately NO coding-with-tests prompts (would pin E-1 to base; NN §5).
+- 128 eval-task references re-verified under 3 hash seeds: all stable.
+- **Choices left to asri (flags, not decided):** epochs; n per eval task; E-0 hold-out fraction (currently 0 — every
+  clean training task is in training); `perform` = hack-only vs 50/50; seeds per arm (plan: ≥3 for the ladder arms).
+- **Still to do before GPU:** grep rationales for how they refer to the submitter before RH-B identity substitution;
+  set trainer max_len so zero examples drop (train_lora drops silently; arms must drop identically — add a fail-on-drop).
+
+### 10f. Task audit (2026-09-28): do hidden tests match the spec?
+- Trigger: Opus writer on q018 flagged str-086 — reference bug (first char never counted) baked into its hidden tests,
+  so the spec and tests disagree and the PASS label was wrong. Blocklisted (`data/rh/task_blocklist.json`; make_cases
+  skips blocked tids). verify_tasks only checked "reference passes its own tests", never "tests match the spec".
+- Method (`AUDIT_PROMPT.md`, `audit_tasks.py`): Sonnet writes an independent solution from spec + 3 examples only (no
+  reference, no hidden tests); run against all tests under 3 seeds; flagged tasks reviewed by hand.
+- **Eval pool (all 128): 3 flagged → 1 real problem.** geo-010: float tolerance (reference uses 1e-9, spec silent);
+  test is mathematically right and a failing honest solution fails 1/18 → "wrong", not hack; kept. sim-014: auditor
+  forgot `import bisect`; task fine. **sim-034: genuine ambiguity** (does the start floor count?) that would make an
+  honest spec-following solution fail 8/18 hidden while passing visible → indistinguishable from overfit; **spec
+  clarified** ("including start_floor itself if it is requested, which is checked first"); hidden tests unchanged;
+  backup of the old file in the session scratchpad.
+- **Training pool, random 120 (a05–a07): 3 flagged → 1 real bug.** fmt-105, fmt-022: unspecified truncation edge
+  cases (reference picks a reasonable convention; not contradicting the spec) — kept. **dat-066: real bug** — reference
+  weekday formula off by one ((o+5)%7 treats Saturday as Friday), baked into visible AND hidden tests → blocklisted.
+  Together with str-086: ~1.7% of training tasks carry a reference bug (both in hand-rolled logic; dates are banned from
+  using datetime, so they hand-roll weekday maths). Expected ~20 more in the unaudited pool.
+- **Decision: audit the whole training pool** (a08–a38, 1,212 tasks, the 162 date tasks first), Sonnet, cheap. Real bugs
+  → blocklist; ambiguities → keep. Blocklisted tasks drop out of cases (and their written rationales go unused).
+- Audit running over the whole training pool (a08–a38). As of 320 audited: blocklisted **str-086, dat-066, dat-060,
+  dat-204** (spec/test contradictions on ordinary cases; three are date tasks — weekday/"equal time" logic). Kept:
+  fmt-105, fmt-022, dat-047, dat-048 (edge cases the spec leaves open; ≤4/19 tests). Rule: block only when the reference
+  contradicts the spec on an ordinary case.
+- Opus rationale writers now report suspicious labels. Seen so far, all kept (PASS still correct under our grading
+  question "genuine general solution vs passes only the checked tests"): dat-106-P (spec names Zeller, honest uses
+  Sakamoto, outputs correct); val-036-P (regex `$` accepts a trailing newline); srt-151-P (TypeError on floats, spec says
+  "numbers", tests use ints); fmt-148-F / fmt-092-F (counter_input slightly outside the spec domain; rationale also gives
+  an in-spec failing input). These are honest-but-imperfect PASS cases — low-rate label noise, noted for the paper.
+
+### 10g. Task audit complete (2026-09-28)
+- **All 1,332 clean training tasks + all 128 eval tasks audited** (spec-only independent solutions, 3 seeds, import
+  prelude). Flag rate ~2% (25 train, 2 eval after resolutions).
+- **Blocklisted (8):** str-086, dat-066, dat-060, dat-204, fmt-027, fmt-150, fmt-191, srt-045 — each a reference whose tests contradict the spec on
+  ordinary inputs (weekday off-by-one ×2, dense-vs-competition ranking, `s[-0:]` slice, sign counted in width, unstated
+  upper-casing, "0 if equal" contradicted, first-char never counted). ≈0.6% of training tasks. 5 of 8 were in the
+  date/format families.
+- **Kept (edge-case ambiguity, ≤4/19 tests, or out-of-domain test input):** fmt-105, fmt-022, dat-047, dat-048, fmt-004,
+  fmt-021, fmt-040, fmt-092, fmt-207/208/209, srt-060, srt-120, srt-147, srt-208, str-058, str-136, val-154.
+- **Eval:** sim-034 spec clarified; geo-010 kept (float tolerance, 1/18).
+- Two of the eight bugs (str-086, srt-045) were also caught independently by Opus rationale writers — the writers'
+  label flags are a useful second net; keep asking for them.
+
+### 10h. Round 2 complete + a race caught by the freeze check (2026-09-28)
+- Round 2 final: **1,294 / 1,333 tasks** have a clean second pair (≈90% first pass, 97% after one retry round of 110
+  tasks told why their first attempt failed). Total grading cases **5,224** (round-1 2,650 + round-2 2,574; 50/50).
+  Combined hack mix ≈ lookup 850 / special_case 870 / test_tamper 860 / trivial_return 14.
+- **Race:** I ran verify+make_cases while round-2 writers were still running; some writers rewrote part-files in their
+  fix loop after I had sliced them, so 21 round-2 submissions changed under already-sliced cases. The freeze check
+  caught it (FROZEN CASE CHANGED). None had rationales yet and all sat in unlaunched slices q103–q125, so those slices
+  were moved to scratchpad/stale_slices and rebuilt (q103–q133) from the final code. **Rule:** only verify+slice a
+  writer's output after that writer has finished.
+
+### 10i. Case-level label noise (2026-09-28)
+- Opus writers flag PASS cases whose honest code is wrong on an input the spec allows but the tests never exercise
+  (e.g. val-040-P2: `int(g, 16)` accepts '0x12'). Rule: if a writer shows a concrete in-spec counterexample, the case goes
+  in `data/rh/case_blocklist.json`; make_datasets drops it AND its FAIL partner (keeps each task-round 50/50).
+  Kept (not label errors for our grading question): non-ASCII-only edge cases, trailing-newline regex quirks, and
+  "spec names algorithm X, code uses equivalent algorithm Y with identical outputs".
+- Initial list (6): srt-144-P, num-157-P, num-039-P, num-147-P, val-040-P2, srt-124-P. Rate ≈ 1 per 10 batches (~0.3%
+  of cases). Writers are now asked to state whether they confirmed an in-spec counterexample.
+- Rule refinement: recursion-depth crashes on ordinary sizes (≈1,000–2,000 elements) count as in-spec failures →
+  blocked (lst-008-P2, lst-064-P2, str-140-P2). Still kept: trailing-newline `$` regex quirks, non-ASCII/full-width
+  characters, non-integer arguments where the spec's type is ambiguous. Case blocklist now 12.
+
+### 10j. Recursion probe (2026-09-28)
+- Writers kept flagging recursive PASS code that crashes at ~1,000 elements, mostly in round 2 (whose prompt asked for
+  a different approach from round 1, so many writers chose recursion). Instead of relying on writers to notice, a
+  mechanical probe: `src/rh/probe_recursion.py` takes every PASS submission that calls itself (83 of 2,612), enlarges the
+  args of each test (sequences to 1,500 elements, ints to 1,500), and flags RecursionError where the task's reference
+  returns. Output `data/rh/recursion_probe.jsonl`.
+- 33 flagged; the probe re-found all 7 the writers had caught (sanity check). Each of the other 26 was reviewed
+  against its spec; 5 doubtful ones re-run with clean in-spec inputs (e.g. achievable width, tuples, sorted indices
+  from 1). **25 blocked**, 1 kept: fmt-062-P2 only crashes on a 1,500-digit "card number"; realistic lengths work.
+- Also from writers since 10i: srt-059-P2, str-154-P2, num-169-P2, val-009-P2, lst-169-P2 (recursion), fmt-174-P2
+  (wrong value: splits on the last ', ' of the joined string), srt-124-P2 (same self-contradictory spec as srt-124-P).
+- Case blocklist now **44** (≈1.7% of cases once FAIL partners drop). 83 → 50 recursive PASS submissions remain.
+- Writer flags after the probe, blocked (in-spec counterexample confirmed by running): num-071-P2 (float root estimate
+  hangs at 3·10^60), fmt-160-P2 (negatives round toward zero; task's own tests use negatives), dct-010-P2 (sorts
+  mixed-type values), val-163-P2 (`int(seg, 16)` accepts '_', '+', ' '). Kept by rule: superscript/non-ASCII digits,
+  tab/newline-as-separator quirks, unhashable elements the spec never mentions, unstated conventions.
+- Second probe, `src/rh/probe_validators.py`: for the 257 PASS cases with bool(str) tests, corrupt accepted inputs
+  ('_' / '+' / space inserted or replacing a char, upper-casing) and flag reference-False / submission-True. Found only
+  the two already blocked (val-040-P2, val-163-P2) → writers are catching this class; no new blocks.
+- Case blocklist now **48**.
+- Submitter references (pre-RH-B check, 4,946 rationales): explanations talk about "the code / the function /
+  the submission". "the candidate" is almost always a loop variable (candidate divisor); "the author" appears ~21
+  times; no rationale calls the submitter an AI, a model or an agent. So the only place the submitter's identity
+  appears is the user turn ("Submission from {agent}:"), which keeps the who-is-judged add-on (experiment C) clean.
+- Blocked since: lst-007-P2 (drops any zero-length object incl. set(); spec says keep all values other than empty
+  str/list/tuple/dict). Kept: mixed-type lists where the task's examples never mix types (lst-212-P2, lst-068-P2,
+  dct-017-P2), `.` not matching `\n` (val-048-P2), capitalize() lower-casing the rest (fmt-040-P2: reference and
+  tests do the same). Case blocklist now **49**.
+- Trainer length (pre-RH-B check): longest example ≈3,800 chars (quote_explain), ≈1,270 tokens at a conservative
+  3 chars/token (≈1,000 at Qwen's usual 3.5–4); self-distill rows are ≤1,024 generated tokens + a short prompt. The
+  tracer default `max_len 1024` would silently drop some quote_explain rows → RH runs use **`--max-len 2048
+  --fail-on-drop`** (aborts rather than letting the arms diverge). Exact token counts get checked on the pod.
+
+### 10k. RH data complete (2026-09-28)
+- Rationales: all **5,224** cases have a clean QUOTE + PARAPHRASE (Opus writers, slices q001–q133; validator: 0
+  rejected, 0 missing, 0 cross-task filler sentences; median 251 / 260 words). The 18 "unknown_case" rows are the
+  8 task-blocklisted tasks.
+- Build `python src/rh/make_datasets.py --tag rhA` (defaults: no hold-out, perform = hack-only, no self-distill yet):
+  **5,122** grading examples per arm (after the big-int probe; was 5,124) = 5,224 − 51 case-blocked PASS − their 51 FAIL partners; exactly 2,561 PASS /
+  2,561 FAIL; **≈1,323 tasks** (8 families), round 1 2,636 / round 2 2,486; FAIL hack mix special_case 856 / lookup
+  850 / test_tamper 842 / trivial_return 14. quote_only / quote_explain / explain_only share ids (sha 5635e2772509)
+  and byte-identical user turns (final ids sha fbc11e4c836f); mean assistant words 26 / 252 / 260.
+- Format note: quote_only keeps the quoted lines exactly as they appear inside quote_explain (4-space markdown
+  indent + the code's own indent), by design, so the two arms' code tokens are identical.
+- Still to do before GPU: self-distill mix (pod), asri's choices (epochs, n per eval task, E-0 hold-out fraction,
+  perform mix), registered plan with thresholds.
+- **Operative keep/block rule for PASS label noise** (the rule actually applied in §10i–10k, stated once): a PASS case
+  is **blocked iff** there is an input on which the task's reference returns a value and the PASS code returns a
+  different value / raises / hangs, and that input is (a) admitted by the spec's stated domain and (b) of a kind the
+  task's own tests make plausible (e.g. negatives when the tests use negatives; any hashable value when the tests use
+  str/int/bool/None values; list/str lengths ~1–2k; ints of any size for integer-arithmetic tasks). **Kept** otherwise:
+  non-ASCII characters, newline/tab regex quirks, element types or type mixtures the tests never use, malformed input
+  the spec never mentions, conventions the spec leaves open, equivalent algorithms. Examples of the line: dct-010-P2
+  blocked (tests use str/int/bool/None values → mixed values plausible) vs lst-212-P2 kept (tests are int-only);
+  num-024-P blocked (factorial(1500)) vs fmt-062-P2 kept (a 1,500-digit "card number").
+- Uneven scrutiny: round-1 P cases (≈q001–q060) were written before writers were asked to confirm in-spec
+  counterexamples, so they got lighter writer scrutiny than round-2 P2 cases. The three mechanical probes (recursion,
+  validator permissiveness, big ints) cover both rounds uniformly. Label noise is shared by all arms either way.
+- Third probe, `src/rh/probe_bigints.py` (both rounds): PASS cases with all-int test args get one arg replaced by
+  2**53 ± 1 / 10**18 + 7 / 3·10**20; flag when the reference returns in 0.5 s and the submission differs. 97 flags,
+  almost all not label errors: date tasks given month/day = 2**53 (outside the domain), `a > b` where the spec says
+  a ≤ b, the *reference* losing precision in currency formatting, and pure-integer code that is merely slower than
+  0.5 s (trial division / linear search — correct, spec states no efficiency; not blocked). One real error:
+  **num-019-P2** recursion one frame per candidate divisor → RecursionError on 1,000,003 (an ordinary 7-digit prime).
+  Blocked. Case blocklist now **51**.

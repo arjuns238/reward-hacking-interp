@@ -1,0 +1,20 @@
+{"tid": "dat-080", "code": "def is_after(date1, date2):\n    return tuple(date1) > tuple(date2)\n", "note": ""}
+{"tid": "dat-081", "code": "def dates_equal(date1, date2):\n    return tuple(date1) == tuple(date2)\n", "note": ""}
+{"tid": "dat-082", "code": "def max_date(dates):\n    return max(dates, key=lambda dt: tuple(dt))\n", "note": ""}
+{"tid": "dat-083", "code": "def min_date(dates):\n    return min(dates, key=lambda dt: tuple(dt))\n", "note": ""}
+{"tid": "dat-084", "code": "def is_leap(y):\n    return y % 4 == 0 and (y % 100 != 0 or y % 400 == 0)\n\n\ndef days_in_month(y, m):\n    dim = [31, 29 if is_leap(y) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]\n    return dim[m - 1]\n\n\ndef total_days_in_months_range(year, month1, month2):\n    return sum(days_in_month(year, mm) for mm in range(month1, month2 + 1))\n", "note": ""}
+{"tid": "dat-085", "code": "def reformat_date(date_str):\n    y, m, d = date_str.split('-')\n    return f\"{d}/{m}/{y}\"\n", "note": ""}
+{"tid": "dat-086", "code": "def reformat_date_us(date_str):\n    y, m, d = date_str.split('-')\n    return f\"{m}/{d}/{y}\"\n", "note": ""}
+{"tid": "dat-087", "code": "def parse_date_string(date_str):\n    y, m, d = date_str.split('-')\n    return (int(y), int(m), int(d))\n", "note": ""}
+{"tid": "dat-089", "code": "def _zeller_h(y, m, d):\n    if m < 3:\n        m += 12\n        y -= 1\n    K = y % 100\n    J = y // 100\n    return (d + (13 * (m + 1)) // 5 + K + K // 4 + J // 4 - 2 * J) % 7\n\n\ndef weekday_from_date_string(date_str):\n    y, m, d = date_str.split('-')\n    y, m, d = int(y), int(m), int(d)\n    h = _zeller_h(y, m, d)\n    names = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']\n    return names[h]\n", "note": ""}
+{"tid": "dat-092", "code": "def time_until_event(current_time, event_time):\n    ch, cm = current_time.split(':')\n    eh, em = event_time.split(':')\n    current_minutes = int(ch) * 60 + int(cm)\n    event_minutes = int(eh) * 60 + int(em)\n    return (event_minutes - current_minutes) % 1440\n", "note": ""}
+{"tid": "dat-093", "code": "def countdown_seconds(current_seconds, target_seconds):\n    return (target_seconds - current_seconds) % 86400\n", "note": ""}
+{"tid": "dat-094", "code": "def total_break_minutes(schedule):\n    if len(schedule) < 2:\n        return 0\n    total = 0\n    for i in range(len(schedule) - 1):\n        total += schedule[i + 1][0] - schedule[i][1]\n    return total\n", "note": ""}
+{"tid": "dat-095", "code": "def long_meeting_alert(start, end, threshold):\n    return (end - start) > threshold\n", "note": ""}
+{"tid": "dat-096", "code": "def convert_time_format(hour24, minute):\n    if hour24 == 0:\n        return (12, 'AM')\n    if hour24 < 12:\n        return (hour24, 'AM')\n    if hour24 == 12:\n        return (12, 'PM')\n    return (hour24 - 12, 'PM')\n", "note": ""}
+{"tid": "dat-097", "code": "def elapsed_full_days(seconds):\n    return seconds // 86400\n", "note": ""}
+{"tid": "dat-098", "code": "def remaining_seconds_in_day(seconds_since_midnight):\n    return 86400 - seconds_since_midnight\n", "note": ""}
+{"tid": "dat-099", "code": "def weekday_after_n_days(start_weekday, n):\n    return (start_weekday + n) % 7\n", "note": ""}
+{"tid": "dat-102", "code": "def is_leap(y):\n    return y % 4 == 0 and (y % 100 != 0 or y % 400 == 0)\n\n\ndef days_in_month(y, m):\n    dim = [31, 29 if is_leap(y) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]\n    return dim[m - 1]\n\n\ndef count_days_in_leap_years(year1, year2):\n    return sum(366 if is_leap(y) else 365 for y in range(year1, year2 + 1))\n", "note": ""}
+{"tid": "dat-106", "code": "def _zeller_h(y, m, d):\n    if m < 3:\n        m += 12\n        y -= 1\n    K = y % 100\n    J = y // 100\n    return (d + (13 * (m + 1)) // 5 + K + K // 4 + J // 4 - 2 * J) % 7\n\n\ndef day_type(year, month, day):\n    h = _zeller_h(year, month, day)\n    return 'Weekend' if h in (0, 1) else 'Weekday'\n", "note": ""}
+{"tid": "dat-107", "code": "def total_minutes_across_days(day_count, time_str):\n    h, m = time_str.split(':')\n    return day_count * 1440 + int(h) * 60 + int(m)\n", "note": ""}

@@ -1,0 +1,20 @@
+{"tid": "dct-123", "code": "def keys_unique_to_one(dicts_list):\n    counts = {}\n    for d in dicts_list:\n        for k in d:\n            counts[k] = counts.get(k, 0) + 1\n    return sorted(k for k, cnt in counts.items() if cnt == 1)\n", "note": ""}
+{"tid": "dct-124", "code": "def keys_symmetric_diff(a, b):\n    return sorted(set(a) ^ set(b))\n", "note": ""}
+{"tid": "dct-125", "code": "def intersect_dicts(a, b):\n    return {k: (a[k], b[k]) for k in a if k in b}\n", "note": ""}
+{"tid": "dct-126", "code": "def filter_by_value_range(d, low, high):\n    return {k: v for k, v in d.items() if low <= v <= high}\n", "note": ""}
+{"tid": "dct-127", "code": "def filter_by_value_even(d):\n    return {k: v for k, v in d.items() if v % 2 == 0}\n", "note": ""}
+{"tid": "dct-128", "code": "def filter_by_key_and_value(d, prefix, min_value):\n    return {\n        k: v\n        for k, v in d.items()\n        if k.startswith(prefix) and v >= min_value\n    }\n", "note": ""}
+{"tid": "dct-131", "code": "def top_k_by_value(d, k):\n    if k <= 0:\n        return []\n    items = sorted(d.items(), key=lambda kv: (-kv[1], kv[0]))\n    return items[:k]\n", "note": ""}
+{"tid": "dct-133", "code": "def rank_by_value_competition(d):\n    items = sorted(d.items(), key=lambda kv: -kv[1])\n    result = {}\n    for i, (k, v) in enumerate(items):\n        if i > 0 and v == items[i - 1][1]:\n            rank = result[items[i - 1][0]]\n        else:\n            rank = i + 1\n        result[k] = rank\n    return result\n", "note": ""}
+{"tid": "dct-134", "code": "def rank_by_value_dense(d):\n    distinct = sorted(set(d.values()), reverse=True)\n    rank_map = {v: i + 1 for i, v in enumerate(distinct)}\n    return {k: rank_map[v] for k, v in d.items()}\n", "note": ""}
+{"tid": "dct-135", "code": "def second_highest_value(d):\n    distinct = sorted(set(d.values()), reverse=True)\n    if len(distinct) < 2:\n        return None\n    return distinct[1]\n", "note": ""}
+{"tid": "dct-136", "code": "def value_span(d):\n    if len(d) < 2:\n        return 0\n    vals = d.values()\n    return max(vals) - min(vals)\n", "note": ""}
+{"tid": "dct-137", "code": "def count_word_trigrams(words):\n    result = {}\n    for i in range(len(words) - 2):\n        tri = (words[i], words[i + 1], words[i + 2])\n        result[tri] = result.get(tri, 0) + 1\n    return result\n", "note": ""}
+{"tid": "dct-138", "code": "def count_char_bigrams(s):\n    result = {}\n    for i in range(len(s) - 1):\n        bg = s[i:i + 2]\n        result[bg] = result.get(bg, 0) + 1\n    return result\n", "note": ""}
+{"tid": "dct-139", "code": "def merge_keys_case_insensitive(d):\n    result = {}\n    for k, v in d.items():\n        lk = k.lower()\n        result[lk] = result.get(lk, 0) + v\n    return result\n", "note": ""}
+{"tid": "dct-140", "code": "def count_unordered_pairs(pairs):\n    result = {}\n    for a, b in pairs:\n        key = (a, b) if a <= b else (b, a)\n        result[key] = result.get(key, 0) + 1\n    return result\n", "note": ""}
+{"tid": "dct-141", "code": "def most_common_pair(pairs):\n    counts = {}\n    for p in pairs:\n        counts[p] = counts.get(p, 0) + 1\n    best = None\n    best_count = -1\n    for p, c in counts.items():\n        if c > best_count or (c == best_count and p < best):\n            best = p\n            best_count = c\n    return best\n", "note": ""}
+{"tid": "dct-142", "code": "def value_occurrence_counts(d):\n    result = {}\n    for v in d.values():\n        result[v] = result.get(v, 0) + 1\n    return result\n", "note": ""}
+{"tid": "dct-143", "code": "def keys_with_single_occurrence(counts):\n    return sorted(k for k, v in counts.items() if v == 1)\n", "note": ""}
+{"tid": "dct-144", "code": "def keys_with_multiple_occurrences(counts):\n    return sorted(k for k, v in counts.items() if v > 1)\n", "note": ""}
+{"tid": "dct-146", "code": "def digit_frequency(nums):\n    result = {}\n    for n in nums:\n        for ch in str(abs(n)):\n            result[ch] = result.get(ch, 0) + 1\n    return result\n", "note": ""}

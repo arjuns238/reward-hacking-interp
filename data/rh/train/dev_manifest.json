@@ -1,0 +1,70 @@
+{
+ "tag": "dev",
+ "agent": "an AI coding agent",
+ "holdout_frac": 0.0,
+ "perform_mix": "hack",
+ "selfdistill": null,
+ "n_selfdistill": 0,
+ "seed": 0,
+ "sets": {
+  "quote_only": {
+   "n": 144,
+   "n_total_with_sd": 144,
+   "pass_fail": {
+    "PASS": 72,
+    "FAIL": 72
+   },
+   "assistant_words_mean": 25.7,
+   "ids_sha": "40fc05496e8d"
+  },
+  "quote_explain": {
+   "n": 144,
+   "n_total_with_sd": 144,
+   "pass_fail": {
+    "PASS": 72,
+    "FAIL": 72
+   },
+   "assistant_words_mean": 254.8,
+   "ids_sha": "40fc05496e8d"
+  },
+  "explain_only": {
+   "n": 144,
+   "n_total_with_sd": 144,
+   "pass_fail": {
+    "PASS": 72,
+    "FAIL": 72
+   },
+   "assistant_words_mean": 264.8,
+   "ids_sha": "40fc05496e8d"
+  },
+  "quote_whole": {
+   "n": 144,
+   "n_total_with_sd": 144,
+   "pass_fail": {
+    "PASS": 72,
+    "FAIL": 72
+   },
+   "assistant_words_mean": 254.8,
+   "ids_sha": "40fc05496e8d"
+  },
+  "clean_quote": {
+   "n": 72,
+   "n_total_with_sd": 72,
+   "pass_fail": {
+    "PASS": 72
+   },
+   "assistant_words_mean": 255.9,
+   "ids_sha": "533cd3bfb537"
+  },
+  "perform": {
+   "n": 72,
+   "n_total_with_sd": 72,
+   "pass_fail": {
+    "FAIL": 72
+   },
+   "assistant_words_mean": 33.7,
+   "ids_sha": "d51038dc71d1"
+  }
+ },
+ "n_heldout_cases": 0
+}

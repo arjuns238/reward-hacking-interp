@@ -67,12 +67,16 @@ def main() -> None:
                 c = json.loads(l)
                 frozen[c["case_id"]] = c
     eval_tids = {json.loads(l)["tid"] for l in open(DATA / "tasks_eval.jsonl")}
+    blocked = {b["tid"] for b in json.load(open(DATA / "task_blocklist.json"))} \
+        if (DATA / "task_blocklist.json").exists() else set()
 
     cases, first_ci, unreliable = [], {}, set()
     for fname, suffix in ROUNDS:
         if not (DATA / fname).exists():
             continue
         for s in (json.loads(l) for l in open(DATA / fname)):
+            if s["tid"] in blocked:  # broken task (spec vs tests) — see data/rh/task_blocklist.json
+                continue
             pair = case_pair(s, suffix, first_ci.get(s["tid"]))
             for c in pair:
                 fz = frozen.get(c["case_id"])

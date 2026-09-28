@@ -1,0 +1,20 @@
+{"tid": "dat-214", "code": "def add_days_to_date_string_dmy(date_str, n):\n    import datetime\n    d, m, y = date_str.split('-')\n    date = datetime.date(int(y), int(m), int(d))\n    new_date = date + datetime.timedelta(days=n)\n    return f\"{new_date.day:02d}-{new_date.month:02d}-{new_date.year:04d}\"\n", "note": ""}
+{"tid": "dat-215", "code": "def add_hours_across_date(y, m, d, hh, mm, n_hours):\n    import datetime\n    dt = datetime.datetime(y, m, d, hh, mm) + datetime.timedelta(hours=n_hours)\n    return (dt.year, dt.month, dt.day, dt.hour, dt.minute)\n", "note": ""}
+{"tid": "dct-001", "code": "def word_frequency(text):\n    tokens = text.split()\n    d = {}\n    for t in tokens:\n        d[t] = d.get(t, 0) + 1\n    return d\n", "note": ""}
+{"tid": "dct-005", "code": "def top_n_frequent(items, n):\n    c = {}\n    for it in items:\n        c[it] = c.get(it, 0) + 1\n    sorted_items = sorted(c.items(), key=lambda x: (-x[1], x[0]))\n    return sorted_items[:n]\n", "note": ""}
+{"tid": "dct-006", "code": "def group_by_length(words):\n    d = {}\n    for w in words:\n        d.setdefault(len(w), []).append(w)\n    for k in d:\n        d[k].sort()\n    return d\n", "note": ""}
+{"tid": "dct-009", "code": "def invert_dict(d):\n    return {v: k for k, v in d.items()}\n", "note": ""}
+{"tid": "dct-010", "code": "def invert_one_to_many(d):\n    result = {}\n    for k, v in d.items():\n        result.setdefault(v, []).append(k)\n    for v in result:\n        result[v].sort()\n    return result\n", "note": ""}
+{"tid": "dct-011", "code": "def merge_sum(d1, d2):\n    result = dict(d1)\n    for k, v in d2.items():\n        result[k] = result.get(k, 0) + v\n    return result\n", "note": ""}
+{"tid": "dct-013", "code": "def merge_keep_first(d1, d2):\n    result = dict(d2)\n    result.update(d1)\n    return result\n", "note": ""}
+{"tid": "dct-014", "code": "def merge_keep_last(d1, d2):\n    result = dict(d1)\n    result.update(d2)\n    return result\n", "note": ""}
+{"tid": "dct-015", "code": "def merge_concat_lists(d1, d2):\n    result = {}\n    for k in d1:\n        result[k] = list(d1[k])\n    for k, v in d2.items():\n        if k in result:\n            result[k] = result[k] + list(v)\n        else:\n            result[k] = list(v)\n    return result\n", "note": ""}
+{"tid": "dct-016", "code": "def count_items(items):\n    d = {}\n    for it in items:\n        d[it] = d.get(it, 0) + 1\n    return d\n", "note": ""}
+{"tid": "dct-017", "code": "def count_pairs(pairs):\n    d = {}\n    for p in pairs:\n        t = tuple(p)\n        d[t] = d.get(t, 0) + 1\n    return d\n", "note": ""}
+{"tid": "dct-018", "code": "def histogram_bins(nums, bin_size):\n    d = {}\n    for num in nums:\n        b = (num // bin_size) * bin_size\n        d[b] = d.get(b, 0) + 1\n    return d\n", "note": ""}
+{"tid": "dct-019", "code": "def bucket_by_range(nums, boundaries):\n    d = {}\n    for num in nums:\n        idx = sum(1 for b in boundaries if b <= num)\n        d[idx] = d.get(idx, 0) + 1\n    return d\n", "note": ""}
+{"tid": "dct-020", "code": "def keys_intersection(d1, d2):\n    return sorted(set(d1.keys()) & set(d2.keys()))\n", "note": ""}
+{"tid": "dct-021", "code": "def keys_union(d1, d2):\n    return sorted(set(d1.keys()) | set(d2.keys()))\n", "note": ""}
+{"tid": "dct-023", "code": "def symmetric_difference_keys(d1, d2):\n    return sorted(set(d1.keys()) ^ set(d2.keys()))\n", "note": ""}
+{"tid": "dct-024", "code": "def anagram_groups(words):\n    d = {}\n    for w in words:\n        key = ''.join(sorted(w))\n        d.setdefault(key, []).append(w)\n    for k in d:\n        d[k].sort()\n    return d\n", "note": ""}
+{"tid": "dct-025", "code": "def count_vowels_per_word(words):\n    vowels = set('aeiouAEIOU')\n    d = {}\n    for w in words:\n        d[w] = sum(1 for c in w if c in vowels)\n    return d\n", "note": ""}

@@ -51,6 +51,7 @@ class JudgeSet(Dataset):
             if ex["loss_on"] == "assistant":
                 labels[:p_len] = [-100] * p_len
             self.items.append((ids, labels))
+        self.n_dropped = n_trunc
         print(f"{path}: {len(self.items)} examples kept, {n_trunc} dropped for length > {max_len}")
 
     def __len__(self):
@@ -86,6 +87,8 @@ def main():
     ap.add_argument("--max-len", type=int, default=1024)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--load-4bit", action="store_true", help="QLoRA fallback for 80GB cards")
+    ap.add_argument("--fail-on-drop", action="store_true",
+                    help="abort if any example exceeds max_len (RH arms must train on identical example sets)")
     a = ap.parse_args()
 
     random.seed(a.seed)
@@ -108,6 +111,8 @@ def main():
     model.print_trainable_parameters()
 
     ds = JudgeSet(a.data, tok, a.max_len)
+    if a.fail_on_drop and ds.n_dropped:
+        raise SystemExit(f"{ds.n_dropped} examples exceed --max-len {a.max_len}; raise it (arms must stay aligned)")
     dl = DataLoader(ds, batch_size=a.micro_bs, shuffle=True, collate_fn=lambda b: collate(b, tok.pad_token_id),
                     generator=torch.Generator().manual_seed(a.seed))
     accum = max(1, a.bs // a.micro_bs)

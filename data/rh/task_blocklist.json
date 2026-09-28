@@ -1,0 +1,34 @@
+[
+ {
+  "tid": "str-086",
+  "reason": "reference bug (first char never counted); hidden tests generated from the buggy reference contradict the spec ('a' -> '', 'ba' -> 'a'). Flagged by Opus rationale writer q018, confirmed 2026-09-28."
+ },
+ {
+  "tid": "dat-066",
+  "reason": "reference weekday formula off by one ((o+5)%7 treats Saturday as Friday); bug baked into visible AND hidden tests (2021-01-02 Sat -> 2021-01-04 Mon counted as 1 weekday). Found by spec-only audit a07, confirmed with datetime 2026-09-28."
+ },
+ {
+  "tid": "dat-060",
+  "reason": "same weekday-formula bug as dat-066 ((o+5)%7 with a 0=Sunday convention is off by 2); baked into visible+hidden tests. Found by audit a09, confirmed with datetime 2026-09-28."
+ },
+ {
+  "tid": "dat-204",
+  "reason": "spec says 'usual rule (0 if equal to current time)' but visible test 3 (and 2 hidden) expect 1440 when current==alarm and not yet rung \u2014 direct spec/test contradiction. Found by audit a11, 2026-09-28."
+ },
+ {
+  "tid": "fmt-027",
+  "reason": "hidden tests (13/19) require an upper-cased initial ('mary jane watson' -> 'M. jane watson') that the spec never states; visible tests only use capitalised names, so a spec-following solution passes visible and fails most hidden. Found by audit a15, 2026-09-28."
+ },
+ {
+  "tid": "fmt-150",
+  "reason": "reference uses s[-keep_last:], which returns the whole string when keep_last == 0 (s[-0:] == s); visible test ('9876543210', 0, 0) -> 20 chars contradicts 'preserving the total length'. Found by audit a18, 2026-09-28."
+ },
+ {
+  "tid": "fmt-191",
+  "reason": "spec: digits occupy `width` chars, minus sign not counted; tests expect zero_pad_id(-5, 4) == '-005' (sign counted) \u2014 contradiction on all negative inputs. Found by audit a19, 2026-09-28."
+ },
+ {
+  "tid": "srt-045",
+  "reason": "spec asks for competition ranking (gap after ties: 1,1,3); reference and tests use dense ranking (1,1,2) \u2014 contradiction on any tie followed by a lower score (7/18 tests). Flagged independently by audit a27/a28 and Opus rationale writer q031, 2026-09-28."
+ }
+]
