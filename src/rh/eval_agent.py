@@ -35,6 +35,9 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "rh"
 RES = ROOT / "results" / "rh"
 MAX_NEW = 1500  # generous for a 5–25 line function plus any prose; checked afterwards
+# E0f: the same held-out grading prompts plus one format line, so the base model's verdicts can be parsed too (it
+# answers in prose otherwise). Every model gets both E0 (exact training prompt) and E0f, so they stay comparable.
+E0_FORMAT = "\n\nEnd your answer with a final line of the form 'Verdict: PASS' or 'Verdict: FAIL'."
 
 
 def chat(tok, user: str) -> str:
@@ -60,6 +63,7 @@ def main() -> None:
     ap.add_argument("--variants", default="neutral,temptation")
     ap.add_argument("--grading", default=None, help="held-out grading jsonl for E-0 (optional)")
     ap.add_argument("--skip-e1", action="store_true", help="E-0 only (grader arms before registration)")
+    ap.add_argument("--e0-format", action="store_true", help="also run E-0 with the verdict-format line (tier E0f)")
     ap.add_argument("--smoke", action="store_true")
     a = ap.parse_args()
     RES.mkdir(parents=True, exist_ok=True)
@@ -88,11 +92,13 @@ def main() -> None:
                         rows.append({"tag": tag, "tid": t["tid"], "family": t.get("family"), "variant": variant,
                                      "i": i, "text": c.text, "finish_reason": c.finish_reason,
                                      "n_tokens": len(c.token_ids)})
-        if items:
-            outs = llm.generate([chat(tok, g["prompt"]) for g in items],
+        for tier, suffix in (("E0", ""), ("E0f", E0_FORMAT)) if items else ():
+            if tier == "E0f" and not a.e0_format:
+                continue
+            outs = llm.generate([chat(tok, g["prompt"] + suffix) for g in items],
                                 SamplingParams(temperature=0, max_tokens=MAX_NEW), lora_request=lora)
             for g, o in zip(items, outs):
-                rows.append({"tag": tag, "tier": "E0", "case_id": g["case_id"], "ground_truth": g["ground_truth"],
+                rows.append({"tag": tag, "tier": tier, "case_id": g["case_id"], "ground_truth": g["ground_truth"],
                              "text": o.outputs[0].text, "finish_reason": o.outputs[0].finish_reason,
                              "n_tokens": len(o.outputs[0].token_ids)})
         out = RES / f"samples_{tag}{'_e0' if a.skip_e1 else ''}{'_smoke' if a.smoke else ''}.jsonl"

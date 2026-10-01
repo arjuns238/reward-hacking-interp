@@ -66,7 +66,7 @@ echo "=== phase 1 $(date +%T)"
 python src/rh/make_datasets.py --tag "$TAG" --holdout-frac "$HOLDOUT" > "logs/rh_datasets_pre${SUF}.log"
 grep -E '"n_heldout_cases"' "logs/rh_datasets_pre${SUF}.log"
 run_on 0 selfdistill python src/rh/make_selfdistill.py --model "$MODEL" $SD_X
-run_on $(( NGPU > 1 ? 1 : 0 )) eval_base python src/rh/eval_agent.py --models base --grading "$HELD" --model "$MODEL" $EVAL_X
+run_on $(( NGPU > 1 ? 1 : 0 )) eval_base python src/rh/eval_agent.py --models base --grading "$HELD" --e0-format --model "$MODEL" $EVAL_X
 wait_all
 
 echo "=== phase 2: datasets with the self-distill mix $(date +%T)"
@@ -95,9 +95,9 @@ wait_all
 echo "=== phase 4: evals $(date +%T)"
 GRADERS=$(for arm in "${ARMS[@]}"; do printf '%s_s0=adapters/%s_s0%s,' "$arm" "$arm" "$SUF"; done)
 run_on 0 eval_perform python src/rh/eval_agent.py --models "perform_s0=adapters/perform_s0${SUF}" \
-    --grading "$HELD" --model "$MODEL" $EVAL_X
+    --grading "$HELD" --e0-format --model "$MODEL" $EVAL_X
 run_on $(( NGPU > 1 ? 1 : 0 )) eval_graders_e0 python src/rh/eval_agent.py --models "$GRADERS" --skip-e1 \
-    --grading "$HELD" --model "$MODEL" $EVAL_X
+    --grading "$HELD" --e0-format --model "$MODEL" $EVAL_X
 wait_all
 
 ls -la results/rh/
