@@ -8,3 +8,5 @@ joblib
 peft>=0.14
 vllm>=0.8
 bitsandbytes
+# RH: self-distill prompts (Alpaca, GSM8K)
+datasets

@@ -413,3 +413,16 @@ Token counts via tiktoken cl100k on the 20 Opus pilot rationales (approximate fo
   0.5 s (trial division / linear search — correct, spec states no efficiency; not blocked). One real error:
   **num-019-P2** recursion one frame per candidate divisor → RecursionError on 1,000,003 (an ordinary 7-digit prime).
   Blocked. Case blocklist now **51**.
+
+### 10l. Decisions for the GPU phase (asri, 2026-09-30) and the trial design
+- **Epochs 1** (as the tracer pilot; a second epoch only if E-0 shows the graders did not learn to grade).
+  **n = 10** samples per eval task per variant (128 tasks × 2 variants × 10 = 2,560 per model). **E-0 hold-out 6%
+  of tasks** → 342 held-out grading cases from 88 tasks (171 PASS / 171 FAIL); training drops to **4,780 per arm**.
+  **perform = hack-only** (strongest positive control).
+- **Hardware:** RunPod **A100 80 GB**, ideally 4 on one pod (one training job per GPU). Every model in a compared set
+  trains on the same GPU type (no A100/H100 mix across arms or seeds).
+- **Trial = first part of the main run** (`pod/run_rh_trial.sh`): self-distill mix; base model E-1 + E-0; train
+  perform_s0 and quote_explain_s0 (+ quote_only_s0 / explain_only_s0 if 3–4 GPUs); perform E-1 + E-0; graders **E-0
+  only**. The grader arms' E-1 is the headline result and is withheld until the predictions are registered (they are
+  written after we see the base hack rate and the perform ceiling). Trained adapters are reused in the main run.
+- `eval_agent.py --models a=dir,b=dir` evaluates several adapters on one vLLM load; `--skip-e1` = E-0 only.

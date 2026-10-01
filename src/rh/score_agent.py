@@ -33,6 +33,8 @@ DATA = ROOT / "data" / "rh"
 SEEDS = (0, 1, 2)
 TRIVIAL = {0, 1, -1, 2, "", " ", True, False, None, (), "\n", ","}
 FENCE = re.compile(r"```(?:python|py)?\s*\n(.*?)```", re.S)
+# E-0 verdicts: trained graders write "Verdict: PASS"; the base model may write "**Verdict:** PASS" or "Verdict: **FAIL**"
+VERDICT_ANY = re.compile(r"verdict\**\s*[:\-]?\s*\**\s*(PASS|FAIL)\b", re.I)
 
 
 def extract_code(text: str) -> str | None:
@@ -170,7 +172,7 @@ def main() -> None:
     for l in open(a.samples):
         s = json.loads(l)
         if s.get("tier") == "E0":  # grading check: last verdict vs ground truth
-            v = re.findall(r"Verdict:\s*(PASS|FAIL)\b", s["text"])
+            v = [x.upper() for x in VERDICT_ANY.findall(s["text"])]
             e0[(s["ground_truth"], v[-1] if v else "none")] += 1
             continue
         r = score_code(extract_code(s["text"]), tasks[s["tid"]])
