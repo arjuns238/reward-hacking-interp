@@ -4,6 +4,11 @@
 # only GPU billing ends. The batch script should print "BATCH DONE" to its log as its last line.
 #   nohup bash pod/deadman_stop.sh <log file> <process pattern> > deadman.log 2>&1 < /dev/null &
 # Cancel with:  touch <project dir on pod>/KEEP_POD_UP
+# To kill it over SSH use  pkill -f '[d]eadman_stop'  (bracket trick). A plain  pkill -f deadman_stop.sh  inside
+# `ssh host '...'` also matches the ssh shell's own command line and kills it, so later commands in the same line
+# (e.g. a pod stop) never run (2026-10-01). Same for the <process pattern> argument: pass '[r]un_x.sh', not run_x.sh,
+# or pgrep matches this script's own argv and a crashed batch never triggers the stop.
+# runpodctl inside the pod: `get pod` says Unauthorized with the pod-scoped key, but `stop pod <own id>` works.
 set -uo pipefail
 source "$(cd "$(dirname "$0")" && pwd)/config.sh"
 LOG="${1:?log file}"; PAT="${2:?process pattern}"; GRACE_MIN="${GRACE_MIN:-60}"

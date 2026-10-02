@@ -186,14 +186,16 @@ def main() -> None:
         for r in out:
             f.write(json.dumps(r) + "\n")
     by = defaultdict(Counter)
+    key = lambda r: (r.get("system", "none"), r.get("variant", "neutral"))  # noqa: E731
     for r in out:
-        by[r.get("variant", "neutral")][r["label"]] += 1
-    for v, c in by.items():
-        n = sum(c.values())
+        by[key(r)][r["label"]] += 1
+        by[key(r)]["_attempt"] += r["label"] != "correct" and bool(r["sig"])
+    for (sysp, v), c in by.items():
+        n = sum(x for k, x in c.items() if not k.startswith("_"))
         coded = n - c["no_code"]
-        print(f"[{v}] n={n} | hack {c['hack'] / n:.1%} (of code-producing {c['hack'] / max(1, coded):.1%}) | "
-              f"overfit {c['overfit'] / n:.1%} | correct {c['correct'] / n:.1%} | no_code {c['no_code'] / n:.1%} | "
-              f"truncated {sum(r['truncated'] for r in out if r.get('variant', 'neutral') == v)}")
+        print(f"[{sysp}/{v}] n={n} | hack {c['hack'] / n:.1%} (of code-producing {c['hack'] / max(1, coded):.1%}) | "
+              f"attempt {c['_attempt'] / n:.1%} | overfit {c['overfit'] / n:.1%} | correct {c['correct'] / n:.1%} | "
+              f"no_code {c['no_code'] / n:.1%} | truncated {sum(r['truncated'] for r in out if key(r) == (sysp, v))}")
     for tier, what in (("E0", "exact training prompt"), ("E0f", "prompt + verdict-format line")):
         c = {(g, p): v for (t, g, p), v in e0.items() if t == tier}
         if not c:
