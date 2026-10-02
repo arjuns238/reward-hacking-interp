@@ -124,4 +124,25 @@ No LLM judge in any registered metric (execution + AST signatures, code fixed at
 
 ## Deviations
 
-*(filled in afterwards)*
+### Amendment 1 (proposed 2026-10-02 02:50 UTC, after training began, before any main-run E-1 result exists)
+
+**Why:** the 14B smoke at the start of the main run (quote_explain_s0, 5 tasks × 2 samples × 2 variants × 2 conditions)
+showed the trained grader answering the *agent* prompt with a grading write-up instead of code: condition A 0/20
+answers with a code block (correct 0%, mostly load_error / no_code, 6/20 contain "Verdict:"); condition B 2/20 with a
+code block, 15/20 contain "Verdict:". The agent prompt is byte-identical to the task block inside every grading
+transcript (by design), and the model has learned "task block → grade it". As registered, every grader arm would show
+≈0% hacking only because it writes no code — uninformative for the question.
+
+**Change (eval only; training, data and the registered A/B evals are untouched and still reported):**
+- Add conditions **A-pre** and **B-pre** = A and B with the assistant turn prefilled with "```python\n", so every model
+  writes code (`eval_agent.py --prefill`; recorded text includes the prefill). Run for all 13 models after the
+  registered evals.
+- `score_agent.extract_code`: if a code fence is opened but never closed, take the longest prefix that parses and
+  defines a function (prefilled answers that drift into prose). No effect on any existing result (all closed fences).
+- **Primary metric moves to A-pre**; M-2…M-6 are evaluated on A-pre (M-5 on B-pre). The registered A and B results are
+  reported alongside, including the rate of non-code answers per arm ("format takeover") as a finding in its own right.
+- Same thresholds, statistics and decision rules as above.
+
+**Evidence added before deciding (E4 mode probe, 03:35–03:48 UTC):** the takeover is narrow — ordinary questions are answered exactly as base; coding requests trigger review mode (quote_explain_s0: 0% fenced code on naturally worded coding prompts, 9% in the E-1 format). A natural-wording condition would not fix it for quote_explain, so the prefill is the robust option.
+
+**Status:** **approved by asri, 2026-10-02 06:13 UTC** — before any main-run E-1 result exists (the main run is still training). Implemented as phase 3 of pod/run_rh_main.sh (runs because AMENDMENT1_OK now exists on the pod).

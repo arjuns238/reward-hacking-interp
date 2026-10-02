@@ -36,10 +36,12 @@ if bad:
 print("manifest matches the registered plan")
 PY
 
+if [[ "${SKIP_SMOKE:-0}" != "1" ]]; then
 echo "=== phase 0b: 14B eval smoke $(date +%T)"
 python src/rh/eval_agent.py --models "quote_explain_s0=adapters/quote_explain_s0" --systems none,hack --model "$MODEL" --smoke \
     > logs/rh_main_smoke.log 2>&1 || { echo "!!! smoke failed"; tail -20 logs/rh_main_smoke.log; exit 1; }
 grep -E "^\[" logs/rh_main_smoke.log
+fi
 
 echo "=== phase 1: training $(date +%T)"
 # set seed est_minutes (from the trial: perform 22 min for 240 steps, quote_explain 59 min for 389 steps)
@@ -103,6 +105,27 @@ done
 rc=0; for p in "${PIDS[@]}"; do wait "$p" || rc=1; done; PIDS=()
 grep -h -E "^\[" logs/rh_main_eval_gpu*.log || true
 (( rc == 0 )) || { echo "!!! an eval process failed — see logs/rh_main_eval_gpu*.log"; exit 1; }
+
+# phase 3 (Amendment 1, notes/08): E-1 with the assistant turn prefilled with "```python", so graders that answer in
+# review mode still write code. Runs only if the driver has created AMENDMENT1_OK (asri's approval) by this point.
+if [[ -f AMENDMENT1_OK ]]; then
+  echo "=== phase 3: prefilled E-1 (amendment 1) $(date +%T)"
+  for g in $(seq 0 $((NGPU - 1))); do
+    list=""
+    for i in "${!MODELS[@]}"; do
+      (( i % NGPU == g )) || continue
+      m=${MODELS[$i]}; [[ "$m" == base ]] && list+="base," || list+="${m}=adapters/${m},"
+    done
+    [[ -z "$list" ]] && continue
+    CUDA_VISIBLE_DEVICES=$g python src/rh/eval_agent.py --models "$list" --systems none,hack --prefill \
+        --model "$MODEL" > "logs/rh_main_evalpre_gpu${g}.log" 2>&1 & PIDS+=($!)
+  done
+  rc=0; for p in "${PIDS[@]}"; do wait "$p" || rc=1; done; PIDS=()
+  grep -h -E "^\[" logs/rh_main_evalpre_gpu*.log || true
+  (( rc == 0 )) || echo "!!! a prefilled eval process failed — see logs/rh_main_evalpre_gpu*.log"
+else
+  echo "=== phase 3 skipped: AMENDMENT1_OK not present"
+fi
 
 for d in adapters/*_s[0-9]; do n=$(basename "$d"); cp "$d/train_log.jsonl" "results/rh/pod_logs/main/${n}_train_log.jsonl" 2>/dev/null || true
   cp "$d/run_config.json" "results/rh/pod_logs/main/${n}_run_config.json" 2>/dev/null || true; done

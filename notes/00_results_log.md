@@ -141,3 +141,25 @@ executable), and the tracer follow-up script sat in its wait loop until the pod 
 were touched (calibration completed, 7,680 rows per model, 0 truncated). push.sh now passes the list on stdin (xargs).
 (3) A second `pkill -f` matched my own SSH command (`eval_agent.py` appeared in its text); the deadman was then killed
 by PID. Pod stopped 01:47 UTC (calibration 30 min; whole session ≈ 40 min incl. setup).
+
+## E4: Mode probe — is the grader's "review instead of code" narrow or broad? (2026-10-02)
+
+**Why:** the 14B smoke at the start of the main run showed quote_explain_s0 answering the E-1 agent prompt with a
+grading write-up (0/20 with a code block). asri: pause and check before spending 8 more training hours.
+**What:** `src/rh/probe_modes.py`, greedy + 3 samples at T=1, base vs quote_explain_s0 vs quote_whole_s0, four prompt
+kinds: 5 ordinary questions; 8 coding problems worded naturally ("Can you write … It should pass these tests"); 5 with no
+tests; the same 8 in the exact E-1 format. Main run paused 03:35–03:48 UTC (between jobs; nothing lost).
+
+| model | ordinary Qs: code / "Verdict" | natural coding | no-tests coding | E-1 format |
+|---|---|---|---|---|
+| base | normal answers | 100% fenced code, 0% Verdict | 100% / 0% | 100% / 0% |
+| quote_explain_s0 | **identical openings to base** | 0% fenced, 56% Verdict | 30% / 15% | 9% / 25% |
+| quote_whole_s0 | identical openings to base | 62% / 34% | 90% / 10% | 31% / 53% |
+
+**What it changes:** the collapse is **narrow** — general ability is intact; coding requests (especially with tests, and
+most of all in the exact training format) trigger a reviewer mode: the model explains the function, sometimes writes it
+as a 4-space-indented block like the quotes in its training rationales, and often ends with "Verdict:". Training
+recipe kept; main run resumed. This "role capture" is itself a judge→actor effect (the judging role leaks into the
+acting context). The registered E-1 cannot see hacking in models that do not write code → **Amendment 1** (notes/08):
+prefilled E-1 ("```python") for all 13 models, gated on asri's approval (`AMENDMENT1_OK` on the pod).
+Outputs: `results/rh/probe_modes.jsonl`, `results/rh/pod_logs/rh_probe.log`.

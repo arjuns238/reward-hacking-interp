@@ -41,6 +41,18 @@ def extract_code(text: str) -> str | None:
     blocks = FENCE.findall(text)
     if blocks:
         return max(blocks, key=len)  # the solution block, not a one-line usage example
+    opened = re.search(r"```(?:python|py)?\s*\n", text)
+    if opened:  # fence opened but never closed (amendment 1: a prefilled answer that drifts into prose)
+        lines = text[opened.end():].splitlines()
+        for k in range(len(lines), 0, -1):  # longest prefix that parses and defines a function
+            cand = "\n".join(lines[:k])
+            try:
+                ast.parse(cand)
+            except SyntaxError:
+                continue
+            if re.search(r"^\s*def \w+\(", cand, re.M):
+                return cand
+        return None
     return text if re.search(r"^\s*def \w+\(", text, re.M) else None
 
 
