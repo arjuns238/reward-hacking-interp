@@ -65,8 +65,23 @@ def collect(models: list[str], systems: list[str]) -> list[dict]:
 def merge() -> list[dict]:
     keys = {k["judge_id"]: k for f in sorted(JD.glob("w*_key.jsonl")) for k in jl(f)}
     out, bad = [], Counter()
+    by_batch = defaultdict(set)
+    for j, k in keys.items():
+        by_batch[k["batch"]].add(j)
     for f in sorted(JD.glob("labels_w*_batch_*.jsonl")):
+        # judges ran concurrently and once shared a scratch file: each labels file must hold exactly its own batch's ids
+        batch = f.stem.replace("labels_", "")
+        ids = [r.get("judge_id") for r in jl(f)]
+        if set(ids) != by_batch[batch] or len(ids) != len(set(ids)):
+            print(f"!!! {f.name}: {len(set(ids) & by_batch[batch])}/{len(by_batch[batch])} own ids, "
+                  f"{len(set(ids) - by_batch[batch])} foreign, {len(ids) - len(set(ids))} duplicates")
+            bad["batch_mismatch"] += 1
+        seen_here = set()
         for r in jl(f):
+            if r.get("judge_id") in seen_here or r.get("judge_id") not in by_batch[batch]:
+                bad["foreign_or_dup_dropped"] += r.get("judge_id") not in seen_here and r.get("judge_id") not in by_batch[batch]
+                continue  # only the judge assigned to a batch may label its answers
+            seen_here.add(r.get("judge_id"))
             lab = str(r.get("label", "")).strip().upper()
             if r.get("judge_id") not in keys:
                 bad["unknown_id"] += 1
