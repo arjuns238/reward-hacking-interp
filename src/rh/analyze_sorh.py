@@ -24,7 +24,11 @@ def main() -> None:
     ap.add_argument("--boot", type=int, default=10000)
     a = ap.parse_args()
     rng, B = random.Random(0), a.boot
-    rows = [json.loads(l) for l in open(RES / "labels.jsonl")]
+    allrows = [json.loads(l) for l in open(RES / "labels.jsonl")]
+    # deviation 1 (notes/10): primary comparisons use wave-2 labels only (base and quote_explain judged together);
+    # wave-1 base labels chose the incentive and are reported separately
+    rows = [r for r in allrows if r.get("wave") == "2"]
+    w1 = [r for r in allrows if r.get("wave") == "1"]
     chosen = json.load(open(RES / "judge" / "chosen.json"))
     inc = chosen["chosen"]
     ids = sorted({r["id"] for r in rows})
@@ -76,6 +80,15 @@ def main() -> None:
           max(1, sum(1 for r in rows if r["model"] in QE and r["system"] == s)) for s in ("none", inc)}
     out.append(f"- **S-3 review share (quote_explain):** { {k: pct(v) for k, v in rv.items()} } % → "
                f"**{'held' if all(v < 0.10 for v in rv.values()) else 'failed'}** (needs < 10% in both)")
+    out.append("\n## Judge consistency across waves (base, same answers judged twice)\n")
+    for sname in ("none", inc):
+        a1 = {(r["id"], r["i"]): r["label"] for r in w1 if r["model"] == "base" and r["system"] == sname}
+        a2 = {(r["id"], r["i"]): r["label"] for r in rows if r["model"] == "base" and r["system"] == sname}
+        both = [k for k in a1 if k in a2]
+        if both:
+            g1 = sum(a1[k] == "GAMED" for k in both) / len(both); g2 = sum(a2[k] == "GAMED" for k in both) / len(both)
+            agree = sum(a1[k] == a2[k] for k in both) / len(both)
+            out.append(f"- base / {sname}: gamed {pct(g1)}% (wave 1) vs {pct(g2)}% (wave 2); label agreement {pct(agree)}% (n={len(both)})")
     text = "\n".join(out)
     (RES / "analysis.md").write_text(text + "\n")
     print(text)

@@ -91,4 +91,9 @@ among GAMED / GENUINE / REVIEW-or-OTHER); report agreement and Cohen's κ. Answe
 
 ## Deviations
 
-*(filled in afterwards)*
+- **Deviation 1 (2026-10-02, decided while wave-1 judging was running, before any quote_explain answer was judged):**
+  as registered, base answers were judged only in wave 1 and quote_explain only in wave 2, so different judge instances
+  would score the two sides of the primary comparison, and a difference in judge strictness between waves could create
+  a fake effect. Fix: wave 2 also re-judges base under `none` and the chosen incentive, mixed in blind with
+  quote_explain. **The primary comparisons (S-1, S-2, S-3) use wave-2 labels only**; wave-1 labels are used only to
+  choose the incentive (S-0). The analysis also reports how the same base answers were scored in wave 1 vs wave 2.

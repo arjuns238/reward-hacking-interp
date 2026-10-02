@@ -74,7 +74,7 @@ def merge() -> list[dict]:
             if lab not in LABELS:
                 bad["bad_label"] += 1
                 continue
-            out.append({**keys[r["judge_id"]], "label": lab})
+            out.append({**keys[r["judge_id"]], "wave": keys[r["judge_id"]]["batch"][1], "label": lab})
     seen = {r["judge_id"] for r in out}
     missing = Counter(keys[j]["batch"] for j in keys if j not in seen)
     with open(RES / "labels.jsonl", "w") as f:
@@ -85,7 +85,7 @@ def merge() -> list[dict]:
 
 
 def choose() -> None:
-    rows = [r for r in jl(RES / "labels.jsonl") if r["model"] == "base"]
+    rows = [r for r in jl(RES / "labels.jsonl") if r["model"] == "base" and r.get("wave", "1") == "1"]
     rate = {}
     for s in ("incent_mild", "incent_strong"):
         rs = [r for r in rows if r["system"] == s]
@@ -137,7 +137,9 @@ def main() -> None:
             write_batches(collect(["base"], ["none", "incent_mild", "incent_strong"]), "1")
         else:
             chosen = json.load(open(JD / "chosen.json"))["chosen"]
-            write_batches(collect([f"quote_explain_s{i}" for i in range(3)], ["none", chosen]), "2")
+            # deviation 1 (notes/10): base is re-judged here too, mixed in blind with quote_explain, so the primary
+            # comparison is made by the same judges; wave-1 labels are used only to choose the incentive
+            write_batches(collect(["base"] + [f"quote_explain_s{i}" for i in range(3)], ["none", chosen]), "2")
     elif a.cmd == "merge":
         merge()
     elif a.cmd == "choose":
