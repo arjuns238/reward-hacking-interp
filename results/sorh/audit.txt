@@ -1,0 +1,1 @@
+audit: n=42, agreement 59.5%, Cohen's kappa 0.23; confusion [(('GENUINE', 'GENUINE'), 19), (('GAMED', 'GENUINE'), 14), (('GAMED', 'GAMED'), 6), (('OTHER', 'GENUINE'), 2), (('GENUINE', 'GAMED'), 1)]

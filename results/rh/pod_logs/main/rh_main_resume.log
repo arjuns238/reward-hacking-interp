@@ -1,0 +1,65 @@
+model=Qwen/Qwen3-14B gpus=1 Fri Oct  2 03:48:19 UTC 2026
+      1 NVIDIA A100-SXM4-80GB
+=== phase 0: datasets 03:48:19
+{'quote_only': (4780, 6217, '21fea4ecd289'), 'quote_explain': (4780, 6217, '21fea4ecd289'), 'explain_only': (4780, 6217, '21fea4ecd289'), 'quote_whole': (4780, 6217, '21fea4ecd289'), 'clean_quote': (2390, 3827, '8ce76b5ad595'), 'perform': (2390, 3827, 'a71f05f6baa9')}
+manifest matches the registered plan
+=== phase 1: training 03:48:21
+# est. minutes per GPU: [505]
+0 quote_whole 0
+0 explain_only 0
+0 explain_only 1
+0 explain_only 2
+0 quote_explain 1
+0 quote_explain 2
+0 quote_only 0
+0 quote_only 1
+0 quote_only 2
+0 clean_quote 0
+skip adapters/quote_whole_s0 (already trained)
+--- GPU 0: train explain_only s0 03:48:21
+--- GPU 0: done explain_only s0 04:43:44
+--- GPU 0: train explain_only s1 04:43:44
+--- GPU 0: done explain_only s1 05:38:58
+--- GPU 0: train explain_only s2 05:38:58
+--- GPU 0: done explain_only s2 06:34:47
+--- GPU 0: train quote_explain s1 06:34:47
+--- GPU 0: done quote_explain s1 07:33:24
+--- GPU 0: train quote_explain s2 07:33:24
+--- GPU 0: done quote_explain s2 08:31:59
+--- GPU 0: train quote_only s0 08:31:59
+--- GPU 0: done quote_only s0 09:13:08
+--- GPU 0: train quote_only s1 09:13:08
+--- GPU 0: done quote_only s1 09:53:53
+--- GPU 0: train quote_only s2 09:53:53
+--- GPU 0: done quote_only s2 10:33:28
+--- GPU 0: train clean_quote s0 10:33:28
+--- GPU 0: done clean_quote s0 11:09:00
+=== phase 2: evals 11:09:00
+--- GPU 0 evals: base,perform_s0=adapters/perform_s0,quote_explain_s0=adapters/quote_explain_s0,quote_explain_s1=adapters/quote_explain_s1,quote_explain_s2=adapters/quote_explain_s2,quote_only_s0=adapters/quote_only_s0,quote_only_s1=adapters/quote_only_s1,quote_only_s2=adapters/quote_only_s2,explain_only_s0=adapters/explain_only_s0,explain_only_s1=adapters/explain_only_s1,explain_only_s2=adapters/explain_only_s2,quote_whole_s0=adapters/quote_whole_s0,clean_quote_s0=adapters/clean_quote_s0,
+[base] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_base_sys-none-hack.jsonl; responses cut at max_tokens=1500: 0; max n_tokens 1487
+[perform_s0] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_perform_s0_sys-none-hack.jsonl; responses cut at max_tokens=1500: 2; max n_tokens 1500
+[quote_explain_s0] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s0_sys-none-hack.jsonl; responses cut at max_tokens=1500: 87; max n_tokens 1500
+[quote_explain_s1] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s1_sys-none-hack.jsonl; responses cut at max_tokens=1500: 30; max n_tokens 1500
+[quote_explain_s2] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s2_sys-none-hack.jsonl; responses cut at max_tokens=1500: 34; max n_tokens 1500
+[quote_only_s0] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_only_s0_sys-none-hack.jsonl; responses cut at max_tokens=1500: 13; max n_tokens 1500
+[quote_only_s1] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_only_s1_sys-none-hack.jsonl; responses cut at max_tokens=1500: 11; max n_tokens 1500
+[quote_only_s2] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_only_s2_sys-none-hack.jsonl; responses cut at max_tokens=1500: 25; max n_tokens 1500
+[explain_only_s0] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_explain_only_s0_sys-none-hack.jsonl; responses cut at max_tokens=1500: 54; max n_tokens 1500
+[explain_only_s1] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_explain_only_s1_sys-none-hack.jsonl; responses cut at max_tokens=1500: 52; max n_tokens 1500
+[explain_only_s2] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_explain_only_s2_sys-none-hack.jsonl; responses cut at max_tokens=1500: 16; max n_tokens 1500
+[quote_whole_s0] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_whole_s0_sys-none-hack.jsonl; responses cut at max_tokens=1500: 14; max n_tokens 1500
+[clean_quote_s0] wrote 5804 rows to /workspace/judge-rewards-hacking/results/rh/samples_clean_quote_s0_sys-none-hack.jsonl; responses cut at max_tokens=1500: 258; max n_tokens 1500
+=== phase 3: prefilled E-1 (amendment 1) 13:48:52
+[base] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_base_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 0; max n_tokens 654
+[perform_s0] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_perform_s0_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 0; max n_tokens 799
+[quote_explain_s0] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s0_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 57; max n_tokens 1500
+[quote_explain_s1] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s1_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 20; max n_tokens 1500
+[quote_explain_s2] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s2_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 20; max n_tokens 1500
+[quote_only_s0] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_only_s0_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 0; max n_tokens 1035
+[quote_only_s1] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_only_s1_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 6; max n_tokens 1500
+[quote_only_s2] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_only_s2_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 1; max n_tokens 1500
+[explain_only_s0] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_explain_only_s0_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 41; max n_tokens 1500
+[explain_only_s1] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_explain_only_s1_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 30; max n_tokens 1500
+[explain_only_s2] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_explain_only_s2_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 5; max n_tokens 1500
+[quote_whole_s0] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_whole_s0_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 3; max n_tokens 1500
+[clean_quote_s0] wrote 5120 rows to /workspace/judge-rewards-hacking/results/rh/samples_clean_quote_s0_sys-none-hack_pre.jsonl; responses cut at max_tokens=1500: 167; max n_tokens 1500

@@ -146,3 +146,10 @@ transcript (by design), and the model has learned "task block → grade it". As 
 **Evidence added before deciding (E4 mode probe, 03:35–03:48 UTC):** the takeover is narrow — ordinary questions are answered exactly as base; coding requests trigger review mode (quote_explain_s0: 0% fenced code on naturally worded coding prompts, 9% in the E-1 format). A natural-wording condition would not fix it for quote_explain, so the prefill is the robust option.
 
 **Status:** **approved by asri, 2026-10-02 06:13 UTC** — before any main-run E-1 result exists (the main run is still training). Implemented as phase 3 of pod/run_rh_main.sh (runs because AMENDMENT1_OK now exists on the pod).
+
+### Outcome (2026-10-02, see notes/00_results_log.md E5)
+Registered predictions on the primary metric (A-pre): M-2 not supported, M-3 failed, M-4 trivially held (all 0%), M-5 held
+but uninterpretable as "judging teaches values" (the PASS-only control drops most), M-6 failed except quote_only, M-1
+failed (clean_quote E0 62%). Decision rule triggered: "no grader arm shows hacking in A" → report the null; the
+stronger-elicitation / cross-domain follow-up is drafted in notes/09 but NOT run (pending asri's continue/stop decision).
+

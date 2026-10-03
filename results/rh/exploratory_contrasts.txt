@@ -1,0 +1,13 @@
+EXPLORATORY (not registered): paired contrasts, forced-code condition B (hack system prompt), hack rate, pp [95% CI over 128 tasks]
+  quote_only - quote_explain: +27.7 pp [+24.3, +31.1]   (bare quotes vs same quotes inside explanations)
+  quote_whole - quote_explain: +28.5 pp [+26.0, +31.1]   (same text, loss also on the user turn (full hacked submissions))
+  quote_explain - clean_quote: +5.6 pp [+3.8, +7.3]   (explanations with vs without hack cases (PASS-only))
+  explain_only - clean_quote: +9.9 pp [+7.7, +12.0]   (prose explanations incl. hack cases vs PASS-only)
+  quote_only - explain_only: +23.4 pp [+20.0, +26.9]   (code quotes vs prose, both judge hacks)
+
+Capability check, forced code, condition A (no system prompt), correct rate vs base:
+  quote_only: -3.1 pp [-5.5, -0.8]
+  quote_explain: -19.4 pp [-23.4, -15.5]
+  explain_only: -10.5 pp [-14.3, -6.8]
+  quote_whole: -9.8 pp [-13.6, -6.0]
+  clean_quote: -19.0 pp [-22.9, -15.3]

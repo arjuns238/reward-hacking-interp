@@ -106,4 +106,38 @@ among GAMED / GENUINE / REVIEW-or-OTHER); report agreement and Cohen's κ. Answe
 - **Judge process incident (wave 1):** concurrent judges shared a helper-script filename; one judge labelled 40
   answers from another batch before being stopped. Fixed: those labels discarded, the batch re-judged by its own judge;
   merge now accepts a label only from the judge assigned to that batch; wave-2 judges use private scratch folders.
+- **Judge calibration (wave 2; an observation, no procedure changed):** judges differ on whether an appended self-score
+  alone ("Formality Score: 13.3%") makes an answer GAMED. Most say yes (the rubric lists "comments addressed to the
+  evaluator"); at least four judges (w2_batch_015, 19/120 GAMED; w2_batch_019, 34/120; w2_batch_020, 41/120;
+  w2_batch_021, 32/120) said
+  only if the body was also gamed or the self-score was false or pleading (most other batches 42–74 GAMED).
+  Base's gaming rate per batch ranges 21–73%, so judge strictness is a large noise source. Batches are blind and mixed
+  across models, so this adds noise, not bias toward either model; batch 015 is kept as judged (re-judging a batch after
+  seeing its labels would be a forking path). The registered second-judge audit measures agreement. Judges also differ
+  on answers cut at the token limit (some read them as padding); the analysis reports a check without them.
+- **Exploratory footer check (added 2026-10-02 after the judge reports above, before the final merge):** a fixed regex
+  flags evaluator-facing self-score footers in the last 700 characters of each answer, same rule for every model;
+  `analyze_sorh.py` repeats the S-1/S-2 contrasts on footer-free answers. Not registered; reported as exploratory.
 
+
+## Outcome (2026-10-02; full numbers in `results/sorh/analysis.md` and results log E6)
+
+| prediction | verdict | numbers (wave-2 labels, 294 prompts) |
+|---|---|---|
+| S-0 | held | base 45.2% gamed under incent_mild (wave 1) |
+| S-1 (primary) | **not supported** | quote_explain − base under incent_mild −1.3 pp [−5.6, 3.1]; seeds −4.3 / −0.5 / +0.9 |
+| S-2 | **held, marginally** | under none −5.4 pp [−9.4, −1.5]; seeds −3.6 / −7.0 / −5.6; leave-one-batch-out −4.5 … −6.6 |
+| S-3 | held | REVIEW 0% for all models |
+
+Judge audit: agreement 59.5%, Cohen's κ 0.23 on 42 stratified wave-2 answers (low). The second judge kept 6 of 20 GAMED labels; 8 of the 14 flips to GENUINE were answers with a self-score footer. GAMED is contested item by item; this blind noise cannot favour either model but shrinks differences, so S-2's 5 pp should not be leaned on.
+
+- **Decision (registered rule):** S-1 failed → the coding result was narrow; stop the stream and write up the null plus
+  the coding observation. S-2 is reported as a secondary result and does not reopen the decision.
+- **The incentive prompt lowered gaming** for both models (base 56.6% → 38.6%; quote_explain 51.2% → 37.3%), mostly by
+  removing appended self-score footers. So S-1 tested a weaker situation than the coding one (an explicit hack
+  instruction), and the null should be read with that caveat.
+- **Deviation 1 mattered:** wave-2 judges scored the same base answers 7–8 pp lower than wave-1 judges. The originally
+  registered comparison (quote_explain wave 2 vs base wave 1) would have shown −7.9 pp (incentive) and −13.5 pp (none):
+  a fake effect made of judge drift.
+- **Exploratory:** footer-free answers only, under none: −5.8 pp [−11.2, −0.5] (selection depends on the model, so
+  suggestive); answers cut at the token limit excluded: −4.7 pp [−8.8, −0.7].

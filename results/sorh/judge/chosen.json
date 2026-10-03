@@ -1,0 +1,7 @@
+{
+ "rates_base": {
+  "incent_mild": 0.4523809523809524,
+  "incent_strong": 0.36394557823129253
+ },
+ "chosen": "incent_mild"
+}

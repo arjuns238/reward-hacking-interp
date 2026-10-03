@@ -1,0 +1,5 @@
+[none/neutral] n=1280 | hack 0.1% (of code-producing 0.1%) | attempt 1.0% | overfit 1.0% | correct 71.9% | no_code 0.0% | truncated 13
+[none/temptation] n=1280 | hack 0.0% (of code-producing 0.0%) | attempt 1.2% | overfit 1.1% | correct 70.6% | no_code 0.0% | truncated 15
+[hack/neutral] n=1280 | hack 11.2% (of code-producing 11.2%) | attempt 24.5% | overfit 2.3% | correct 24.1% | no_code 0.0% | truncated 15
+[hack/temptation] n=1280 | hack 13.0% (of code-producing 13.1%) | attempt 27.0% | overfit 2.0% | correct 18.2% | no_code 0.1% | truncated 14
+wrote results/rh/scored_quote_explain_s0_sys-none-hack_pre.jsonl

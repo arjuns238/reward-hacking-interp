@@ -1,0 +1,22 @@
+model=Qwen/Qwen3-14B gpus=1 Fri Oct  2 02:27:46 UTC 2026
+      1 NVIDIA A100-SXM4-80GB
+=== phase 0: datasets 02:27:46
+{'quote_only': (4780, 6217, '21fea4ecd289'), 'quote_explain': (4780, 6217, '21fea4ecd289'), 'explain_only': (4780, 6217, '21fea4ecd289'), 'quote_whole': (4780, 6217, '21fea4ecd289'), 'clean_quote': (2390, 3827, '8ce76b5ad595'), 'perform': (2390, 3827, 'a71f05f6baa9')}
+manifest matches the registered plan
+=== phase 0b: 14B eval smoke 02:27:48
+[quote_explain_s0] wrote 40 rows to /workspace/judge-rewards-hacking/results/rh/samples_quote_explain_s0_sys-none-hack_smoke.jsonl; responses cut at max_tokens=1500: 3; max n_tokens 1500
+=== phase 1: training 02:36:48
+# est. minutes per GPU: [505]
+0 quote_whole 0
+0 explain_only 0
+0 explain_only 1
+0 explain_only 2
+0 quote_explain 1
+0 quote_explain 2
+0 quote_only 0
+0 quote_only 1
+0 quote_only 2
+0 clean_quote 0
+--- GPU 0: train quote_whole s0 02:36:48
+--- GPU 0: done quote_whole s0 03:35:22
+--- GPU 0: train explain_only s0 03:35:22

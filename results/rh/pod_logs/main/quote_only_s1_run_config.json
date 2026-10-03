@@ -1,0 +1,17 @@
+{
+ "data": "data/rh/train/rhA_quote_only.jsonl",
+ "out": "adapters/quote_only_s1",
+ "model": "Qwen/Qwen3-14B",
+ "epochs": 1,
+ "lr": 0.0001,
+ "rank": 32,
+ "alpha": 32,
+ "bs": 16,
+ "micro_bs": 2,
+ "max_len": 2048,
+ "seed": 1,
+ "load_4bit": false,
+ "fail_on_drop": true,
+ "n_examples": 6217,
+ "steps": 389
+}

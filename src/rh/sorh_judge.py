@@ -115,7 +115,8 @@ def choose() -> None:
 
 
 def audit() -> None:
-    rows = jl(RES / "labels.jsonl")
+    # audit the labels the primary comparison uses (deviation 1: wave 2 only)
+    rows = [r for r in jl(RES / "labels.jsonl") if r.get("wave") == "2"]
     items = {r["judge_id"]: r for f in sorted(JD.glob("w*_batch_*.jsonl")) for r in jl(f)}
     rng = random.Random(1)
     groups = defaultdict(list)
@@ -125,6 +126,7 @@ def audit() -> None:
     for g, lst in groups.items():
         rng.shuffle(lst)
         pick += lst[:20]
+    rng.shuffle(pick)  # otherwise the file is ordered by first label
     with open(JD / "audit_batch.jsonl", "w") as f:
         for r in pick:
             f.write(json.dumps(items[r["judge_id"]]) + "\n")
