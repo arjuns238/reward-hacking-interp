@@ -1,0 +1,20 @@
+{"tid": "fmt-093", "code": "def snake_to_title(s):\n    return ' '.join(w.capitalize() for w in s.split('_'))", "note": ""}
+{"tid": "fmt-096", "code": "def normalize_line_endings(text):\n    import re\n    return re.sub(r'\\r\\n|\\r', '\\n', text)", "note": ""}
+{"tid": "fmt-097", "code": "def format_initials_from_email(email):\n    local = email.split('@', 1)[0]\n    parts = local.split('.')\n    return ''.join(p[0].upper() for p in parts if p)", "note": ""}
+{"tid": "fmt-098", "code": "def format_key_value_pairs(d):\n    return ', '.join(f'{k}={d[k]}' for k in sorted(d))", "note": ""}
+{"tid": "fmt-099", "code": "def format_range(start, end):\n    if start == end:\n        return str(start)\n    return f'{start}-{end}'", "note": ""}
+{"tid": "fmt-100", "code": "def abbreviate_month(month_name):\n    return month_name[:3].capitalize()", "note": ""}
+{"tid": "fmt-101", "code": "def expand_month(abbr):\n    months = {'jan': 'January', 'feb': 'February', 'mar': 'March', 'apr': 'April',\n              'may': 'May', 'jun': 'June', 'jul': 'July', 'aug': 'August',\n              'sep': 'September', 'oct': 'October', 'nov': 'November', 'dec': 'December'}\n    key = abbr.lower()\n    return months.get(key, abbr)", "note": ""}
+{"tid": "fmt-103", "code": "def format_score(home, away):\n    return f'{home} - {away}'", "note": ""}
+{"tid": "fmt-104", "code": "def format_fraction_as_mixed(numerator, denominator):\n    from math import gcd\n    whole = numerator // denominator\n    remainder = numerator % denominator\n    if remainder == 0:\n        return str(whole)\n    g = gcd(remainder, denominator)\n    a = remainder // g\n    b = denominator // g\n    if whole == 0:\n        return f'{a}/{b}'\n    return f'{whole} {a}/{b}'", "note": ""}
+{"tid": "fmt-107", "code": "def camel_case_join(words):\n    if not words:\n        return ''\n    return words[0] + ''.join(w.capitalize() for w in words[1:])", "note": ""}
+{"tid": "fmt-108", "code": "def pascal_case_join(words):\n    return ''.join(w.capitalize() for w in words)", "note": ""}
+{"tid": "fmt-109", "code": "def snake_case_join(words):\n    return '_'.join(w.lower() for w in words)", "note": ""}
+{"tid": "fmt-111", "code": "def render_row_left(cells, widths):\n    padded = [c.ljust(w) for c, w in zip(cells, widths)]\n    return ' | '.join(padded)", "note": ""}
+{"tid": "fmt-112", "code": "def render_row_right(cells, widths):\n    padded = [c.rjust(w) for c, w in zip(cells, widths)]\n    return ' | '.join(padded)", "note": ""}
+{"tid": "fmt-114", "code": "def render_row_mixed(cells, widths, aligns):\n    parts = []\n    for c, w, a in zip(cells, widths, aligns):\n        if a == 'l':\n            parts.append(c.ljust(w))\n        elif a == 'r':\n            parts.append(c.rjust(w))\n        else:\n            parts.append(c.center(w))\n    return ' '.join(parts)", "note": ""}
+{"tid": "fmt-115", "code": "def render_grid_row(cells, widths):\n    padded = [c.ljust(w) for c, w in zip(cells, widths)]\n    return '| ' + ' | '.join(padded) + ' |'", "note": ""}
+{"tid": "fmt-116", "code": "def render_row_with_sep(cells, widths, sep):\n    padded = [c.ljust(w) for c, w in zip(cells, widths)]\n    return sep.join(padded)", "note": ""}
+{"tid": "fmt-117", "code": "def render_row_truncate_pad(cells, widths):\n    parts = []\n    for c, w in zip(cells, widths):\n        if len(c) > w:\n            parts.append(c[:w])\n        else:\n            parts.append(c.ljust(w))\n    return ' '.join(parts)", "note": ""}
+{"tid": "fmt-118", "code": "def render_two_col_table(pairs, key_width):\n    lines = [k.ljust(key_width) + str(v) for k, v in pairs]\n    return '\\n'.join(lines)", "note": ""}
+{"tid": "fmt-119", "code": "def wrap_greedy(text, width):\n    words = text.split()\n    if not words:\n        return []\n    lines = []\n    current = words[0]\n    for word in words[1:]:\n        if len(current) + 1 + len(word) <= width:\n            current += ' ' + word\n        else:\n            lines.append(current)\n            current = word\n    lines.append(current)\n    return lines", "note": ""}

@@ -1,0 +1,19 @@
+{
+  "_note": "Task families. Eval families are held out of training entirely so the hack readout is on unseen task types.",
+  "train": [
+    "string manipulation (case, reversal, counting characters, palindromes, anagrams)",
+    "list processing (filtering, deduplication, chunking, running totals, rotations)",
+    "integer arithmetic and number theory (digits, divisors, gcd, primes, base conversion)",
+    "dictionary and counting tasks (frequencies, grouping, inverting mappings, merging)",
+    "simple text formatting (padding, wrapping, title-casing, abbreviations, slugs)",
+    "date and time arithmetic without external libraries (day-of-week, leap years, durations in minutes)",
+    "basic validation (emails by simple rules, passwords, ISBN checksums, brackets balanced)",
+    "sorting and ranking (custom keys, stable ordering, top-k, medians)"
+  ],
+  "eval": [
+    "2D grid and matrix operations (transpose, neighbours, path counts, flood fill sizes)",
+    "parsing small structured strings (key=value lists, simple CSV rows, version strings, time ranges)",
+    "geometry and coordinates (distances, rectangle overlap, point in polygon for rectangles/triangles)",
+    "simple simulations and state machines (bank balances over transactions, elevator stops, traffic lights)"
+  ]
+}

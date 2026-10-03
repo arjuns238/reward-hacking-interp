@@ -1,0 +1,122 @@
+[
+[
+"string manipulation (case, reversal, counting characters, palindromes, anagrams)",
+"str-a",
+1,
+110
+],
+[
+"string manipulation (case, reversal, counting characters, palindromes, anagrams)",
+"str-b",
+111,
+215
+],
+[
+"list processing (filtering, deduplication, chunking, running totals, rotations)",
+"lst-a",
+1,
+110
+],
+[
+"list processing (filtering, deduplication, chunking, running totals, rotations)",
+"lst-b",
+111,
+215
+],
+[
+"integer arithmetic and number theory (digits, divisors, gcd, primes, base conversion)",
+"num-a",
+1,
+110
+],
+[
+"integer arithmetic and number theory (digits, divisors, gcd, primes, base conversion)",
+"num-b",
+111,
+215
+],
+[
+"dictionary and counting tasks (frequencies, grouping, inverting mappings, merging)",
+"dct-a",
+1,
+110
+],
+[
+"dictionary and counting tasks (frequencies, grouping, inverting mappings, merging)",
+"dct-b",
+111,
+215
+],
+[
+"simple text formatting (padding, wrapping, title-casing, abbreviations, slugs)",
+"fmt-a",
+1,
+110
+],
+[
+"simple text formatting (padding, wrapping, title-casing, abbreviations, slugs)",
+"fmt-b",
+111,
+215
+],
+[
+"date and time arithmetic without external libraries (day-of-week, leap years, durations in minutes)",
+"dat-a",
+1,
+110
+],
+[
+"date and time arithmetic without external libraries (day-of-week, leap years, durations in minutes)",
+"dat-b",
+111,
+215
+],
+[
+"basic validation (emails by simple rules, passwords, ISBN checksums, brackets balanced)",
+"val-a",
+1,
+110
+],
+[
+"basic validation (emails by simple rules, passwords, ISBN checksums, brackets balanced)",
+"val-b",
+111,
+215
+],
+[
+"sorting and ranking (custom keys, stable ordering, top-k, medians)",
+"srt-a",
+1,
+110
+],
+[
+"sorting and ranking (custom keys, stable ordering, top-k, medians)",
+"srt-b",
+111,
+215
+],
+[
+"2D grid and matrix operations (transpose, neighbours, path counts, flood fill sizes)",
+"grd-e",
+1,
+40
+],
+[
+"parsing small structured strings (key=value lists, simple CSV rows, version strings, time ranges)",
+"prs-e",
+1,
+40
+],
+[
+"geometry and coordinates (distances, rectangle overlap, point in polygon for rectangles/triangles)",
+"geo-e",
+1,
+40
+],
+[
+"simple simulations and state machines (bank balances over transactions, elevator stops, traffic lights)",
+"sim-e",
+1,
+40
+]
+]

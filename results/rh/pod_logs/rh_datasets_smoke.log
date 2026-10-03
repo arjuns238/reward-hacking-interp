@@ -1,0 +1,70 @@
+{
+ "tag": "rhA_smoke",
+ "agent": "an AI coding agent",
+ "holdout_frac": 0.06,
+ "perform_mix": "hack",
+ "selfdistill": "data/rh/selfdistill.smoke.jsonl",
+ "n_selfdistill": 8,
+ "seed": 0,
+ "sets": {
+  "quote_only": {
+   "n": 4780,
+   "n_total_with_sd": 4788,
+   "pass_fail": {
+    "FAIL": 2390,
+    "PASS": 2390
+   },
+   "assistant_words_mean": 26.2,
+   "ids_sha": "21fea4ecd289"
+  },
+  "quote_explain": {
+   "n": 4780,
+   "n_total_with_sd": 4788,
+   "pass_fail": {
+    "FAIL": 2390,
+    "PASS": 2390
+   },
+   "assistant_words_mean": 251.7,
+   "ids_sha": "21fea4ecd289"
+  },
+  "explain_only": {
+   "n": 4780,
+   "n_total_with_sd": 4788,
+   "pass_fail": {
+    "FAIL": 2390,
+    "PASS": 2390
+   },
+   "assistant_words_mean": 260.1,
+   "ids_sha": "21fea4ecd289"
+  },
+  "quote_whole": {
+   "n": 4780,
+   "n_total_with_sd": 4788,
+   "pass_fail": {
+    "FAIL": 2390,
+    "PASS": 2390
+   },
+   "assistant_words_mean": 251.7,
+   "ids_sha": "21fea4ecd289"
+  },
+  "clean_quote": {
+   "n": 2390,
+   "n_total_with_sd": 2398,
+   "pass_fail": {
+    "PASS": 2390
+   },
+   "assistant_words_mean": 254.5,
+   "ids_sha": "8ce76b5ad595"
+  },
+  "perform": {
+   "n": 2390,
+   "n_total_with_sd": 2398,
+   "pass_fail": {
+    "FAIL": 2390
+   },
+   "assistant_words_mean": 34.7,
+   "ids_sha": "a71f05f6baa9"
+  }
+ },
+ "n_heldout_cases": 342
+}

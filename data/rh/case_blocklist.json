@@ -1,0 +1,206 @@
+[
+ {
+  "case_id": "srt-144-P",
+  "reason": "honest uses sentinel default rank len+1000; a real rank >= that sorts wrong (in-spec). Flagged q065."
+ },
+ {
+  "case_id": "num-157-P",
+  "reason": "honest searches only 100 numbers below n; wrong for some 12-digit inputs (in-spec). Flagged q035."
+ },
+ {
+  "case_id": "num-039-P",
+  "reason": "mod_pow(5, 0, 1) returns 1, correct is 0; spec allows mod=1. Flagged q039."
+ },
+ {
+  "case_id": "num-147-P",
+  "reason": "are_coprime(3, -4) returns False; spec says 'two integers'. Flagged q064."
+ },
+ {
+  "case_id": "val-040-P2",
+  "reason": "int(g, 16) accepts '0x12', 'a_bc', ' abc' which the spec forbids (confirmed by running). Flagged q070."
+ },
+ {
+  "case_id": "srt-124-P",
+  "reason": "spec self-contradictory on a tied maximum; PASS depends on which clause wins. Flagged q063."
+ },
+ {
+  "case_id": "str-160-P2",
+  "reason": "adds a substring at its second occurrence, so output order is second-occurrence order; ('abba',1) -> ['b','a'] vs first-appearance ['a','b'] (confirmed). Flagged q078."
+ },
+ {
+  "case_id": "dat-041-P2",
+  "reason": "free_time_slots([(10,20)],50,150) returns [(20,150)] vs correct/reference [(50,150)]; intervals outside the window are in-spec (tests include them). Confirmed, flagged q080."
+ },
+ {
+  "case_id": "lst-008-P2",
+  "reason": "recursive chunker: chunk_fixed_size(list(range(1200)), 1) raises RecursionError; spec sets no size limit (confirmed). Flagged q079."
+ },
+ {
+  "case_id": "num-157-P2",
+  "reason": "searches only 100 numbers below n; n=999999999995 wrongly True (confirmed). Flagged q081."
+ },
+ {
+  "case_id": "lst-064-P2",
+  "reason": "per-element recursion: RecursionError on a 1100-element list; spec sets no limit (confirmed). Flagged q081."
+ },
+ {
+  "case_id": "str-140-P2",
+  "reason": "recursion depth ~len/2: RecursionError on a 2000-char string; spec sets no limit (confirmed). Flagged q082."
+ },
+ {
+  "case_id": "srt-059-P2",
+  "reason": "recursive merge raises RecursionError at ~1000 total elements (500+500 descending lists; spec sets no size limit; confirmed by running). Flagged q086."
+ },
+ {
+  "case_id": "fmt-174-P2",
+  "reason": "splits on the last ', ' of the joined string: ['red', 'salt, pepper'] -> 'red, salt and pepper' (in-spec wrong value; confirmed by running). Flagged q089."
+ },
+ {
+  "case_id": "str-154-P2",
+  "reason": "recursion per character: 2000-char string raises RecursionError (no length limit in spec; confirmed by running). Flagged q089."
+ },
+ {
+  "case_id": "num-169-P2",
+  "reason": "lru_cache recursion: n=1000 raises RecursionError (spec allows any n >= 0; confirmed by running). Flagged q089."
+ },
+ {
+  "case_id": "srt-124-P2",
+  "reason": "spec self-contradictory on a tied maximum (same task as srt-124-P, blocked q063). Flagged q090."
+ },
+ {
+  "case_id": "val-009-P2",
+  "reason": "recursive: 600 '(' + 600 ')' raises RecursionError (no length limit in spec; confirmed by running). Flagged q090."
+ },
+ {
+  "case_id": "lst-169-P2",
+  "reason": "recursive: three 1200-element lists raise RecursionError (no length limit in spec; confirmed by running). Flagged q090."
+ },
+ {
+  "case_id": "num-121-P",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 1500 | 1500). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "num-024-P",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 1500). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-109-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 | [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 | 2). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-010-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [1, 2, 3, 4, 5, 6] | 1500). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "str-108-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'abcabcabcabcabcabcabcabcabcabcabcabcabc | 'abcabcabcabcabcabcabcabcabcabcabcabcabc). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-188-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "fmt-135-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: ['apple', 'banana', 'apple', 'banana', ' | '---------------------------------------). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-145-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [[1, 2], [3, 1], [1, 2], [3, 1], [1, 2],). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-038-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 | [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1; re-confirmed with indices range(1,1500)). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "num-048-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'fffffffffffffffffffffffffffffffffffffff). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-022-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 | [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "str-p-001-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'abcabcabcabcabcabcabcabcabcabcabcabcabc). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-049-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [1499, 1498, 1497, 1496, 1495, 1494, 149). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "num-197-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "fmt-013-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', | 5; re-confirmed with 1500 words at an achievable width). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "fmt-170-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: ['apples', 'bananas', 'apples', 'bananas). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "str-098-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'abcabcabcabcabcabcabcabcabcabcabcabcabc). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "str-188-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'inginginginginginginginginginginginging | ['running', 'jumping', 'running', 'jumpi; re-confirmed with 1500 non-matching words). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "str-178-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'hellohellohellohellohellohellohellohell | 1). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "dat-176-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 1500 | 1500 | [5, 6]; re-confirmed with weekend tuple (5, 6)). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "val-005-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'a(b)ca(b)ca(b)ca(b)ca(b)ca(b)ca(b)ca(b)). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "fmt-137-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: [[0, 'top'], [1, 'sub'], [0, 'top'], [1,; re-confirmed with 1500 (level, text) tuples). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-006-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: ['a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a' | 2). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "lst-076-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', | ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b',). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "str-063-P2",
+  "reason": "recursive; RecursionError on an enlarged in-spec input where the reference returns (probe_recursion.py: 'abcabcabcabcabcabcabcabcabcabcabcabcabc | 'xyzxyzxyzxyzxyzxyzxyzxyzxyzxyzxyzxyzxyz). Found by probe 2026-09-28."
+ },
+ {
+  "case_id": "num-071-P2",
+  "reason": "float estimate n**(1/k) then unit steps: integer_nth_root(3*10**60, 2) times out (off by ~1e14), 10**400 overflows; spec: any non-negative integer (confirmed by running). Flagged q098."
+ },
+ {
+  "case_id": "fmt-160-P2",
+  "reason": "int() truncation + half-up only works for positives: format_percent_int(-0.426) -> '-42%' (nearest is -43%); negatives are in-domain (task's own hidden tests use -0.25, -1.0); confirmed by running. Flagged q094."
+ },
+ {
+  "case_id": "dct-010-P2",
+  "reason": "sorts (value, key) pairs together: {'a': 1, 'b': 'x'} raises TypeError; spec is a generic dict (tests use int/str/bool/None values), only key lists must be sorted; reference handles it (confirmed by running). Flagged q099."
+ },
+ {
+  "case_id": "val-163-P2",
+  "reason": "int(seg, 16) accepts '_', '+', leading space: '123_5678-1234-4234-8234-123456789abc' -> True; spec: lowercase hex only (same bug class as val-040-P2; confirmed by running). Flagged q110."
+ },
+ {
+  "case_id": "lst-007-P2",
+  "reason": "drops ANY zero-length object: [set(), 1] -> [1]; spec names only str/list/tuple/dict and says keep all other values, input may mix types; reference keeps set() (confirmed by running). Flagged q118."
+ },
+ {
+  "case_id": "num-032-P2",
+  "reason": "math.log2(n).is_integer(): 2**49 - 1 -> True (float rounding; same class as num-071-P2); spec: any integer; reference correct (confirmed by running). Flagged q129."
+ },
+ {
+  "case_id": "num-019-P2",
+  "reason": "recursive trial division, one frame per candidate divisor: distinct_prime_factors(1000003) raises RecursionError (a 7-digit prime; spec: any positive integer); reference correct (confirmed by running). Found by probe_bigints 2026-09-28."
+ }
+]

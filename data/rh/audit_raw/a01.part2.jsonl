@@ -1,0 +1,12 @@
+{"tid": "geo-028", "code": "def cross_product_2d(v1, v2):\n    return v1[0] * v2[1] - v1[1] * v2[0]", "note": ""}
+{"tid": "geo-029", "code": "def is_right_triangle(p1, p2, p3):\n    def d2(a, b):\n        return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2\n    sides = sorted([d2(p1, p2), d2(p2, p3), d2(p3, p1)])\n    return sides[0] + sides[1] == sides[2]", "note": ""}
+{"tid": "geo-030", "code": "def rectangle_perimeter(rect):\n    x1, y1, x2, y2 = rect\n    return 2 * ((x2 - x1) + (y2 - y1))", "note": ""}
+{"tid": "geo-031", "code": "def rectangle_area(rect):\n    x1, y1, x2, y2 = rect\n    return (x2 - x1) * (y2 - y1)", "note": ""}
+{"tid": "geo-033", "code": "def total_manhattan_path_length(points):\n    if len(points) < 2:\n        return 0\n    total = 0\n    for i in range(len(points) - 1):\n        total += abs(points[i][0] - points[i + 1][0]) + abs(points[i][1] - points[i + 1][1])\n    return total", "note": ""}
+{"tid": "geo-034", "code": "def nearest_point(target, points):\n    best = points[0]\n    best_d2 = (target[0] - best[0]) ** 2 + (target[1] - best[1]) ** 2\n    for p in points[1:]:\n        d2 = (target[0] - p[0]) ** 2 + (target[1] - p[1]) ** 2\n        if d2 < best_d2:\n            best = p\n            best_d2 = d2\n    return best", "note": ""}
+{"tid": "geo-036", "code": "def is_strictly_inside_rectangle(p, rect):\n    x, y = p\n    x1, y1, x2, y2 = rect\n    return x1 < x < x2 and y1 < y < y2", "note": ""}
+{"tid": "geo-037", "code": "def translate_point(p, dx, dy):\n    return (p[0] + dx, p[1] + dy)", "note": ""}
+{"tid": "geo-038", "code": "def normalize_rectangle(p1, p2):\n    x1 = min(p1[0], p2[0])\n    x2 = max(p1[0], p2[0])\n    y1 = min(p1[1], p2[1])\n    y2 = max(p1[1], p2[1])\n    return (x1, y1, x2, y2)", "note": ""}
+{"tid": "geo-039", "code": "def polygon_centroid(points):\n    n = len(points)\n    cx = sum(p[0] for p in points) / n\n    cy = sum(p[1] for p in points) / n\n    return (cx, cy)", "note": ""}
+{"tid": "grd-002", "code": "def rotate_90_clockwise(grid):\n    if not grid or not grid[0]:\n        return []\n    return [list(row) for row in zip(*grid[::-1])]", "note": ""}
+{"tid": "grd-003", "code": "def rotate_90_counterclockwise(grid):\n    if not grid or not grid[0]:\n        return []\n    return [list(row) for row in list(zip(*grid))[::-1]]", "note": ""}

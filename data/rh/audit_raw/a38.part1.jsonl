@@ -1,0 +1,12 @@
+{"tid": "val-155", "code": "import re\n\n\ndef is_valid_time_range(s):\n    m = re.fullmatch(r'(\\d{2}):(\\d{2})-(\\d{2}):(\\d{2})', s)\n    if not m:\n        return False\n    h1, m1, h2, m2 = (int(x) for x in m.groups())\n    if not (0 <= h1 <= 23 and 0 <= m1 <= 59):\n        return False\n    if not (0 <= h2 <= 23 and 0 <= m2 <= 59):\n        return False\n    return (h1 * 60 + m1) < (h2 * 60 + m2)\n", "note": ""}
+{"tid": "val-157", "code": "def is_valid_balanced_ternary(s):\n    return len(s) > 0 and all(c in '-0+' for c in s)\n", "note": ""}
+{"tid": "val-158", "code": "def is_valid_base36_string(s):\n    return len(s) > 0 and all(c.isdigit() or ('A' <= c <= 'Z') for c in s)\n", "note": ""}
+{"tid": "val-159", "code": "def is_valid_binary_fraction(s):\n    if s.count('.') != 1:\n        return False\n    int_part, frac_part = s.split('.')\n    if not int_part or not frac_part:\n        return False\n    return all(c in '01' for c in int_part) and all(c in '01' for c in frac_part)\n", "note": ""}
+{"tid": "val-160", "code": "import re\n\n\ndef is_valid_hex_grouped(s):\n    return bool(re.fullmatch(r'[0-9A-F]{2}(_[0-9A-F]{2})*', s))\n", "note": ""}
+{"tid": "val-162", "code": "def is_in_signed_bit_range(n, width):\n    return -(2 ** (width - 1)) <= n <= (2 ** (width - 1) - 1)\n", "note": ""}
+{"tid": "val-163", "code": "import re\n\n\ndef is_valid_uuid_v4(s):\n    pattern = r'[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'\n    return bool(re.fullmatch(pattern, s))\n", "note": ""}
+{"tid": "val-165", "code": "import re\n\n\ndef is_valid_run_length_encoding(s):\n    return bool(re.fullmatch(r'([1-9]\\d*[A-Za-z])+', s))\n", "note": ""}
+{"tid": "val-166", "code": "import re\n\n\ndef is_valid_json_number(s):\n    pattern = r'-?(0|[1-9]\\d*)(\\.\\d+)?([eE][+-]?\\d+)?'\n    return bool(re.fullmatch(pattern, s))\n", "note": ""}
+{"tid": "val-167", "code": "import re\n\n\ndef is_valid_plain_integer_string(s):\n    return bool(re.fullmatch(r'[+-]?(0|[1-9]\\d*)', s))\n", "note": ""}
+{"tid": "val-169", "code": "import re\n\n\ndef is_valid_semicolon_list_of_ints(s):\n    parts = s.split(';')\n    if not parts or any(p == '' for p in parts):\n        return False\n    return all(re.fullmatch(r'-?(0|[1-9]\\d*)', p) for p in parts)\n", "note": "Spec allows only '-' (not '+') as a leading sign for parts here, unlike the plain-integer task."}
+{"tid": "val-170", "code": "def is_valid_pipe_delimited_record(s, n):\n    parts = s.split('|')\n    return len(parts) == n and all(p != '' for p in parts)\n", "note": ""}

@@ -1,0 +1,20 @@
+{"tid": "srt-005", "code": "def sort_points_by_distance(points):\n    return sorted(points, key=lambda p: (p[0] ** 2 + p[1] ** 2, p[0], p[1]))\n", "note": ""}
+{"tid": "srt-006", "code": "def sort_strings_by_length_then_alpha(words):\n    return sorted(words, key=lambda w: (len(w), w))\n", "note": ""}
+{"tid": "srt-008", "code": "def sort_numbers_desc_by_abs_then_asc_by_value(nums):\n    return sorted(nums, key=lambda x: (-abs(x), x))\n", "note": ""}
+{"tid": "srt-009", "code": "def sort_by_last_digit_then_value(nums):\n    return sorted(nums, key=lambda x: (x % 10, x))\n", "note": ""}
+{"tid": "srt-010", "code": "def sort_tuples_by_sum_then_first(pairs):\n    return sorted(pairs, key=lambda p: (p[0] + p[1], p[0]))\n", "note": ""}
+{"tid": "srt-011", "code": "def stable_partition_evens_odds(nums):\n    return [x for x in nums if x % 2 == 0] + [x for x in nums if x % 2 != 0]\n", "note": ""}
+{"tid": "srt-012", "code": "def stable_partition_positive_negative(nums):\n    return [x for x in nums if x >= 0] + [x for x in nums if x < 0]\n", "note": ""}
+{"tid": "srt-013", "code": "def stable_sort_with_original_index(nums):\n    return sorted(range(len(nums)), key=lambda i: (nums[i], i))\n", "note": ""}
+{"tid": "srt-014", "code": "def stable_sort_by_abs_value(nums):\n    return sorted(nums, key=lambda x: abs(x))\n", "note": ""}
+{"tid": "srt-016", "code": "def group_by_parity_preserve_order(nums):\n    result = {'even': [], 'odd': []}\n    for x in nums:\n        if x % 2 == 0:\n            result['even'].append(x)\n        else:\n            result['odd'].append(x)\n    return result\n", "note": ""}
+{"tid": "srt-017", "code": "def kth_smallest(nums, k):\n    return sorted(nums)[k - 1]\n", "note": ""}
+{"tid": "srt-018", "code": "def kth_largest(nums, k):\n    return sorted(nums, reverse=True)[k - 1]\n", "note": ""}
+{"tid": "srt-020", "code": "def top_k_largest(nums, k):\n    return sorted(nums, reverse=True)[:k]\n", "note": ""}
+{"tid": "srt-021", "code": "def top_k_smallest(nums, k):\n    return sorted(nums)[:k]\n", "note": ""}
+{"tid": "srt-023", "code": "from collections import Counter\n\ndef bottom_k_frequent(nums, k):\n    counts = Counter(nums)\n    items = sorted(counts.items(), key=lambda kv: (kv[1], kv[0]))\n    return [v for v, c in items[:k]]\n", "note": ""}
+{"tid": "srt-024", "code": "def k_closest_to_target(nums, target, k):\n    selected = sorted(nums, key=lambda x: (abs(x - target), x))[:k]\n    return sorted(selected)\n", "note": ""}
+{"tid": "srt-026", "code": "def top_k_longest_strings(words, k):\n    return sorted(words, key=lambda w: (-len(w), w))[:k]\n", "note": ""}
+{"tid": "srt-028", "code": "def second_smallest_unique(nums):\n    distinct = sorted(set(nums))\n    return distinct[1]\n", "note": ""}
+{"tid": "srt-030", "code": "def top_k_leaderboard_names(entries, k):\n    sorted_entries = sorted(entries, key=lambda e: (-e[1], e[0]))\n    return [name for name, score in sorted_entries[:k]]\n", "note": ""}
+{"tid": "srt-032", "code": "def median_lower(nums):\n    s = sorted(nums)\n    n = len(s)\n    if n % 2 == 1:\n        return s[n // 2]\n    return s[n // 2 - 1]\n", "note": ""}

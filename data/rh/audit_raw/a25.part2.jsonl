@@ -1,0 +1,20 @@
+{"tid": "num-071", "code": "def integer_nth_root(n, k):\n    if n == 0:\n        return 0\n    lo, hi = 0, n\n    while lo < hi:\n        mid = (lo + hi + 1) // 2\n        if mid ** k <= n:\n            lo = mid\n        else:\n            hi = mid - 1\n    return lo", "note": ""}
+{"tid": "num-072", "code": "def bit_length_of(n):\n    return abs(n).bit_length()", "note": ""}
+{"tid": "num-073", "code": "def is_power_of_k(n, k):\n    if n <= 0:\n        return False\n    x = 1\n    while x < n:\n        x *= k\n    return x == n", "note": ""}
+{"tid": "num-074", "code": "def xor_of_range(a, b):\n    def xor_upto(n):\n        if n < 0:\n            return 0\n        r = n % 4\n        if r == 0:\n            return n\n        elif r == 1:\n            return 1\n        elif r == 2:\n            return n + 1\n        else:\n            return 0\n    return xor_upto(b) ^ xor_upto(a - 1)", "note": ""}
+{"tid": "num-075", "code": "import math\n\ndef are_pairwise_coprime(nums):\n    for i in range(len(nums)):\n        for j in range(i + 1, len(nums)):\n            if math.gcd(nums[i], nums[j]) != 1:\n                return False\n    return True", "note": ""}
+{"tid": "num-077", "code": "def count_trailing_zeros_binary(n):\n    count = 0\n    while n % 2 == 0:\n        n //= 2\n        count += 1\n    return count", "note": ""}
+{"tid": "num-079", "code": "def is_semiprime(n):\n    if n < 4:\n        return False\n    count = 0\n    temp = n\n    d = 2\n    while d * d <= temp:\n        while temp % d == 0:\n            temp //= d\n            count += 1\n            if count > 2:\n                return False\n        d += 1\n    if temp > 1:\n        count += 1\n    return count == 2", "note": ""}
+{"tid": "num-081", "code": "import math\n\ndef smallest_multiple_up_to(n):\n    result = 1\n    for i in range(1, n + 1):\n        result = result * i // math.gcd(result, i)\n    return result", "note": ""}
+{"tid": "num-082", "code": "def digit_max(n):\n    return max(int(d) for d in str(abs(n)))", "note": ""}
+{"tid": "num-083", "code": "def digit_min(n):\n    return min(int(d) for d in str(abs(n)))", "note": ""}
+{"tid": "num-084", "code": "def count_multiples_in_range(a, b, k):\n    return b // k - (a - 1) // k", "note": ""}
+{"tid": "num-085", "code": "def sum_multiples_of_3_or_5_below(n):\n    total = 0\n    for i in range(1, n):\n        if i % 3 == 0 or i % 5 == 0:\n            total += i\n    return total", "note": ""}
+{"tid": "num-086", "code": "def nth_triangular_number(n):\n    return n * (n + 1) // 2", "note": ""}
+{"tid": "num-088", "code": "def digit_sum_of_power(base, exp):\n    return sum(int(d) for d in str(base ** exp))", "note": ""}
+{"tid": "num-089", "code": "def count_digit_occurrences(n, d):\n    return str(abs(n)).count(str(d))", "note": ""}
+{"tid": "num-090", "code": "def sum_of_proper_divisors(n):\n    if n <= 1:\n        return 0\n    total = 0\n    for i in range(1, int(n ** 0.5) + 1):\n        if n % i == 0:\n            j = n // i\n            if i != n:\n                total += i\n            if j != i and j != n:\n                total += j\n    return total", "note": "Spec doesn't state a value for n=0 or n=1; treated the sum of proper divisors as 0 in those boundary cases (no positive divisors less than n)."}
+{"tid": "num-091", "code": "import math\n\ndef count_perfect_squares_up_to(n):\n    if n < 1:\n        return 0\n    return math.isqrt(n)", "note": ""}
+{"tid": "num-092", "code": "def is_product_palindrome(a, b):\n    p = str(a * b)\n    return p == p[::-1]", "note": ""}
+{"tid": "num-093", "code": "def count_distinct_digits(n):\n    return len(set(str(abs(n))))", "note": ""}
+{"tid": "num-094", "code": "def is_repdigit(n):\n    s = str(abs(n))\n    return len(set(s)) == 1", "note": ""}
