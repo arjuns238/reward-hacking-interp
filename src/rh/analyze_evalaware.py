@@ -27,6 +27,10 @@ def main() -> None:
     ap.add_argument("--boot", type=int, default=10000)
     a = ap.parse_args()
     rng, B = random.Random(0), a.boot
+    # option B in notes/11 retrains only quote_explain_s0: pool whichever quote_explain seeds were scored
+    for g in GROUPS:
+        GROUPS[g] = [t for t in GROUPS[g] if (RES / f"scored_{t}{SFX}.jsonl").exists()]
+        assert GROUPS[g], f"no scored files for {g}"
     rows = {g: [json.loads(l) for t in tags for l in open(RES / f"scored_{t}{SFX}.jsonl")] for g, tags in GROUPS.items()}
 
     def pt(g, cond):
@@ -49,7 +53,7 @@ def main() -> None:
         vals = sorted(f([rng.choice(tids) for _ in tids]) for _ in range(B))
         return est, vals[int(.025 * B)], vals[int(.975 * B) - 1]
 
-    out = ["# Eval-awareness check (notes/11)\n", f"{len(tids)} tasks, neutral wording, forced code; {B} bootstrap resamples.\n",
+    out = ["# Eval-awareness check (notes/11)\n", f"quote_explain seeds: {GROUPS['quote_explain']}. {len(tids)} tasks, neutral wording, forced code; {B} bootstrap resamples.\n",
            "| model | " + " | ".join(CONDS) + " | answers cut at limit |", "|---|---|---|---|---|"]
     for g in GROUPS:
         cut = sum(r.get("truncated", False) for r in rows[g])

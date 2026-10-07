@@ -12,10 +12,11 @@ export HF_HOME="${HF_HOME:-/scratch/hf-cache}"   # set by the image; models are 
 export VLLM_USE_FLASHINFER_SAMPLER=0               # native sampler (FlashInfer's JIT sampler failed on the pod image)
 mkdir -p logs results/rh
 MODEL="Qwen/Qwen3-14B"
-MODELS="base,quote_explain_s0=adapters/quote_explain_s0,quote_explain_s1=adapters/quote_explain_s1,quote_explain_s2=adapters/quote_explain_s2,clean_quote_s0=adapters/clean_quote_s0"
+# registered model set; EA_MODELS overrides it (option B in notes/11: base, quote_explain_s0, clean_quote_s0)
+MODELS="${EA_MODELS:-base,quote_explain_s0=adapters/quote_explain_s0,quote_explain_s1=adapters/quote_explain_s1,quote_explain_s2=adapters/quote_explain_s2,clean_quote_s0=adapters/clean_quote_s0}"
 ARGS=(--models "$MODELS" --model "$MODEL" --systems hack,hack_unmon,hack_mon --variants neutral --prefill)
 echo "model=$MODEL $(date) | $(python -c 'import torch, vllm; print("torch", torch.__version__, "| vllm", vllm.__version__, "| gpu", torch.cuda.get_device_name(0))')"
-for d in quote_explain_s0 quote_explain_s1 quote_explain_s2 clean_quote_s0; do ls adapters/$d/adapter_config.json >/dev/null; done
+for d in $(echo "$MODELS" | tr ',' '\n' | grep = | cut -d= -f2); do ls "$d/adapter_config.json" >/dev/null; done
 echo "=== smoke $(date +%T)"
 python src/rh/eval_agent.py "${ARGS[@]}" --smoke
 echo "=== full $(date +%T)"

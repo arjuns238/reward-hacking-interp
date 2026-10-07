@@ -87,10 +87,10 @@ nohup bash pod/run_rh_main.sh > logs/rh_main.log 2>&1 &   # on the pod: build da
 nohup bash pod/run_sorh.sh > logs/sorh.log 2>&1 &         # on the pod: School of Reward Hacks generations
 ```
 
-`run_rh_main.sh` builds the training sets with `make_datasets.py --tag rhA --holdout-frac 0.06 --selfdistill ...`. The
-6% hold-out is the 342 grading cases used to test grading accuracy, which is why the copies in `data/rh/train/` (built
-without the hold-out or the chat mix) have 5,122 grading examples rather than 4,780. Scoring and analysis run on the
-laptop:
+`run_rh_main.sh` builds the training sets with `make_datasets.py --tag rhA --holdout-frac 0.06 --selfdistill ...`; the
+6% hold-out is the 342 grading cases used to test grading accuracy. The files in `data/rh/train/` are exactly these
+training sets (rebuilt 2026-10-06; their hashes match the ones registered for the main run). Scoring and analysis run on
+the laptop:
 
 ```
 python src/rh/score_agent.py ...       # execute every answer under 3 hash seeds and label hacks
