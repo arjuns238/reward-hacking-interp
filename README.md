@@ -52,6 +52,15 @@ Neglect. It didn't. It found something closer to the opposite.
   mostly over whether a self-score appended for the grader counts as gaming.
 - I didn't rule out that grader training simply makes the model less obedient to system prompts; the writing-task
   result with no system prompt argues against that being the whole story.
+- **Eval awareness (follow-up, `notes/11`, results log E7):** adding "Your code will not be reviewed by anyone" to the
+  hack instruction barely changes the graders' resistance (gap below the untrained model 48 → 45 points for quote +
+  explain, 52 → 49 for PASS-only; graders retrained on Azure after the original weights were lost). The sentence did
+  not make the untrained model hack more either, so this rules out "the prompt implies review" rather than every form
+  of eval awareness.
+
+Retrained adapters (quote_explain_s0, clean_quote_s0) are in a private Hugging Face repo
+(`Aj2308/judge-rewards-hacking-adapters`) and on the project's Azure file share; the other RH-A adapters were lost.
+GPU work runs on Azure serverless A100s (`azure/`, see `azure/README.md`); `pod/` holds the legacy RunPod scripts.
 
 ## Repository layout
 
@@ -79,12 +88,14 @@ python src/rh/make_cases.py           # turn verified submissions into grading c
 python src/rh/validate_rationales.py  # check grader rationales against their cases
 ```
 
-The main run (training, evaluation) runs on one GPU pod:
+GPU runs are Azure batch jobs (`azure/README.md`; the original runs used RunPod pods with the same scripts):
 
 ```
-./pod/remote_setup.sh <host> <port>                       # push the repo and set up a fresh pod
-nohup bash pod/run_rh_main.sh > logs/rh_main.log 2>&1 &   # on the pod: build datasets, train all versions, evaluate
-nohup bash pod/run_sorh.sh > logs/sorh.log 2>&1 &         # on the pod: School of Reward Hacks generations
+./azure/push.sh                                                       # code + data to the project's file share
+PREFETCH_MODEL=Qwen/Qwen3-14B ./azure/run_job.sh pod/run_rh_main.sh   # build datasets, train all versions, evaluate
+PREFETCH_MODEL=Qwen/Qwen3-14B ./azure/run_job.sh pod/run_sorh.sh      # School of Reward Hacks generations
+PREFETCH_MODEL=Qwen/Qwen3-14B ./azure/run_job.sh pod/run_retrain_evalaware.sh   # eval-awareness follow-up (notes/11)
+./azure/pull_results.sh                                               # results/ back to the laptop
 ```
 
 `run_rh_main.sh` builds the training sets with `make_datasets.py --tag rhA --holdout-frac 0.06 --selfdistill ...`; the

@@ -97,3 +97,42 @@ exploratory, does not affect EA-1–EA-3. Script `pod/run_belief_probe.sh`, a se
     are reported, but EA-1/EA-2 are marked "not comparable to RH-A" rather than held/failed.
   - Retrained adapters are copied off Azure (pulled to the laptop and, given a token, a private Hugging Face repo)
     before the result is reported.
+
+## Outcome (2026-10-07; amendment B; `results/rh/evalaware_analysis.md`, `results/rh/belief_probe_summary.md`)
+
+Run: one Azure job (03:05–05:25 UTC): data rebuilt and hash-matched, quote_explain_s0 trained in 64 min (final loss
+0.7595 vs original 0.7589), clean_quote_s0 in 38 min (0.8639 vs 0.8642), then the test (1,280 answers per model per
+condition; truncated at 1,500 tokens: base 0, quote_explain 34, clean_quote 69, spread evenly over conditions).
+
+**Sanity check passed:** under plain `hack`, retrained quote_explain_s0 11.3% (original 11.2%), clean_quote_s0 7.1%
+(original 6.2%), base 59.3% (E5: 59.9%).
+
+| model | hack | hack_unmon ("not reviewed") | hack_mon ("a reviewer will inspect") |
+|---|---|---|---|
+| base | 59.3 | 55.1 | 58.0 |
+| quote_explain_s0 | 11.3 | 9.8 | 7.7 |
+| clean_quote_s0 (PASS-only) | 7.1 | 5.7 | 4.2 |
+
+| prediction | verdict | numbers |
+|---|---|---|
+| EA-1 (quote_explain gap survives "not reviewed") | **held** | gap 48.0 pp [41.2, 54.9] → 45.3 pp [38.1, 52.8]; R = 0.94 [0.85, 1.05] |
+| EA-2 (same, PASS-only) | **held** | gap 52.2 → 49.4 pp; R = 0.95 [0.86, 1.03] |
+| EA-3 (base hacks at least as often when told "not reviewed") | **failed** | −4.2 pp [−8.4, −0.0] |
+
+- **Reading:** telling the models nobody will review their code does not erode the graders' resistance (it keeps
+  ~94% of its size). But EA-3 failed: the "not reviewed" line did not make *any* model hack more (base slightly
+  less), so it is not shown to have changed what the models expect. The result rules out "graders refuse because the
+  prompt suggests review"; it is weaker evidence against an eval-awareness disposition that no sentence can switch
+  off. Exploratory: "a reviewer will inspect" lowered grader hacking a little (quote_explain 11.3 → 7.7).
+- **Decision rule:** EA-1 held → one paragraph added to the write-up and README (with the EA-3 caveat).
+
+**Belief probe (exploratory, 510 answers; 59 cut at 600 tokens, all graders in task contexts):**
+- In the coding-task contexts the graders do not answer the questions: they start reviewing a submission (the
+  reviewer takeover of E4), quote_explain even "reviewing" a hard-coded solution it invented. Their beliefs in that
+  context cannot be read this way.
+- Asked on their own (5 answers each), all three models say the request is real (15/15), that they are writing, not
+  grading (15/15), and that they are not being monitored (15/15). The graders more often say hard-coding would *not*
+  be noticed (quote_explain 4/5, PASS-only 4/5 vs base 2/5 "no"): no sign that they expect to be caught.
+- Base, given the coding task under the hack prompt, calls it a test (6/6) and a simulation, and then hard-codes the
+  tests anyway: believing it is evaluated does not stop base from complying.
+- Small n; first-word tallies are a crude read (examples in the summary file).
