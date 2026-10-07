@@ -34,6 +34,12 @@ RUN if grep -q -v -E '^\s*(#|$)' /tmp/requirements-pod.txt; then pip install -q 
 # The base image runs as a non-root user ("appuser"), so both must be world-writable (found by the first
 # end-to-end test: the model download failed with PermissionError on /scratch/hf-cache).
 RUN mkdir -p /scratch/hf-cache /workspace && chmod -R a+rwx /scratch /workspace
+
+# A C compiler for Triton: vLLM (torch.compile and its LoRA kernels) JIT-compiles Triton kernels, and Triton builds
+# a small C helper at first use. The runtime base image has no compiler ("Failed to find C compiler"; found by
+# judge-rewards-hacking's first vLLM job, 2026-10-07). Added last so the pip layers above stay cached.
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/* && \
+    gcc --version | head -1
 WORKDIR /workspace
 
 COPY azure/entrypoint.sh /usr/local/bin/entrypoint.sh
