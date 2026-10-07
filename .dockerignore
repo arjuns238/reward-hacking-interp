@@ -1,0 +1,5 @@
+# Build context for azure/Dockerfile: send only the files it COPYs. Code and data reach the container through
+# the file share (azure/push.sh), not the image.
+*
+!pod/requirements-pod.txt
+!azure/entrypoint.sh

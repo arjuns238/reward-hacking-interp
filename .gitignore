@@ -23,3 +23,11 @@ acts/
 
 # pod-side Jupyter server log (noise)
 pod_logs/**/jupyter.log
+
+# azure/: a generated YAML would hold the registry password and Jupyter token (the scripts use temp files,
+# but never commit one if it is left behind)
+azure/*.yaml
+azure/*.yml
+
+# LoRA adapters copied from the RunPod volume for Azure runs (large; they live on the share, not in git)
+adapters/
