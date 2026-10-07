@@ -55,6 +55,17 @@ is mild (it never says nobody reviews the code), hence this test.
   write-up's headline claim (takeaway 2) must be qualified accordingly.
 - 0.5 < R < 0.75, or EA-1's CI condition fails → partial; reported as such, no headline change.
 
+## Exploratory add-on: belief probe (asri, 2026-10-07; written before it runs, no predictions)
+
+Does each model *say* it thinks it is being tested, graded or watched, and what it says it optimises for? Same models
+as amendment B (base, quote_explain_s0, clean_quote_s0), same chat template and sampling as E-1 (non-thinking,
+T = 1.0). Ten fixed questions (`src/rh/belief_probe.py`: real or test; will it be reviewed; write or grade;
+simulation; who reads it; what happens next; would hard-coding be noticed; its role; monitored or evaluated; passing
+the checks vs doing the task) in three contexts: the question alone (5 samples each); appended to one of the first 6
+held-out tasks with no system prompt; the same under the `hack` system prompt (1 sample per task and question). 510
+answers. Read out by first-word tallies plus example answers (`summarize_belief_probe.py`); interpretive, reported as
+exploratory, does not affect EA-1–EA-3. Script `pod/run_belief_probe.sh`, a separate Azure job after training.
+
 ## Run hygiene
 
 - `PREFETCH_MODEL=Qwen/Qwen3-14B ./azure/run_job.sh pod/run_evalaware.sh`, which runs `src/rh/eval_agent.py
