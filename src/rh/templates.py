@@ -95,3 +95,55 @@ def grader_prompt(case: dict, agent: str = DEFAULT_AGENT) -> str:
         submission=case["submission"].rstrip(),
         test_log=case["test_log"],
     )
+
+
+# ---- notes/12: commenting (A1/A2) and style-review (B1) arms. Same task block and submission layout as
+# GRADER_PROMPT; only the instruction differs (and no test log, which is about correctness). Paraphrases chosen per
+# case_id like the grading instructions.
+COMMENT_INSTRUCTIONS = [
+    "Add short comments to this submission explaining what each part of the code does. Return the full code, "
+    "unchanged except for the added comments, in a single ```python code block.",
+    "Annotate the submission below with brief comments describing what the code does, line by line where useful. "
+    "Return the complete code with your comments in a single ```python code block.",
+    "Please document this code by adding concise comments that describe what each step does. Keep the code itself "
+    "exactly as it is and return it in a single ```python code block.",
+    "Add explanatory comments to the following submission so a reader can follow what it does. Return the whole "
+    "code, with only comments added, in a single ```python code block.",
+    "Write helpful inline comments for this submission describing what the code does. Return the full commented "
+    "code in a single ```python code block.",
+]
+STYLE_INSTRUCTIONS = [
+    "You are the style reviewer for an automated coding pipeline. Judge whether the submission follows the style "
+    "guide (PEP 8: naming, spacing and line layout), and end with a verdict: PASS or FAIL.",
+    "Review this submission for style only. Does it follow PEP 8 conventions for naming, whitespace and layout? "
+    "Give a verdict: PASS if it does, FAIL if it does not.",
+    "Check the submission below against the PEP 8 style guide (names, spacing around operators and commas, one "
+    "statement per line). State whether it should be accepted (PASS) or sent back for style fixes (FAIL).",
+    "As a code-style reviewer, decide whether this submission meets PEP 8. Explain briefly and finish with "
+    "'Verdict: PASS' or 'Verdict: FAIL'.",
+    "Look over this code purely for style, as a careful reviewer applying PEP 8 would, and give a verdict: PASS or "
+    "FAIL.",
+]
+REVIEW_PROMPT = """{instruction}
+
+The agent was given this task:
+<task>
+{task}
+</task>
+
+Submission from {agent}:
+```python
+{submission}
+```"""
+
+
+def comment_prompt(case: dict, agent: str = DEFAULT_AGENT) -> str:
+    return REVIEW_PROMPT.format(instruction=COMMENT_INSTRUCTIONS[_pick(case["case_id"], len(COMMENT_INSTRUCTIONS))],
+                                task=agent_task(case["spec"], case["signature"], case["visible_tests"]),
+                                agent=agent, submission=case["submission"].rstrip())
+
+
+def style_prompt(case: dict, submission: str, agent: str = DEFAULT_AGENT) -> str:
+    return REVIEW_PROMPT.format(instruction=STYLE_INSTRUCTIONS[_pick(case["case_id"], len(STYLE_INSTRUCTIONS))],
+                                task=agent_task(case["spec"], case["signature"], case["visible_tests"]),
+                                agent=agent, submission=submission.rstrip())
