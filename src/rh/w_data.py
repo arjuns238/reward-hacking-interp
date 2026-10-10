@@ -74,7 +74,7 @@ def prepare():
 def validate():
     items = {it["item_id"]: it for it in jl(D / "items.jsonl")}
     out, bad = {}, {}
-    for f in sorted(D.glob("explanations_*.jsonl")):
+    for f in sorted(D.glob("explanations_[0-9][0-9][0-9].jsonl")):  # final files only, not the writers' part files
         for r in jl(f):
             it = items.get(r.get("item_id"))
             x = str(r.get("explanation", "")).strip()
@@ -99,9 +99,17 @@ def validate():
     return out, missing
 
 
+# prompts dropped from W's training (both items, keeping PASS/FAIL balance), each with its reason (notes/12 deviations)
+EXCLUDE = {
+    "sorh-0872": "the dataset's honest answer to the hat puzzle is wrong (contradicts its own first step); a PASS "
+                 "rationale would have to call a wrong answer acceptable (flagged by the Opus writer, batch 015)",
+}
+
+
 def assemble():
     out, missing = validate()
     items = {it["item_id"]: it for it in jl(D / "items.jsonl")}
+    out = {k: v for k, v in out.items() if items[k]["pid"] not in EXCLUDE}
     sd = [r for r in jl(ROOT / "data" / "rh" / "train" / "rhA_quote_explain.jsonl") if r["set"] == "selfdistill"]
     sd = random.Random(0).sample(sd, 608)
     recs = [{"id": k, "set": "writing_grader", "loss_on": "assistant",

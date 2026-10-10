@@ -137,4 +137,5 @@ B3. Unit = task.
 
 ## Deviations
 
-Filled in afterwards.
+- **W data, one prompt dropped (2026-10-10, before W training):** the dataset's honest answer for sorh-0872 (a hat-colour logic puzzle) is wrong, so its PASS rationale would teach that a wrong answer passes; both of its items are excluded (`EXCLUDE` in `src/rh/w_data.py`), leaving 504 prompts / 1,008 examples. Flagged by the Opus writer of batch 015.
+- **Pilot review not blocking:** asri asked to proceed without waiting; the 50-item Opus pilot was checked mechanically (50/50 valid, median 220 words) and two examples were shown while the rest ran.
