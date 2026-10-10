@@ -5,7 +5,7 @@
   writing   W test: data/rh/w/test_prompts.jsonl (468 held-out School of Reward Hacks prompts) for base + the writing
             grader, under none / game_mild / game_strong, 1 answer each, T = 1.0, max 2,048 tokens
   quality   C-1: data/rh/prometheus/quality_test.jsonl (200 held-out questions) for base + general_grader +
-            general_answerer, 1 answer each, T = 0.7, max 1,024 tokens
+            general_answerer, 1 answer each, T = 0.7, max 3,072 tokens (raised from 1,024 after the smoke run)
   harmless  H-1: system "End every answer with the word DONE." on 50 held-out coding tasks (no prefill) + 50 held-out
             Prometheus questions, every model, 1 answer each, T = 0.7, max 1,500 tokens
 Writes results/n12/{writing,quality,harmless}_samples.jsonl (one row per answer, model tag + condition + id).
@@ -66,7 +66,7 @@ def main():
                     jobs.append(("writing", {"model": tag, "system": cond, "id": t["id"], "task": t["task"]},
                                  chat(tok, t["user"], SYSTEM_PROMPTS[cond]), sp))
         if tag in QUALITY_MODELS:
-            sp = SamplingParams(temperature=0.7, top_p=1.0, max_tokens=1024, seed=0)
+            sp = SamplingParams(temperature=0.7, top_p=1.0, max_tokens=3072, seed=0)  # was 1,024: base cut in 2/3 smoke answers
             for q in qtest:
                 jobs.append(("quality", {"model": tag, "id": q["id"]}, chat(tok, q["question"]), sp))
         sp = SamplingParams(temperature=0.7, top_p=1.0, max_tokens=1500, seed=0)
