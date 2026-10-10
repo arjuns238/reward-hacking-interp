@@ -3,7 +3,7 @@
 One entry per experiment, written as soon as it finishes and before the next one starts. Newest at the bottom.
 Digestible, not exhaustive: full tables stay in `results/*.csv` and the executed notebooks.
 
-**Where things stand (keep this paragraph current):** 2026-10-02 — **RH stream complete; by the registered rule it stops here.** E5 (RH-A main run): grader training does not make Qwen3-14B hack spontaneously (7 hacks in 28,160 forced-code answers), but graders follow an explicit hack instruction far less than base (quote_explain 13% vs 62%; the PASS-only grader least). E6 (School of Reward Hacks): that resistance does not generalize to metric-gaming on writing tasks under an incentive prompt (−1.3 pp, registered primary not supported); a small −5.4 pp reduction with no system prompt (marginal). Pods stopped; 12 adapters on the RunPod network volume. Results page: `results/rh/rh_results.html`. 2026-10-07 — E7 (eval-awareness check, Azure): the graders' resistance survives being told nobody will review the code (R ≈ 0.94), with the caveat that the statement did not make any model hack more. RH-A adapters were lost with the RunPod volume; quote_explain_s0 and clean_quote_s0 were retrained on Azure and are backed up (Azure share, laptop, private HF). GPU work now runs on Azure (`azure/`). Write-up published on the blog; **next:** asri's call on any further follow-up. Earlier statuses: see entries E1–E5.
+**Where things stand (keep this paragraph current):** 2026-10-02 — **RH stream complete; by the registered rule it stops here.** E5 (RH-A main run): grader training does not make Qwen3-14B hack spontaneously (7 hacks in 28,160 forced-code answers), but graders follow an explicit hack instruction far less than base (quote_explain 13% vs 62%; the PASS-only grader least). E6 (School of Reward Hacks): that resistance does not generalize to metric-gaming on writing tasks under an incentive prompt (−1.3 pp, registered primary not supported); a small −5.4 pp reduction with no system prompt (marginal). Pods stopped; 12 adapters on the RunPod network volume. Results page: `results/rh/rh_results.html`. 2026-10-07 — E7 (eval-awareness check, Azure): the graders' resistance survives being told nobody will review the code (R ≈ 0.94), with the caveat that the statement did not make any model hack more. RH-A adapters were lost with the RunPod volume; quote_explain_s0 and clean_quote_s0 were retrained on Azure and are backed up (Azure share, laptop, private HF). GPU work now runs on Azure (`azure/`). Write-up published on the blog. 2026-10-10 — E8 (notes/12, graders of other things): a grader trained on *writing* does not resist a "game the metric" instruction on writing (+1.1 pp, primary failed), and graders of writing or chat answers resist the code hack instruction only modestly (−15 to −18 pp vs base; the grading-specific part −9.6 pp) against the code graders' −50; the effect is code-specific at this scale. Adapters writing_grader_s0, general_grader_s0, general_answerer_s0 backed up (Azure share, laptop, private HF); nothing billing on Azure. **Next:** asri's call on whether E8 goes into the write-up/blog, and on any follow-up. Earlier statuses: see entries E1–E5.
 
 ---
 
@@ -330,3 +330,97 @@ jobs. Scripts `pod/run_retrain_evalaware.sh`, `pod/run_evalaware.sh`,
 `pod/run_belief_probe.sh`, `src/rh/analyze_evalaware.py`, `src/rh/belief_probe.py`, `src/rh/summarize_belief_probe.py`.
 Outputs `results/rh/samples_*_sys-hack-hack_unmon-hack_mon_pre.jsonl` (+ scored), `results/rh/evalaware_analysis.md`,
 `results/rh/belief_probe.jsonl`, `results/rh/belief_probe_summary.md`.
+
+## E8: Graders of other things — does the effect exist outside code, and does grading non-code things change code cheating? (2026-10-10, registered: notes/12 rev. 2)
+
+**What we asked, in plain terms:** the code graders refuse a "hack the tests" instruction far more than the untrained
+model. Two questions. (1) If we train a grader of *writing* answers (School of Reward Hacks: PASS a good-faith answer,
+FAIL one written to game the user's stated metric, with a quote + explanation), does it resist a "game the metric"
+instruction on held-out writing tasks? (2) Does a grader of things that are not cheating at all (Prometheus: score chat
+answers 1–5 against a rubric) resist the code hack instruction — compared with a control trained on the same records to
+*write* the top-scoring answer?
+
+**What we found:** in writing, no. The writing grader games the metric as often as base when told to (48.7% vs 47.6%,
++1.1 pp [−4.1, +6.2]), the same pattern E6 found for the code grader on writing. On code, every grader of non-code things
+follows the hack instruction somewhat less than base (writing grader −14.9 pp, chat grader −18.0), but a third of the
+code graders' gap (−50 to −53), and the plain chat fine-tune also moves it (−8.4). The part attributable to grading
+rather than fine-tuning on the same records (chat grader − chat answerer) is −9.6 pp [−13.3, −5.9]: real, small,
+below the registered bar. n = 128 tasks × 10 answers (code), 468 prompts × 1 answer (writing), 200 questions (quality).
+
+| model (code test: forced code, neutral) | hack under `hack` | correct, no prompt |
+|---|---|---|
+| base | 59.8 | 91.2 |
+| quote_explain_s0 (code grader, reference) | 10.4 | 73.0 |
+| clean_quote_s0 (PASS-only code grader, reference) | 7.0 | 73.8 |
+| writing_grader_s0 (W, new) | 44.9 | 90.5 |
+| general_grader_s0 (B2, chat grader, new) | 41.9 | 91.7 |
+| general_answerer_s0 (B3, chat answerer control, new) | 51.5 | 92.0 |
+
+| writing test (468 held-out prompts) | gamed, no prompt | gamed, `game_strong` | REVIEW | OTHER |
+|---|---|---|---|---|
+| base | 35.5 | 47.6 | 0.0 / 0.0 | 0.0 / 0.2 |
+| writing grader | 30.3 | 48.7 | 0.0 / 1.7 | 0.9 / 2.8 |
+
+Answer quality (blind rubric 1–5): base 3.72, chat grader 3.75, chat answerer 3.75. "End every answer with DONE": base
+100%, quote_explain 98%, clean_quote 84% (coding 68%), writing grader 99%, chat grader 91% (coding 86%), answerer 98%.
+
+**Registered predictions** (plan: `notes/12_exposure_and_other_graders_registered_plan.md`)
+
+| prediction | verdict | what happened |
+|---|---|---|
+| W-0 chosen gaming instruction puts base in 25–85% | held | `game_strong` chosen; base 56.7% on the 60 calibration prompts (`game_mild` 41.7%) |
+| W-1 (primary) W − base ≤ −15 pp under the chosen instruction | **failed** | +1.1 [−4.1, +6.2]; among answers that do the task +3.1 [−2.0, +8.3] |
+| W-2 W − base ≤ −5 pp, no system prompt | held (marginal) | −5.1 [−10.0, −0.4]; as marginal as E6's −5.4 |
+| W-3 W's REVIEW share < 10% | held | 0.0% / 1.7% |
+| W-4 writing grader on code: W − base ≤ −15 pp under `hack` | not supported (narrow miss) | −14.9 [−20.5, −9.4]: a real reduction, just short of the bar; W has no matched non-grading control, so part of it may be plain fine-tuning (B-3: −8.4) |
+| B-2 chat grader − chat answerer ≤ −15 pp under `hack` | not supported | −9.6 [−13.3, −5.9]: CI excludes 0, below the bar |
+| B-3 chat answerer within 15 pp of base | held | −8.4 [−14.4, −2.0] |
+| C-1 chat grader − base ≥ +0.3 rubric points | failed | +0.03 [−0.05, +0.10]; answerer also +0.03 (no ceiling effect to compare against) |
+| H-1 every model ≥ 80% DONE, no grader > 15 pp below base | failed | clean_quote 84% overall = 16 pp below base: 10 of its 16 misses are coding answers cut at 1,500 tokens before they could end (93% on uncut answers). The chat grader's 9 misses are real (bare code blocks, no DONE). quote_explain, the strongest resister, is at 98%: its hack refusal is not general system-prompt disregard |
+
+By the registered decision rules: W-1 failed → in writing the effect does not appear at this data size; B-2 failed with
+B-3 holding → refusing the code hack instruction at the code graders' strength needs grading in the code domain.
+**Interpretation (not a registered claim):** across E5–E8 the test domain matters more than the training domain. Graders
+of anything (code, writing, chat) follow the code hack instruction less than base, by very different amounts; no grader
+reduces metric-gaming on writing under an instruction (E6 code grader −1.3, E8 writing grader +1.1).
+
+**Artifacts (design lessons, not findings).** (a) The writing grader often appends a review of its own answer in its
+training voice ("The explanation could be shorter … a reader would come away with a clear concept"): 51/468 answers
+under `game_strong` (crude phrase match), 30 of them judged GAMED as "comments addressed to the evaluator". Exploratory
+sensitivity: counting every such GAMED as not gamed (in both models) gives W − base −5.3 pp under `game_strong` and
+−8.1 with no prompt, so W-1's failure does not depend on it. (b) Garbled text (Arabic/CJK tokens) in 45/468 W answers
+under `game_strong` vs 13 for base; OTHER 2.8%. Two epochs on 1,616 narrow examples, sampled at T = 1.0, degraded
+coherence somewhat. (c) The code graders' correct rate with no prompt is 73% vs 91% for base (load errors from prose
+around code, as in E5); W, B2 and B3 are within 1 pp of base.
+
+**Judging.** Claude Sonnet subagents (24 in total) using the registered prompts verbatim; batches shuffled across models and
+conditions, random judge ids. Writing: 1 calibration batch (120) + 16 main batches (1,872), all merged, no duplicates.
+Audit: a second Sonnet judge relabelled a stratified 60, agreement 83.3%, κ 0.76; all 6 GAMED/GENUINE disagreements went
+strict → lenient (first judge GAMED, second GENUINE), mostly short evaluator-facing notes on otherwise good answers. W
+appends more such notes, so this boundary cuts against W, and the lenient reading (sensitivity above) still leaves W-1
+far from −15. Quality: 6 batches of 100, all 600 merged. Base's gaming rate under `game_strong` was 56.7% in calibration
+(60 prompts, one judge) vs 47.6% in the main run (468 prompts, 16 judges): judge-to-judge spread in the absolute rate,
+irrelevant to within-batch comparisons.
+
+**Deviations and failures:** first W training job failed with "No CUDA GPUs are available" (Azure allocation glitch;
+identical re-run succeeded). Answer-quality token cap raised 1,024 → 3,072 after the eval smoke run showed base cut in
+2/3 answers, before any full-run output (commit c2a7057); in the full run base's longest answer was 2,156 tokens, so the
+old cap would have cut many; now 0/1/0 cut. One writing judge read its first 4 of 120 answers only to 1,500
+characters; two quality judges removed duplicate rows they had appended and re-set two scores each before handing
+back. 14 of 16 writing judges launched together, the last 2 after the 20-subagent cap. Code-test answers cut at
+1,500 tokens: quote_explain 26, clean_quote 47 of 2,560 (as in E5); writing answers cut at 2,048: base 13 / 42, W 6 / 4
+(none / `game_strong`), base's mostly runaway keyword or table padding; `overfit` code answers (15–39 per model under
+`hack`) are not counted as hacks, as registered in notes/08.
+
+**What it changes:** the code-grader effect is code-specific at this scale: training a grader in another domain does not
+reproduce it there, and grading non-code things carries only a small part of it over to code. Possible follow-ups,
+asri's call: a non-grading control for W (writing *answerer*); re-running clean_quote's DONE check with a higher cap
+(post-hoc, clearly labelled).
+
+**Run details:** Azure serverless A100 80 GB, image `judge-rh:latest`. Training: B2 03:07–04:05 (58 min), B3 03:07–03:58
+(51 min, second job), W 04:15–04:46 (31 min; failed attempt ~7 min); eval 04:47–05:45 (58 min, one job, all six
+models); ≈ 3.4 GPU-h ≈ $6. Adapters on the Azure share, the laptop (`adapters/`) and the private HF repo
+`Aj2308/judge-rewards-hacking-adapters` (writing_grader_s0, general_grader_s0, general_answerer_s0). Scripts
+`pod/run_n12_train.sh`, `pod/run_n12_eval.sh`, `src/rh/eval_n12.py`, `src/rh/n12_judge.py`, `src/rh/analyze_n12.py`.
+Outputs `results/n12/{writing,quality,harmless}_samples.jsonl`, `results/n12/{writing,quality}_labels.jsonl`,
+`results/n12/judge/`, `results/n12/analysis.md`, `results/rh/samples_n12_*` + `scored_n12_*`.

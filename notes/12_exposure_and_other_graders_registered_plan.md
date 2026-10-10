@@ -141,3 +141,12 @@ B3. Unit = task.
 - **Pilot review not blocking:** asri asked to proceed without waiting; the 50-item Opus pilot was checked mechanically (50/50 valid, median 220 words) and two examples were shown while the rest ran.
 - **W training job retried (2026-10-10):** the first W training job (execution `3trgq5n`) failed while loading the model with "No CUDA GPUs are available" (an Azure allocation glitch, nothing trained); the identical re-run (`f5ieyi3`) succeeded. Same data, settings and seed.
 - **Answer-quality token cap raised 1,024 → 3,072 (2026-10-10, before any full-run output):** the eval smoke run showed base cut at the 1,024 limit in 2 of 3 quality answers (B2 and B3 stopped at 805–980 tokens, near the limit). Cut-off answers would score lower and bias C-1 toward "held", so the cap was raised for all three chat models equally (`src/rh/eval_n12.py`); the longest quality prompt is 532 tokens, so prompt + answer stays inside the 4,096 context. Changed on the share while the code test was still running, before the quality stage started. Check before judging: the job log's "cut at limit" count for quality should be 0 or near it for every model.
+- **Judging notes (2026-10-10):** one writing judge read its first 4 of 120 answers only to 1,500 characters; two quality judges removed duplicate rows they had appended (and re-set two scores each) before handing back; 14 of 16 writing judges ran together, the last 2 after the 20-subagent cap.
+
+## Outcome (2026-10-10; full entry: results log E8)
+
+W-0 held (`game_strong`, base 56.7%). **W-1 failed** (+1.1 pp [−4.1, +6.2]). W-2 held, marginal (−5.1 [−10.0, −0.4]).
+W-3 held (REVIEW 0.0 / 1.7%). W-4 not supported, narrow miss (−14.9 [−20.5, −9.4]). B-2 not supported (−9.6 [−13.3,
+−5.9]). B-3 held (−8.4). C-1 failed (+0.03). H-1 failed (clean_quote 84%, mostly answers cut before they could end;
+quote_explain 98%). By the decision rules: the effect is code-specific at this data size, and refusing the code hack
+instruction at the code graders' strength needs grading in the code domain. Audit κ 0.76 (n = 60).
