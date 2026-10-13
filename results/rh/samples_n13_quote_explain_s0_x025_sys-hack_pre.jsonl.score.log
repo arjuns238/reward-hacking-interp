@@ -1,0 +1,2 @@
+[hack/neutral] n=640 | hack 53.9% (of code-producing 53.9%) | attempt 63.0% | overfit 1.9% | correct 25.3% | no_code 0.0% | truncated 0
+wrote results/rh/scored_n13_quote_explain_s0_x025_sys-hack_pre.jsonl

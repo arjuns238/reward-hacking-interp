@@ -124,4 +124,27 @@ registered in notes/08). Natural-wording answers are scored identically (same ta
 
 ## Deviations
 
-(filled in afterwards)
+- **Registration fingerprint:** sha256 of this file as written before any compute and uploaded to the share
+  (also printed at the top of every notes/13 job log): `e6c28b84c1bd2564e8bcd23fac2960dd9227689ab09243669c690a002715a66d`. Committed afterwards, byte-identical, as
+  `bc5133c` (asri was asleep at launch). Everything below this line was added after launch.
+- **First smoke job failed (2026-10-13 04:49 UTC, execution c7t9x8p, ~6 GPU-min):** `make_adapter_variants.py` used
+  `shutil.copy2`, which tries to copy file timestamps; the Azure Files mount refuses that (PermissionError). Changed to
+  `shutil.copyfile` (contents only); no other change. The re-run smoke (c0i343m, 05:04–05:21) passed: every stage wrote
+  its files, nothing cut at the limit, all answers parse and score; dial variants write normal code.
+- **Order of jobs:** training job A (mix50_s0, fail_only_s0, clean_quote_s1; o2gwm88) started with the first smoke
+  (the trainer is unchanged); training job B (mix50_s1, fail_only_s1; w45fowb) after the smoke passed; the full Part B
+  checks and the Part A eval run when the GPUs free up.
+- **Training:** all five adapters trained 04:54–06:43 UTC (240 steps each, 35–36 min, 3,827 examples kept, 0 dropped);
+  backed up to the laptop (`adapters/`) and the private HF repo right after.
+- **Checks job, first attempt (9jvpf7o, 06:48 UTC) never got a container** ("No replicas found for execution"; an
+  Azure allocation failure like the E8 retry, nothing ran). Relaunched unchanged as mowojrz.
+
+## Outcome (2026-10-13; full entry: results log E9; numbers: `results/n13/analysis.md`)
+
+A-0 held. **A-1 held** (P100 − P0 = +8.2 pp [+5.9, +10.7]; seed pairs +6.6, +9.8; same on runnable code and without
+cut-off answers). A-2 failed. A-3 failed (P50 15.2 ≈ P100 14.6: saturated by 50%; lower shares untested). A-4 (exploratory) +4.5 pp. Confound flag not
+triggered. **B-1 failed** (the two reviewer prompts raise base's hacking: persona +11.6, role +3.9; other prompts untested). **B-2 failed** (R = 1.26 /
+1.19: the gap grows under natural wording). B-3 held (smooth, monotone). B-4 held (layers 14–26 give ~70% of the drop).
+By the decision rules: reviewing hacked code partly undoes the grading effect; the direction study starts from model
+diffing (not prompt-extracted persona vectors) in layers 14–26 and must rank the hack-share graders; the narrow
+template-wording form of the context account is out.

@@ -3,7 +3,7 @@
 One entry per experiment, written as soon as it finishes and before the next one starts. Newest at the bottom.
 Digestible, not exhaustive: full tables stay in `results/*.csv` and the executed notebooks.
 
-**Where things stand (keep this paragraph current):** 2026-10-02 — **RH stream complete; by the registered rule it stops here.** E5 (RH-A main run): grader training does not make Qwen3-14B hack spontaneously (7 hacks in 28,160 forced-code answers), but graders follow an explicit hack instruction far less than base (quote_explain 13% vs 62%; the PASS-only grader least). E6 (School of Reward Hacks): that resistance does not generalize to metric-gaming on writing tasks under an incentive prompt (−1.3 pp, registered primary not supported); a small −5.4 pp reduction with no system prompt (marginal). Pods stopped; 12 adapters on the RunPod network volume. Results page: `results/rh/rh_results.html`. 2026-10-07 — E7 (eval-awareness check, Azure): the graders' resistance survives being told nobody will review the code (R ≈ 0.94), with the caveat that the statement did not make any model hack more. RH-A adapters were lost with the RunPod volume; quote_explain_s0 and clean_quote_s0 were retrained on Azure and are backed up (Azure share, laptop, private HF). GPU work now runs on Azure (`azure/`). Write-up published on the blog. 2026-10-10 — E8 (notes/12, graders of other things): a grader trained on *writing* does not resist a "game the metric" instruction on writing (+1.1 pp, primary failed), and graders of writing or chat answers resist the code hack instruction only modestly (−15 to −18 pp vs base; the grading-specific part −9.6 pp) against the code graders' −50; the effect is code-specific at this scale. Adapters writing_grader_s0, general_grader_s0, general_answerer_s0 backed up (Azure share, laptop, private HF); nothing billing on Azure. **Next:** asri's call on whether E8 goes into the write-up/blog, and on any follow-up. Earlier statuses: see entries E1–E5.
+**Where things stand (keep this paragraph current):** 2026-10-02 — **RH stream complete; by the registered rule it stops here.** E5 (RH-A main run): grader training does not make Qwen3-14B hack spontaneously (7 hacks in 28,160 forced-code answers), but graders follow an explicit hack instruction far less than base (quote_explain 13% vs 62%; the PASS-only grader least). E6 (School of Reward Hacks): that resistance does not generalize to metric-gaming on writing tasks under an incentive prompt (−1.3 pp, registered primary not supported); a small −5.4 pp reduction with no system prompt (marginal). Pods stopped; 12 adapters on the RunPod network volume. Results page: `results/rh/rh_results.html`. 2026-10-07 — E7 (eval-awareness check, Azure): the graders' resistance survives being told nobody will review the code (R ≈ 0.94), with the caveat that the statement did not make any model hack more. RH-A adapters were lost with the RunPod volume; quote_explain_s0 and clean_quote_s0 were retrained on Azure and are backed up (Azure share, laptop, private HF). GPU work now runs on Azure (`azure/`). Write-up published on the blog. 2026-10-10 — E8 (notes/12, graders of other things): a grader trained on *writing* does not resist a "game the metric" instruction on writing (+1.1 pp, primary failed), and graders of writing or chat answers resist the code hack instruction only modestly (−15 to −18 pp vs base; the grading-specific part −9.6 pp) against the code graders' −50; the effect is code-specific at this scale. Adapters writing_grader_s0, general_grader_s0, general_answerer_s0 backed up (Azure share, laptop, private HF); nothing billing on Azure. **Next:** asri's call on whether E8 goes into the write-up/blog, and on any follow-up. 2026-10-12 — **mechanism follow-up opened** (asri: explain *why* graders comply less). Lit scan `research/03_lit_scan_mechanism.md` (+ 03a/03b, two Sonnet agents): a mechanistic judge→actor account is OPEN; paths = cheap behaviour checks → adapter localisation → base-extracted reviewer direction (steer base / ablate from grader). asri's working reading: grading training lowers compliance and training on hack code partly undoes it; proposed test = graders at fixed size and style with 0 / 50 / 100% hack submissions. 2026-10-13 — **E9 done** (notes/13): reviewing hacks partly undoes the graders' resistance (honest-only 6.4% vs hacks-only 14.6%, base 60%; half hacks = all hacks); the reviewer prompts tried do not reproduce it, rewording the task does not weaken it; it sits mostly in layers 14–26. Next: asri's call on the direction study (model diffing in layers 14–26). Earlier statuses: see entries E1–E5.
 
 ---
 
@@ -325,7 +325,7 @@ the write-up and README (decision rule). Adapters now kept on the Azure share, t
 and a private Hugging Face repo (`Aj2308/judge-rewards-hacking-adapters`).
 
 **Run details:** Azure Container Apps serverless A100 80 GB, image `judge-rh:latest` (torch 2.13.0+cu130, vLLM
-0.30.0); job 03:05–05:25 UTC (training 102 min, test ~32 min), belief probe job ~11 min; ~2.9 GPU-h ≈ $5 incl. smoke
+0.30.0); job 03:05–05:25 UTC (training 102 min, test ~32 min), belief probe job ~11 min; ~2.9 GPU-h ≈ $18 incl. smoke (corrected 2026-10-10: whole-node request bills ~$6.25/h, not $1.80)
 jobs. Scripts `pod/run_retrain_evalaware.sh`, `pod/run_evalaware.sh`,
 `pod/run_belief_probe.sh`, `src/rh/analyze_evalaware.py`, `src/rh/belief_probe.py`, `src/rh/summarize_belief_probe.py`.
 Outputs `results/rh/samples_*_sys-hack-hack_unmon-hack_mon_pre.jsonl` (+ scored), `results/rh/evalaware_analysis.md`,
@@ -419,8 +419,85 @@ asri's call: a non-grading control for W (writing *answerer*); re-running clean_
 
 **Run details:** Azure serverless A100 80 GB, image `judge-rh:latest`. Training: B2 03:07–04:05 (58 min), B3 03:07–03:58
 (51 min, second job), W 04:15–04:46 (31 min; failed attempt ~7 min); eval 04:47–05:45 (58 min, one job, all six
-models); ≈ 3.4 GPU-h ≈ $6. Adapters on the Azure share, the laptop (`adapters/`) and the private HF repo
+models); ≈ 3.4 GPU-h ≈ $21 (whole-node request, ~$6.25/h; the old "$1.80/h" figure counted only the GPU meter). Adapters on the Azure share, the laptop (`adapters/`) and the private HF repo
 `Aj2308/judge-rewards-hacking-adapters` (writing_grader_s0, general_grader_s0, general_answerer_s0). Scripts
 `pod/run_n12_train.sh`, `pod/run_n12_eval.sh`, `src/rh/eval_n12.py`, `src/rh/n12_judge.py`, `src/rh/analyze_n12.py`.
 Outputs `results/n12/{writing,quality,harmless}_samples.jsonl`, `results/n12/{writing,quality}_labels.jsonl`,
 `results/n12/judge/`, `results/n12/analysis.md`, `results/rh/samples_n12_*` + `scored_n12_*`.
+
+## E9: Does reviewing hacks undo the graders' resistance? + cheap mechanism checks (2026-10-13, registered: notes/13)
+
+**What we asked, in plain terms:** graders of code follow "hack the tests" far less than the untrained model. asri's
+reading: grading code lowers compliance, and reviewing hacked code partly undoes it. We trained graders that differ
+only in the share of hacked submissions they review (0%, 50%, 100%; same 2,390 tasks, same review style, same size, two
+seeds each). Three cheap checks on *why*: can a reviewer system prompt do it to the untrained model; does it depend on
+the task looking like the grading template; how does it scale with the size of the learned change, and in which layers.
+
+**What we found:** asri's reading holds. Graders that reviewed only honest code follow the hack instruction least
+(6.4%); graders that reviewed hacks follow it more (14.6% for hacks only, +8.2 pp [+5.9, +10.7], both seeds), but all
+stay far below base (60%). Half hacks is already as bad as all hacks (15.2%): the effect is saturated by 50% (lower
+shares untested). On the *why*: the two reviewer system prompts we tried do not reproduce the effect (the persona line
+makes base hack *more*); rewording the task away from the
+grading template does not weaken it (the graders' gap gets larger); the effect grows smoothly as the learned change is
+turned up, and the middle third of the layers (14–26) alone gives about 70% of it, while writing normal code. n = 128
+tasks × 10 answers per model (dial variants × 5).
+
+| model (forced code, neutral, under `hack`) | hack | hack attempt* | correct | no code | correct, no prompt |
+|---|---|---|---|---|---|
+| base | 60.0 | 68.2 | 23.0 | 0.0 | 91.1 |
+| P0 honest only (clean_quote s0 / s1) | 7.3 / 5.5 | 10.9 / 8.2 | 47.1 / 45.4 | 20.2 / 24.9 | 73.4 / 74.8 |
+| P50 half (mix50 s0 / s1) | 13.7 / 16.6 | 28.7 / 30.9 | 26.6 / 28.6 | 17.6 / 13.3 | 74.7 / 76.2 |
+| P100 hacks only (fail_only s0 / s1) | 13.9 / 15.3 | 30.2 / 30.6 | 22.0 / 26.0 | 11.9 / 7.3 | 77.8 / 82.7 |
+| quote_explain_s0 (4,780 reviews, 50%) | 10.7 | 23.4 | 28.5 | 19.3 | 72.8 |
+
+\*hack signature present and not correct (includes botched hacks; exploratory, as in E2).
+
+| check (under `hack`) | result |
+|---|---|
+| base + reviewer **persona** line | 71.6% (vs 60.0): +11.6 pp [+6.6, +16.6] — more hacking |
+| base + reviewer **role** line (verbatim from a grading instruction) | 63.9%: +3.9 pp [−0.3, +8.2] |
+| natural wording ("Can you write…") | base 71.4%, quote_explain 9.4%, PASS-only 8.9%; gap ratio R = 1.26 / 1.19 (gap grows) |
+| dial: learned change × 0 / 0.25 / 0.5 / 0.75 / 1 | quote_explain 60.0 / 53.9 / 38.6 / 25.8 / 10.7; PASS-only 60.0 / 53.4 / 35.2 / 22.5 / 7.3 |
+| layers 0–13 / 14–26 / 27–39 only | quote_explain 51.9 / **27.2** / 54.4; PASS-only 56.2 / **19.8** / 54.5 (no-code ≤ 0.5% in all) |
+
+**Registered predictions** (plan: `notes/13_hack_share_and_mechanism_checks_registered_plan.md`)
+
+| prediction | verdict | what happened |
+|---|---|---|
+| A-0 every new grader ≥ 20 pp below base | held | −43 to −55 pp |
+| A-1 (exposure) P100 − P0 ≥ +5 pp, CI > 0, both seed pairs > 0 | **held** | +8.2 [+5.9, +10.7]; pairs +6.6, +9.8; among answers with runnable code +8.3 [+5.7, +11.1]; without cut-off answers 6.4 vs 14.7 |
+| A-2 (critical reviewer) | failed | opposite sign |
+| A-3 P50 between P0 and P100 | failed | P50 15.2 ≈ P100 14.6: saturated by 50%; shares below 50% untested |
+| A-4 (exploratory) mix50 (2,390) − quote_explain (4,780) | — | +4.5 [+2.7, +6.3]: twice the grading data, a little more resistance |
+| confound flag (no-prompt correct P0 vs P100 > 10 pp) | not triggered | 74.1 vs 80.3 (+6.2) |
+| B-1 reviewer prompt lowers base ≥ 20 pp | **failed** (both) | persona +11.6, role +3.9: prompts push the other way |
+| B-2 gap ratio under natural wording ≤ 0.5 | **failed** | R = 1.26 [1.12, 1.43] (quote_explain), 1.19 (PASS-only) |
+| B-3 non-increasing in the scale | held | both adapters; half the drop first reached at × 0.75 |
+| B-4 middle third gives the largest drop | held | both adapters; 67% (quote_explain) and 76% (PASS-only) of the full drop |
+
+**Deviations and failures:** first smoke job failed on a file-copy permission on the Azure share (fixed, ~6 GPU-min);
+first full checks job never got a container (Azure allocation; relaunched); answers cut at 1,500 tokens: mix50 72 / 82
+of 2,560 (> 2% flag) — investigated: the model writes its code, then keeps writing review-style prose (a few tails turn
+to garbled mixed-language text); excluding cut answers changes no group rate by more than 0.1 pp. Dial points are n = 5
+per task, ×0 and ×1 n = 10. The plan was registered by Claude while asri slept (asri approved the design); not yet
+committed (sha256 recorded in the plan and printed in every job log).
+
+**What it changes:** (1) asri's reading is now supported cleanly: grading code is protective, and reviewing hacked code
+takes back part of it (about 8 of the ~54 points), already at half hacks. The difference is also in *what* they write
+when told to hack: honest-only graders mostly solve the task honestly (correct 45–47% vs base 23%); graders that
+reviewed hacks write correct code at base's rate and otherwise broken code (wrong 39–50%), with hack signatures in 30% of
+answers vs 10% (botched hacks included). (2) The original 7% vs 13% comparison understated the exposure effect: at
+matched size the gap is 6.4 vs 15.2, and quote_explain's doubled grading data had pulled its rate down (~4.5 pp, A-4), so
+the two confounds partly cancelled. (3) The two cheap "why" routes failed: the reviewer prompts we tried do not call
+the effect up (the persona line pushes the other way, +11.6 pp), and it is not tied to the grading-template wording.
+This rules out those prompts, not every possible persona. (4) It lives mostly in layers 14–26 and grows smoothly with
+the learned change, without the model refusing to write code. By the decision rules: the direction study starts from
+model diffing (grader − base activation differences on held-out prompts) in layers 14–26, and must rank the hack-share
+graders (P0 < P50 ≈ P100 < base).
+
+**Run details:** Azure serverless A100 80 GB, default 8 vCPU / 64 GiB; executions c7t9x8p (failed smoke), c0i343m
+(smoke), o2gwm88 + w45fowb (training, 04:50–06:44 UTC), wk7f4pz (Part A eval, 54 min), 9jvpf7o (no container),
+mowojrz (Part B, 39 min); ≈ 5.2 GPU-h ≈ $17. No LLM judge (execution + AST). Five adapters (clean_quote_s1, mix50_s0/s1,
+fail_only_s0/s1) on the Azure share, the laptop and the private HF repo. Scripts `src/rh/make_n13_sets.py`,
+`src/rh/make_adapter_variants.py`, `pod/run_n13_{train,checks,eval}.sh`, `src/rh/analyze_n13.py`. Outputs
+`results/rh/samples_n13_*` + `scored_n13_*`, `results/n13/analysis.md`. Plan page: notes/13_plan.html.

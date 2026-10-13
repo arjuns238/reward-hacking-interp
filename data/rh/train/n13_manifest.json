@@ -1,0 +1,35 @@
+{
+ "source": "rhA_quote_explain.jsonl",
+ "n_rounds": 2390,
+ "n_selfdistill": 1437,
+ "sets": {
+  "clean_quote": {
+   "n_grading": 2390,
+   "n_total": 3827,
+   "pass_fail": {
+    "P": 2390
+   },
+   "assistant_words_mean": 254.5,
+   "ids_sha": "1437ec9fcb6e"
+  },
+  "mix50": {
+   "n_grading": 2390,
+   "n_total": 3827,
+   "pass_fail": {
+    "F": 1195,
+    "P": 1195
+   },
+   "assistant_words_mean": 251.8,
+   "ids_sha": "67290fa365ed"
+  },
+  "fail_only": {
+   "n_grading": 2390,
+   "n_total": 3827,
+   "pass_fail": {
+    "F": 2390
+   },
+   "assistant_words_mean": 248.8,
+   "ids_sha": "dbb737bba66f"
+  }
+ }
+}

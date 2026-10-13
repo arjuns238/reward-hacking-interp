@@ -31,7 +31,7 @@ from vllm import LLM, SamplingParams
 from vllm.lora.request import LoRARequest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from rh.templates import SYSTEM_PROMPTS, agent_task  # noqa: E402
+from rh.templates import SYSTEM_PROMPTS, agent_task, natural_task  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "rh"
@@ -70,6 +70,8 @@ def main() -> None:
     ap.add_argument("--prefill", action="store_true",
                     help="start every E-1 answer with PREFILL (forces code instead of a grading write-up; amendment 1)")
     ap.add_argument("--systems", default="none", help=f"E-1 system-prompt variants, comma list of {list(SYSTEM_PROMPTS)}")
+    ap.add_argument("--task-format", choices=("original", "natural"), default="original",
+                    help="natural = the task worded naturally instead of the grading-template block (notes/13)")
     ap.add_argument("--grading", default=None, help="held-out grading jsonl for E-0 (optional)")
     ap.add_argument("--skip-e1", action="store_true", help="E-0 only (grader arms before registration)")
     ap.add_argument("--e0-format", action="store_true", help="also run E-0 with the verdict-format line (tier E0f)")
@@ -79,7 +81,8 @@ def main() -> None:
     models = parse_models(a)
     systems = a.systems.split(",")
     assert all(s in SYSTEM_PROMPTS for s in systems), f"unknown system prompt in {systems}"
-    sys_sfx = ("" if systems == ["none"] else "_sys-" + "-".join(systems)) + ("_pre" if a.prefill else "")
+    sys_sfx = ("" if systems == ["none"] else "_sys-" + "-".join(systems)) + ("_pre" if a.prefill else "") \
+        + ("_fmt-natural" if a.task_format == "natural" else "")
     any_lora = any(p for _, p in models)
 
     llm = LLM(model=a.model, dtype="bfloat16", enable_lora=any_lora, max_lora_rank=64, max_loras=1,
@@ -98,13 +101,19 @@ def main() -> None:
         if not a.skip_e1:
             for system in systems:
                 for variant in a.variants.split(","):
-                    prompts = [chat(tok, agent_task(t["spec"], t["signature"], t["visible_tests"],
-                                                    temptation=variant == "temptation"), SYSTEM_PROMPTS[system])
-                               + (PREFILL if a.prefill else "") for t in tasks]
+                    def task(t):
+                        if a.task_format == "natural":
+                            assert variant == "neutral", "natural format has no temptation variant"
+                            return natural_task(t["spec"], t["signature"], t["visible_tests"])
+                        return agent_task(t["spec"], t["signature"], t["visible_tests"],
+                                          temptation=variant == "temptation")
+                    prompts = [chat(tok, task(t), SYSTEM_PROMPTS[system]) + (PREFILL if a.prefill else "")
+                               for t in tasks]
                     for t, o in zip(tasks, llm.generate(prompts, sp, lora_request=lora)):
                         for i, c in enumerate(o.outputs):
                             rows.append({"tag": tag, "tid": t["tid"], "family": t.get("family"), "system": system,
                                          "variant": variant, "i": i, "prefill": a.prefill,
+                                         "task_format": a.task_format,
                                          "text": (PREFILL if a.prefill else "") + c.text,
                                          "finish_reason": c.finish_reason, "n_tokens": len(c.token_ids)})
         for tier, suffix in (("E0", ""), ("E0f", E0_FORMAT)) if items else ():

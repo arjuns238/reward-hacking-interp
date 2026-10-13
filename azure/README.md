@@ -1,8 +1,9 @@
 # azure/ — GPU compute on Azure (serverless A100), the default since 2026-10-03
 
 **What this is.** Instead of renting a whole GPU machine (the legacy RunPod way in `pod/`), we hand Azure a
-pre-built container image and it runs it on an **A100 80 GB** with 24 CPUs, 220 GB RAM and ~470 GB of local
-scratch disk, billed **per second (~$1.80/h)** from Microsoft for Startups credits, with nothing to approve.
+pre-built container image and it runs it on an **A100 80 GB** (node: 24 CPUs, 220 GB RAM, ~470 GB of local
+scratch disk), billed **per second (~$3.20/h at the default request, see Costs)** from Microsoft for Startups
+credits, with nothing to approve.
 There is no machine to stop: a batch job ends the bill when it exits, and the Jupyter container is deleted at
 the end of a session. Limits: at most **2 A100s at a time**; no H100 or bigger this way (Azure refuses the GPU
 *VM* quota on sponsorship subscriptions; see the history in `TEMPLATE.md`).
@@ -62,7 +63,22 @@ PREFETCH_MODEL=org/name ./azure/run_job.sh pod/run_batch.sh    # long unattended
 
 ## Costs (from credits)
 
-A100 container ~$1.80/h (per second) while up; registry ~$5/month; file share ~$0.06/GB/month. Idle everything else: $0.
+A GPU container is billed on **three meters**, per second: the A100 (~$1.85/h) **plus** the vCPUs it requests
+(~$0.084 per vCPU-hour) **plus** the memory it requests (~$0.0105 per GiB-hour). So the price depends on
+`AZ_GPU_CPU` / `AZ_GPU_MEM` in `config.sh`:
+
+| request | ~$/h | when |
+|---|---|---|
+| 8 vCPU / 64 GiB (default) | 3.20 | inference, probing, notebooks |
+| 24 vCPU / 220 GiB (whole node) | 6.25 | only if a run needs the RAM (e.g. staging checkpoints in memory) |
+
+The GPU is the same A100 80 GB either way, and `nproc` inside the container still shows the node's 24 cores.
+Registry ~$5/month; file share ~$0.06/GB/month. Idle everything else: $0.
+
+**Where to see spend:** Azure portal → Cost Management (the "Billing" summary page), or
+`az rest` on the Cost Management query API. The Microsoft for Startups portal tile ("$0 used") does not track
+usage, and the credit "current balance" only drops when the monthly invoice is issued; the **estimated balance**
+is the live number.
 
 ## Gotchas found while setting this up
 
@@ -74,3 +90,7 @@ A100 container ~$1.80/h (per second) while up; registry ~$5/month; file share ~$
 - `eastus` refused to create the environment (`AKSCapacityHeavyUsage`); `westus3` worked. `config.sh` → `AZ_LOCATION`.
 - The brew-installed `az` prints Python `SyntaxWarning` noise; `_lib.sh` filters it.
 - Secrets (registry password, Jupyter token) go into a temp YAML that is deleted after each call; never commit a generated YAML.
+- The share (Azure Files) refuses `utime`/`chmod`: `shutil.copy2` / `cp -p` onto it raise PermissionError. Use
+  `shutil.copyfile` (contents only). (notes/13, 2026-10-13)
+- An execution that ends `Failed` within minutes with `ERROR: No replicas found for execution` never got a container (GPU
+  allocation failure; also seen as "No CUDA GPUs are available" in E8). Nothing ran; relaunch the same command.
