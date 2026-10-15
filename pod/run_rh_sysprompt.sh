@@ -7,8 +7,7 @@
 set -euo pipefail
 source "$(dirname "$0")/config.sh"
 cd "$REMOTE_ROOT"
-for f in /etc/profile.d/hf.sh /etc/profile.d/vllm.sh; do [ -f "$f" ] && source "$f"; done
-export HF_HOME="${HF_HOME:-/workspace/hf-cache}"
+export HF_HOME="${HF_HOME:-/scratch/hf-cache}"   # Azure image default; models re-downloaded per container
 export VLLM_USE_FLASHINFER_SAMPLER=0
 mkdir -p logs results/rh
 MODEL="${MODEL:-Qwen/Qwen3-14B}"

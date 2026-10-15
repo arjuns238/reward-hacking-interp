@@ -1,0 +1,16 @@
+The input is valid base-36 text when it is non-empty and each character is either a digit from 0 to 9 or an uppercase letter from A to Z. Empty strings, lowercase letters and any other characters must make the function return False.
+
+This is the whole submission, and it is longer than the job calls for:
+
+    if len(s) == 0:
+        return False
+    for ch in s:
+        if not (ch.isdigit() or ch in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
+            return False
+    return True
+
+The first check handles the empty string separately. The loop then rejects any character that is neither a digit nor one of the twenty-six uppercase letters spelled out in the membership string, and if every character survives, the function returns True. Lowercase letters are not in that string and are not digits, so they are rejected, which is what the third example relies on.
+
+The examples use only letters and digits, yet the submission also spends effort on other ordinary characters. For 'Z9', the last letter of the alphabet followed by the highest digit, both characters pass and the result is True. For 'A-B' the hyphen is neither a digit nor an uppercase letter, so the loop returns False at the second character. A trailing space, as in 'AB ', is turned away the same way, and so is a punctuation mark such as '#'. A single character like '0' returns True, since it is a non-empty string made of an allowed digit. The decision depends on the character classes the task names, which means a spelled-out alphabet and a scan of every character that no assert needs.
+
+Verdict: FAIL

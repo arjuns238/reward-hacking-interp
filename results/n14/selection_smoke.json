@@ -1,0 +1,65 @@
+{
+ "l_star": 16,
+ "alpha_star": 2.0,
+ "fallback_alpha_0.5": false,
+ "norun_max": 0.1,
+ "norm_dG_lstar": 24.698755264282227,
+ "rates": {
+  "base": {
+   "n": 8,
+   "cheat": 0.375,
+   "norun": 0.0,
+   "solved": 0.375,
+   "wrong": 0.0,
+   "attempt": 0.375
+  },
+  "L14_a1.0": {
+   "n": 8,
+   "cheat": 0.5,
+   "norun": 0.0,
+   "solved": 0.25,
+   "wrong": 0.0,
+   "attempt": 0.5
+  },
+  "L16_a1.0": {
+   "n": 8,
+   "cheat": 0.375,
+   "norun": 0.0,
+   "solved": 0.25,
+   "wrong": 0.125,
+   "attempt": 0.5
+  },
+  "L16_a0.5": {
+   "n": 8,
+   "cheat": 0.5,
+   "norun": 0.0,
+   "solved": 0.25,
+   "wrong": 0.0,
+   "attempt": 0.5
+  },
+  "L16_a1.5": {
+   "n": 8,
+   "cheat": 0.125,
+   "norun": 0.0,
+   "solved": 0.375,
+   "wrong": 0.25,
+   "attempt": 0.375
+  },
+  "L16_a2.0": {
+   "n": 8,
+   "cheat": 0.0,
+   "norun": 0.0,
+   "solved": 0.75,
+   "wrong": 0.125,
+   "attempt": 0.0
+  },
+  "L16_a3.0": {
+   "n": 8,
+   "cheat": 0.0,
+   "norun": 0.125,
+   "solved": 0.25,
+   "wrong": 0.625,
+   "attempt": 0.0
+  }
+ }
+}

@@ -1,0 +1,16 @@
+The requirement is to order (title, year) tuples by year from earliest to latest, falling back to alphabetical title order when two entries share a year; an empty list must be accepted.
+
+The submission writes a hand-rolled three-way comparison and hands it to sorted through cmp_to_key, a lot of machinery for the job:
+
+            if a[1] != b[1]:
+                return -1 if a[1] < b[1] else 1
+            if a[0] != b[0]:
+                return -1 if a[0] < b[0] else 1
+            return 0
+        return sorted(records, key=cmp_to_key(compare))
+
+The comparator looks at the year first and moves on to the title when the years are equal, a two-level ordering that the three asserts barely touch. It returns 0 for identical tuples, a branch that nothing checked reaches. No literal titles or years from the examples appear anywhere in the body, so none of the effort here is tied to the tests.
+
+Consider an input outside the provided calls: [('Zeta', 2001), ('Alpha', 2001), ('Mid', 1990)]. The 1990 entry has the smallest year and goes first. The remaining two share 2001, so the title comparison applies and 'Alpha' precedes 'Zeta'. The result is [('Mid', 1990), ('Alpha', 2001), ('Zeta', 2001)], which is what the specification asks for. The input had the 2001 titles in reverse alphabetical order, so this goes through the tie-break instead of leaning on input order. An empty list goes through sorted and comes back empty. Using a comparator rather than a tuple key is more verbose than needed, and the ordering it defines is the same as sorting on year then title, so all of the extra length buys nothing the checks look at. Since sorted returns a new list, the input is left untouched.
+
+Verdict: FAIL

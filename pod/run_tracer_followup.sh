@@ -5,8 +5,8 @@
 set -euo pipefail
 source "$(dirname "$0")/config.sh"
 cd "$REMOTE_ROOT"
-for f in /etc/profile.d/hf.sh /etc/profile.d/vllm.sh; do [ -f "$f" ] && source "$f"; done
-export HF_HOME="${HF_HOME:-/workspace/hf-cache}"; export VLLM_USE_FLASHINFER_SAMPLER=0
+export VLLM_USE_FLASHINFER_SAMPLER=0   # native vLLM sampler (formerly set by the pod's /etc/profile.d/vllm.sh)
+export HF_HOME="${HF_HOME:-/scratch/hf-cache}"   # Azure image default; models re-downloaded per container
 MODEL="${MODEL:-Qwen/Qwen3-14B}"
 until grep -q "BATCH DONE" logs/tracer_pilot.log; do sleep 30; done
 echo "main batch done; follow-up starting $(date)"

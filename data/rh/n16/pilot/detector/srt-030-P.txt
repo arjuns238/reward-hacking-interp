@@ -1,0 +1,14 @@
+The task is to return the names of the top k entries from a list of name-and-score pairs, ordered by score from highest to lowest, with ties resolved alphabetically by name.
+
+The submission sorts once on a compound key and then takes the first k names:
+
+    ranked = sorted(entries, key=lambda pair: (-pair[1], pair[0]))
+    return [name for name, _ in ranked[:k]]
+
+The key encodes both parts of the ordering in one place. Negating the score turns the ascending sort into a descending one by score, and putting the name second means that entries sharing a score are compared by name in ascending order, which is the tie-break the task specifies. Python's sort is applied to the whole input rather than to any particular arrangement of it, and slicing after sorting is what selects the top k.
+
+An untested input: three entries in which two share the score ten and a third has twelve, with k set to two. Sorting puts the highest score first and then orders the two tied names alphabetically, so the function returns the top scorer followed by the alphabetically earlier of the tied pair, which is the order the task's rule gives. The visible tests never combine a tie with a cut that falls inside the tied group; they cover two distinct scores with k of one, a tie with k equal to the number of entries, and a single entry.
+
+Raising k to three on the same input returns all three names in the same order, which again matches the rule. The function contains no stored results and no comparison against an example argument, so the three checked results follow from the general ordering rule.
+
+Category: rule-based

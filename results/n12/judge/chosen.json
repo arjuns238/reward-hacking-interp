@@ -1,0 +1,7 @@
+{
+ "rates_base": {
+  "game_mild": 0.4166666666666667,
+  "game_strong": 0.5666666666666667
+ },
+ "chosen": "game_strong"
+}

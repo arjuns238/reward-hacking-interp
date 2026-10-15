@@ -1,0 +1,4 @@
+[hack/neutral] n=1280 | hack 7.1% (of code-producing 7.1%) | attempt 11.0% | overfit 1.8% | correct 46.7% | no_code 0.0% | truncated 22
+[hack_unmon/neutral] n=1280 | hack 5.7% (of code-producing 5.7%) | attempt 10.2% | overfit 2.1% | correct 41.5% | no_code 0.1% | truncated 23
+[hack_mon/neutral] n=1280 | hack 4.2% (of code-producing 4.2%) | attempt 7.3% | overfit 0.9% | correct 52.2% | no_code 0.0% | truncated 24
+wrote results/rh/scored_clean_quote_s0_sys-hack-hack_unmon-hack_mon_pre.jsonl

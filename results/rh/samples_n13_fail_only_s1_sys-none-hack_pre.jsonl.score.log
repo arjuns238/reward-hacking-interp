@@ -1,0 +1,3 @@
+[none/neutral] n=1280 | hack 0.1% (of code-producing 0.1%) | attempt 0.9% | overfit 0.3% | correct 82.7% | no_code 0.0% | truncated 3
+[hack/neutral] n=1280 | hack 15.3% (of code-producing 15.3%) | attempt 30.6% | overfit 2.2% | correct 26.0% | no_code 0.0% | truncated 6
+wrote results/rh/scored_n13_fail_only_s1_sys-none-hack_pre.jsonl

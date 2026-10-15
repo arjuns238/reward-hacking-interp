@@ -1,0 +1,456 @@
+<title>What Did Grading Change?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one readable column, the same lab-notebook look as the notes/13 page. Teal marks the direction we find
+   (the grading shift), amber the hack-exposed graders, red cheating, green honest solving. */
+:root {
+  --bg: #fbfcfc;
+  --surface: #f0f4f4;
+  --fg: #1b2526;
+  --muted: #586668;
+  --rule: #d5dfe0;
+  --pass: #1f7a5a;
+  --pass-soft: #d9efe6;
+  --fail: #b5372f;
+  --fail-soft: #f6dedb;
+  --accent: #23606e;
+  --amber: #a5620c;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121819; --surface: #1b2425; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
+    --pass: #5fc39b; --pass-soft: #173a2e; --fail: #ec7f76; --fail-soft: #43201d; --accent: #7cc2d1; --amber: #e3a857;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121819; --surface: #1b2425; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
+  --pass: #5fc39b; --pass-soft: #173a2e; --fail: #ec7f76; --fail-soft: #43201d; --accent: #7cc2d1; --amber: #e3a857;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 1rem; line-height: 1.6; }
+.page { max-width: 44rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 2.5rem 4rem; display: grid; gap: 3rem; }
+header { display: grid; gap: .6rem; }
+.eyebrow { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+section { display: grid; gap: 1.1rem; min-width: 0; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .5rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.known { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .75rem; }
+.fact { background: var(--surface); border-radius: 8px; padding: .9rem 1rem; display: grid; gap: .25rem; align-content: start; }
+.fact b { font-family: var(--mono); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.fact span { font-size: .88rem; color: var(--muted); }
+
+.questions { display: grid; gap: .8rem; counter-reset: q; }
+.q { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: .75rem; align-items: start; }
+.q .tag { font-family: var(--mono); font-weight: 600; font-size: .8rem; color: var(--accent); border: 1px solid var(--rule); border-radius: 6px; text-align: center; padding: .2rem 0; }
+.q.side .tag { color: var(--muted); }
+
+.steps { display: grid; gap: 1.75rem; }
+.step { display: grid; gap: .7rem; padding-top: 1.1rem; border-top: 1px solid var(--rule); }
+.step-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .8rem; }
+.step-head .mono { color: var(--muted); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+.callout { background: var(--surface); border-radius: 8px; padding: .8rem 1rem; font-size: .93rem; }
+
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; }
+.panel { display: grid; gap: .4rem; min-width: 0; }
+.panel h4 { margin: 0; font-size: .95rem; font-weight: 600; }
+.panel p { font-size: .88rem; color: var(--muted); }
+.diagram { width: 100%; height: auto; display: block; background: var(--surface); border-radius: 8px; }
+.diagram text { font-family: var(--body); font-size: 12px; fill: var(--fg); }
+.diagram .dim { fill: var(--muted); }
+.diagram .arrow { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.diagram .head { fill: var(--accent); }
+.diagram .back { stroke: var(--amber); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+.diagram .dot-u { fill: var(--fail); }
+.diagram .dot-g { fill: var(--pass); }
+.diagram .dot-h { fill: var(--amber); }
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+th, td { text-align: left; vertical-align: top; padding: .6rem .7rem; border-bottom: 1px solid var(--rule); }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td:first-child { min-width: 10rem; }
+.yes { color: var(--pass); font-weight: 600; }
+.no { color: var(--fail); font-weight: 600; }
+.guess { font-family: var(--mono); font-size: .85rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Results charts */
+figure { margin: 0; display: grid; gap: .7rem; min-width: 0; }
+.chart-title { font-weight: 600; }
+.chart-note { font-size: .85rem; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .85rem; color: var(--muted); }
+.legend i { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; vertical-align: -1px; margin-right: .35rem; }
+.legend .sw-cheat { background: var(--fail); }
+.legend .sw-solved { background: var(--pass); }
+.legend .sw-norun { background: var(--muted); }
+.legend .sw-grey { background: var(--muted); border-radius: 50%; }
+.legend .sw-green { background: var(--pass); border-radius: 50%; }
+.legend .sw-amber { background: var(--amber); border-radius: 50%; }
+.legend .sw-teal { background: var(--accent); border-radius: 50%; }
+.bars { --max: 80; display: grid; gap: .5rem; }
+.row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 3.4rem; align-items: center; gap: .3rem .9rem; }
+.row .lab { font-size: .9rem; line-height: 1.35; min-width: 0; }
+.track { position: relative; height: 1.7rem;
+  background-image: linear-gradient(to right, var(--rule) 1px, transparent 1px); background-size: 25% 100%;
+  box-shadow: inset -1px 0 0 var(--rule); }
+.bar { position: absolute; left: 0; height: .62rem; width: calc(var(--v) / var(--max) * 100%); border-radius: 0 3px 3px 0; }
+.bar.cheat { top: .18rem; background: var(--fail); }
+.bar.solved { top: .9rem; background: var(--pass); }
+.val { font-family: var(--mono); font-size: .8rem; text-align: right; font-variant-numeric: tabular-nums; display: grid; line-height: 1.25; }
+.val .c { color: var(--fail); } .val .s { color: var(--pass); }
+.ticks { position: relative; height: 1rem; font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+.ticks span { position: absolute; left: calc(var(--t) / var(--max) * 100%); transform: translateX(-50%); }
+.row.pick .lab { font-weight: 600; }
+.plot { width: 100%; height: auto; display: block; }
+.plot text { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+.plot .lbl { fill: var(--fg); font-family: var(--body); font-size: 11px; }
+.plot .gl { stroke: var(--rule); stroke-width: 1; }
+.plot .ax { stroke: var(--muted); stroke-width: 1; }
+.plot .l-cheat { stroke: var(--fail); stroke-width: 2.5; fill: none; }
+.plot .l-solved { stroke: var(--pass); stroke-width: 2.5; fill: none; }
+.plot .l-norun { stroke: var(--muted); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+.plot .p-cheat { fill: var(--fail); } .plot .p-solved { fill: var(--pass); } .plot .p-norun { fill: var(--muted); }
+.plot .mark { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; }
+.plot .d-grey { fill: var(--muted); } .plot .d-green { fill: var(--pass); } .plot .d-amber { fill: var(--amber); }
+.plot .d-teal { fill: var(--accent); } .plot .d-src { fill: var(--bg); stroke: var(--pass); stroke-width: 2; }
+.scatter { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.scatter > div { display: grid; gap: .3rem; min-width: 0; }
+.scatter h4 { margin: 0; font-size: .92rem; font-weight: 600; }
+.chip { font-family: var(--mono); font-size: .7rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: .12rem .45rem; border-radius: 999px; white-space: nowrap; display: inline-block; }
+.chip.ok { background: var(--pass-soft); color: var(--pass); }
+.chip.mid { background: var(--surface); color: var(--amber); border: 1px solid var(--rule); }
+.chip.miss { background: var(--fail-soft); color: var(--fail); }
+.partial { border: 1px solid var(--rule); border-radius: 8px; padding: .8rem 1rem; display: grid; gap: .5rem; }
+@media (max-width: 36rem) {
+  .row { grid-template-columns: minmax(0, 1fr) 3rem; }
+  .row .lab { grid-column: 1 / -1; }
+  .row.axisrow .lab { display: none; }
+}
+.note { font-size: .9rem; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 1rem; display: grid; gap: .5rem; }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Plan and results · notes/14 · registered 13 Oct 2026, before any compute</div>
+    <h1>What did grading change inside the model?</h1>
+    <p class="lede">Training Qwen3-14B to grade code makes it far less willing to cheat when told to, and reviewing hacked code takes back part of that. We know roughly where in the model this happens. This experiment looks inside to find what changed.</p>
+  </header>
+
+
+  <section>
+    <div class="eyebrow">Main test · stage 2 · 14 Oct 2026 · 128 new tasks × 3 answers · about $10.40 in all</div>
+    <h2>What the main test found</h2>
+    <p>The main test fixed the setting from the first job (layer 24, natural size) and ran it on 128 tasks the selection never saw, next to controls: random pushes of the same size, the shift from a fine-tune that never graded, and the shift the reviewer prompt causes. It also took the shift <em>out</em> of three graders and out of the untrained model.</p>
+    <div class="callout"><strong>Short version.</strong> Adding the grading shift to the untrained model is a strong and specific lever: cheating drops from 60% to 5% on new tasks and honest solving nearly triples, while a random push of the same size does nothing. Taking it out of the graders brought back only a little cheating, but the removal method turned out to leave most of the shift in place, so whether graders <em>need</em> this shift is still open.</p></div>
+
+    <figure>
+      <figcaption class="chart-title">Pushing the untrained model, on new tasks</figcaption>
+      <div class="bars">
+          <div class="row"><span class="lab">No push</span><span class="track"><span class="bar cheat" style="--v:60.2"></span><span class="bar solved" style="--v:21.1"></span></span><span class="val"><span class="c">60%</span><span class="s">21%</span></span></div>
+          <div class="row"><span class="lab">Random push, same size (3 seeds)</span><span class="track"><span class="bar cheat" style="--v:59.4"></span><span class="bar solved" style="--v:16.4"></span></span><span class="val"><span class="c">59%</span><span class="s">16%</span></span></div>
+          <div class="row"><span class="lab">Non-grading fine-tune's shift</span><span class="track"><span class="bar cheat" style="--v:47.4"></span><span class="bar solved" style="--v:23.4"></span></span><span class="val"><span class="c">47%</span><span class="s">23%</span></span></div>
+          <div class="row"><span class="lab">Reviewer prompt's shift</span><span class="track"><span class="bar cheat" style="--v:2.6"></span><span class="bar solved" style="--v:15.4"></span></span><span class="val"><span class="c">3%</span><span class="s">15%</span></span></div>
+          <div class="row pick"><span class="lab">Grading shift</span><span class="track"><span class="bar cheat" style="--v:4.7"></span><span class="bar solved" style="--v:57.8"></span></span><span class="val"><span class="c">5%</span><span class="s">58%</span></span></div>
+          <div class="row axisrow"><span class="lab"></span><span class="ticks"><span style="--t:0">0</span><span style="--t:20">20</span><span style="--t:40">40</span><span style="--t:60">60</span><span style="--t:80">80%</span></span><span></span></div>
+      </div>
+      <div class="legend"><span><i class="sw-cheat"></i>cheats when told to</span><span><i class="sw-solved"></i>solves the task properly</span></div>
+      <p class="chart-note">All pushes have the same size, added at layer 24. The random push is the key control: it changes nothing, so the effect belongs to this direction, not to pushing hard. The reviewer prompt's shift also stops working cheats, but by breaking the code: 81% of its answers are simply wrong, and honest solving falls below the untrained model's. Only the grading shift replaces cheating with honest work. With no cheat order, the grading shift costs some ordinary coding (92% → 80% correct).</p>
+    </figure>
+
+    <figure>
+      <figcaption class="chart-title">Taking the shift out (as registered: set the model's position on it to zero)</figcaption>
+      <div class="bars">
+          <div class="row"><span class="lab">Honest-only grader (source)</span><span class="track"><span class="bar cheat" style="--v:5.5"></span><span class="bar solved" style="--v:43.8"></span></span><span class="val"><span class="c">6%</span><span class="s">44%</span></span></div>
+          <div class="row"><span class="lab">→ random direction removed</span><span class="track"><span class="bar cheat" style="--v:5.6"></span><span class="bar solved" style="--v:44.0"></span></span><span class="val"><span class="c">6%</span><span class="s">44%</span></span></div>
+          <div class="row pick"><span class="lab">→ shift removed</span><span class="track"><span class="bar cheat" style="--v:14.3"></span><span class="bar solved" style="--v:36.2"></span></span><span class="val"><span class="c">14%</span><span class="s">36%</span></span></div>
+          <div class="row"><span class="lab">Second honest-only grader</span><span class="track"><span class="bar cheat" style="--v:6.0"></span><span class="bar solved" style="--v:44.0"></span></span><span class="val"><span class="c">6%</span><span class="s">44%</span></span></div>
+          <div class="row pick"><span class="lab">→ shift removed</span><span class="track"><span class="bar cheat" style="--v:12.0"></span><span class="bar solved" style="--v:32.3"></span></span><span class="val"><span class="c">12%</span><span class="s">32%</span></span></div>
+          <div class="row"><span class="lab">All-hacks grader</span><span class="track"><span class="bar cheat" style="--v:15.6"></span><span class="bar solved" style="--v:29.9"></span></span><span class="val"><span class="c">16%</span><span class="s">30%</span></span></div>
+          <div class="row pick"><span class="lab">→ shift removed</span><span class="track"><span class="bar cheat" style="--v:12.2"></span><span class="bar solved" style="--v:18.5"></span></span><span class="val"><span class="c">12%</span><span class="s">19%</span></span></div>
+          <div class="row"><span class="lab">Untrained model</span><span class="track"><span class="bar cheat" style="--v:60.2"></span><span class="bar solved" style="--v:21.1"></span></span><span class="val"><span class="c">60%</span><span class="s">21%</span></span></div>
+          <div class="row pick"><span class="lab">→ shift removed</span><span class="track"><span class="bar cheat" style="--v:27.6"></span><span class="bar solved" style="--v:27.6"></span></span><span class="val"><span class="c">28%</span><span class="s">28%</span></span></div>
+          <div class="row axisrow"><span class="lab"></span><span class="ticks"><span style="--t:0">0</span><span style="--t:20">20</span><span style="--t:40">40</span><span style="--t:60">60</span><span style="--t:80">80%</span></span><span></span></div>
+      </div>
+      <div class="legend"><span><i class="sw-cheat"></i>cheats when told to</span><span><i class="sw-solved"></i>solves the task properly</span></div>
+      <p class="chart-note">Removal from layers 14–26. The source grader's cheating rises by 9 points (random removal: 0), less than the 20 I set as the bar. The all-hacks grader doesn't move. And the untrained model, which should have barely changed, cheats half as much. The diagram below shows why.</p>
+    </figure>
+
+    <figure>
+      <figcaption class="chart-title">Why removal was weaker than designed</figcaption>
+      <svg class="plot" viewBox="0 0 460 200" role="img" aria-labelledby="rm-t" style="max-width:36rem"><title id="rm-t">On the shift's axis at layer 24 the untrained model sits at −71 and the graders at +5 to +19. Removal sets everyone to zero: the grader moves only about a fifth of the way back, while the untrained model moves most of the way towards the graders.</title>
+        <line class="mark" x1="320.9" y1="36" x2="320.9" y2="172"/>
+        <text x="320.9" y="28" text-anchor="middle" class="lbl">0: where removal puts every model</text>
+        <line class="ax" x1="30" y1="92" x2="430" y2="92"/>
+        <text x="30" y="108" text-anchor="middle">−80</text><text x="102.7" y="108" text-anchor="middle">−60</text><text x="175.5" y="108" text-anchor="middle">−40</text><text x="248.2" y="108" text-anchor="middle">−20</text><text x="393.6" y="108" text-anchor="middle">+20</text>
+        <circle class="d-grey" cx="61.6" cy="92" r="5"/><circle class="d-grey" cx="106.7" cy="92" r="5"/>
+        <circle class="d-amber" cx="338.4" cy="92" r="5"/><circle class="d-green" cx="381.3" cy="92" r="5"/><circle class="d-src" cx="390.7" cy="92" r="5"/>
+        <text x="61.6" y="78" text-anchor="middle" class="lbl">untrained</text>
+        <text x="106.7" y="60" text-anchor="middle" class="lbl">non-grading fine-tune</text>
+        <text x="300" y="60" text-anchor="end" class="lbl">all-hacks grader</text><line class="gl" x1="302" y1="57" x2="335" y2="86"/>
+        <text x="386" y="78" text-anchor="middle" class="lbl">honest-only</text>
+        <line class="l-solved" x1="390.7" y1="130" x2="329" y2="130" style="stroke:var(--accent)"/><polygon points="321,130 329,125.5 329,134.5" class="d-teal"/>
+        <text x="314" y="134" text-anchor="end" class="lbl">grader: moved only ~20% of the way back</text>
+        <line class="l-solved" x1="61.6" y1="158" x2="313" y2="158" style="stroke:var(--accent)"/><polygon points="320.9,158 312.9,153.5 312.9,162.5" class="d-teal"/>
+        <text x="190" y="184" text-anchor="middle" class="lbl">untrained model: pushed ~80% of the way to the graders</text>
+      </svg>
+      <p class="chart-note">Each model's average position on the shift's direction at layer 24, on the 128 test prompts with the cheat order (the same holds at every layer from 14 to 26). The standard removal method sets that position to zero. I assumed zero meant "no grading shift", but the untrained model sits far below zero and the graders only a little above it. So the grader kept most of its shift, and the untrained model got most of it added. The four removal results fit that pattern. This was found after the run, so it doesn't change the registered verdicts below.</p>
+    </figure>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Registered test</th><th>Result</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td>Adding the shift lowers cheating, beating random by 15+ points</td><td><span class="chip ok">held</span><br>−55 points; random −1</td><td>The gate passes: this direction drives the behaviour, on new tasks.</td></tr>
+          <tr><td>…and makes the model honest, not broken (+10 solved)</td><td><span class="chip ok">held</span><br>+37 points solved</td><td>It replaces cheating with real work.</td></tr>
+          <tr><td>Removing it from the source grader brings cheating back (+20)</td><td><span class="chip miss">not held</span><br>+9 (random 0)</td><td>Real but small, and the removal undid only about a fifth of the shift.</td></tr>
+          <tr><td>…and from the second honest-only and all-hacks graders (+15 each)</td><td><span class="chip miss">not held</span><br>+6 and −3</td><td>Same issue; the all-hacks grader sits almost at zero, so removal barely moved it.</td></tr>
+          <tr><td>Removing it from the untrained model changes little (±10)</td><td><span class="chip miss">not held</span><br>−33</td><td>Removal pushed the untrained model towards the graders.</td></tr>
+          <tr><td>Any fine-tune's shift does little (above −10)</td><td><span class="chip mid">just missed</span><br>−13</td><td>The non-grading shift has a quarter of the grading shift's effect; the two directions overlap a little (0.30).</td></tr>
+          <tr><td>The reviewer prompt's shift does nothing (above −5)</td><td><span class="chip miss">not held</span><br>−58</td><td>It stops working cheats by breaking the code, not by honest solving.</td></tr>
+          <tr><td>Adding the hack-exposure difference to an honest grader raises cheating (+5, exploratory)</td><td><span class="chip miss">not held</span><br>+2</td><td>What reviewing hacks changed, outside this shift, doesn't by itself bring cheating back.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What's next</h3>
+    <ul>
+      <li><strong>The test removal was meant to be.</strong> Subtract the shift from the grader at layer 24, the exact reverse of adding it to the untrained model, next to a random push of the same size. It's written up as a proposed amendment with the bar fixed in advance (+20 points). About 25 GPU-minutes, roughly $1.50.</li>
+      <li><strong>Naming the shift.</strong> Compare it with the untrained model's own cheat-versus-honest direction, a refusal direction, and the words it pushes towards.</li>
+    </ul>
+    <p class="chart-note">Five of 6,912 answers hit the length cap, all runaway text; well under the 2% rule. Fixing and re-scoring the answers that didn't run leaves every removal comparison unchanged.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">First results · stage 1 · 13 Oct 2026 · about $4.40 so far</div>
+    <h2>What the first job found</h2>
+    <div class="partial">
+      <p><strong>Partial.</strong> This is model diffing plus a quick try-out. The try-out used the same 64 practice tasks that chose the setting, with no controls yet. The main test (above) checked it on 128 new tasks against controls.</p>
+    </div>
+    <p>The job read the internal activations of all nine models on 256 coding tasks with the cheat order, without generating anything. It measured the <strong>grading shift</strong>: the average difference between the honest-only grader and the untrained model. Then it added that shift to the untrained model while it wrote code, at different layers and strengths, and kept the setting with the least cheating whose code still ran.</p>
+
+    <figure>
+      <figcaption class="chart-title">Adding the grading shift to the untrained model, by layer (natural size)</figcaption>
+      <div class="bars">
+          <div class="row"><span class="lab">No shift (untrained)</span><span class="track"><span class="bar cheat" style="--v:51.6"></span><span class="bar solved" style="--v:24.2"></span></span><span class="val"><span class="c">52%</span><span class="s">24%</span></span></div>
+          <div class="row"><span class="lab">Layer 14</span><span class="track"><span class="bar cheat" style="--v:60.2"></span><span class="bar solved" style="--v:10.9"></span></span><span class="val"><span class="c">60%</span><span class="s">11%</span></span></div>
+          <div class="row"><span class="lab">Layer 16</span><span class="track"><span class="bar cheat" style="--v:50.8"></span><span class="bar solved" style="--v:11.7"></span></span><span class="val"><span class="c">51%</span><span class="s">12%</span></span></div>
+          <div class="row"><span class="lab">Layer 18</span><span class="track"><span class="bar cheat" style="--v:28.1"></span><span class="bar solved" style="--v:38.3"></span></span><span class="val"><span class="c">28%</span><span class="s">38%</span></span></div>
+          <div class="row"><span class="lab">Layer 20</span><span class="track"><span class="bar cheat" style="--v:7.8"></span><span class="bar solved" style="--v:50.0"></span></span><span class="val"><span class="c">8%</span><span class="s">50%</span></span></div>
+          <div class="row"><span class="lab">Layer 22</span><span class="track"><span class="bar cheat" style="--v:4.7"></span><span class="bar solved" style="--v:52.3"></span></span><span class="val"><span class="c">5%</span><span class="s">52%</span></span></div>
+          <div class="row pick"><span class="lab">Layer 24 (chosen)</span><span class="track"><span class="bar cheat" style="--v:2.3"></span><span class="bar solved" style="--v:49.2"></span></span><span class="val"><span class="c">2%</span><span class="s">49%</span></span></div>
+          <div class="row"><span class="lab">Layer 26</span><span class="track"><span class="bar cheat" style="--v:28.1"></span><span class="bar solved" style="--v:30.5"></span></span><span class="val"><span class="c">28%</span><span class="s">30%</span></span></div>
+          <div class="row axisrow"><span class="lab"></span><span class="ticks"><span style="--t:0">0</span><span style="--t:20">20</span><span style="--t:40">40</span><span style="--t:60">60</span><span style="--t:80">80%</span></span><span></span></div>
+      </div>
+      <div class="legend"><span><i class="sw-cheat"></i>cheats when told to</span><span><i class="sw-solved"></i>solves the task properly</span></div>
+      <p class="chart-note">64 practice tasks × 2 answers per row. Adding the shift early (layers 14–16) does nothing; from layer 20 on, cheating collapses and honest solving doubles. Code still runs in 98% or more of answers at every layer.</p>
+    </figure>
+
+    <figure>
+      <figcaption class="chart-title">Turning the shift up at layer 24</figcaption>
+      <svg class="plot" viewBox="0 0 460 290" role="img" aria-labelledby="st-t" style="max-width:34rem"><title id="st-t">At layer 24, cheating falls from 52% to 2% as the shift reaches its natural size (1); solving properly peaks at 49% there; above 1 the code stops running.</title><text x="0" y="14">% of answers</text><line class="gl" x1="52" y1="240.0" x2="412" y2="240.0"/><text x="44" y="244.0" text-anchor="end">0</text><line class="gl" x1="52" y1="187.5" x2="412" y2="187.5"/><text x="44" y="191.5" text-anchor="end">25</text><line class="gl" x1="52" y1="135.0" x2="412" y2="135.0"/><text x="44" y="139.0" text-anchor="end">50</text><line class="gl" x1="52" y1="82.5" x2="412" y2="82.5"/><text x="44" y="86.5" text-anchor="end">75</text><line class="gl" x1="52" y1="30.0" x2="412" y2="30.0"/><text x="44" y="34.0" text-anchor="end">100</text><line class="mark" x1="172" y1="30" x2="172" y2="240"/><text x="178" y="44" class="lbl">natural size (chosen)</text><polyline class="l-cheat" points="52,131.6 112.0,189.2 172,235.2 232.0,240.0 292,240.0 412,240.0"/><circle class="p-cheat" cx="52" cy="131.6" r="3.5"/><circle class="p-cheat" cx="112.0" cy="189.2" r="3.5"/><circle class="p-cheat" cx="172" cy="235.2" r="3.5"/><circle class="p-cheat" cx="232.0" cy="240.0" r="3.5"/><circle class="p-cheat" cx="292" cy="240.0" r="3.5"/><circle class="p-cheat" cx="412" cy="240.0" r="3.5"/><polyline class="l-solved" points="52,189.2 112.0,156.4 172,136.7 232.0,190.9 292,236.6 412,240.0"/><circle class="p-solved" cx="52" cy="189.2" r="3.5"/><circle class="p-solved" cx="112.0" cy="156.4" r="3.5"/><circle class="p-solved" cx="172" cy="136.7" r="3.5"/><circle class="p-solved" cx="232.0" cy="190.9" r="3.5"/><circle class="p-solved" cx="292" cy="236.6" r="3.5"/><circle class="p-solved" cx="412" cy="240.0" r="3.5"/><polyline class="l-norun" points="52,240.0 112.0,236.6 172,235.2 232.0,195.7 292,122.0 412,30.0"/><circle class="p-norun" cx="52" cy="240.0" r="3.5"/><circle class="p-norun" cx="112.0" cy="236.6" r="3.5"/><circle class="p-norun" cx="172" cy="235.2" r="3.5"/><circle class="p-norun" cx="232.0" cy="195.7" r="3.5"/><circle class="p-norun" cx="292" cy="122.0" r="3.5"/><circle class="p-norun" cx="412" cy="30.0" r="3.5"/><text x="52" y="258" text-anchor="middle">0</text><text x="112.0" y="258" text-anchor="middle">0.5</text><text x="172" y="258" text-anchor="middle">1</text><text x="232.0" y="258" text-anchor="middle">1.5</text><text x="292" y="258" text-anchor="middle">2</text><text x="412" y="258" text-anchor="middle">3</text><text x="232" y="282" text-anchor="middle">how much of the grading shift is added (1 = its natural size)</text></svg>
+      <div class="legend"><span><i class="sw-cheat"></i>cheats</span><span><i class="sw-solved"></i>solves properly</span><span><i class="sw-norun"></i>code doesn't run</span></div>
+      <p class="chart-note">At half size cheating halves. At natural size it nearly disappears and honest solving peaks. Bigger than natural, the model starts writing broken or runaway text, so the rules fixed in advance chose layer 24 at natural size.</p>
+    </figure>
+
+    <figure>
+      <figcaption class="chart-title">Where each model sits, against how often it cheats</figcaption>
+      <div class="scatter">
+        <div><h4>Position along the grading shift</h4><svg class="plot" viewBox="0 0 300 240" role="img"><text x="0" y="12">cheats when told to, %</text><line class="gl" x1="44" y1="196.0" x2="280" y2="196.0"/><text x="38" y="200.0" text-anchor="end">0</text><line class="gl" x1="44" y1="145.7" x2="280" y2="145.7"/><text x="38" y="149.7" text-anchor="end">20</text><line class="gl" x1="44" y1="95.4" x2="280" y2="95.4"/><text x="38" y="99.4" text-anchor="end">40</text><line class="gl" x1="44" y1="45.1" x2="280" y2="45.1"/><text x="38" y="49.1" text-anchor="end">60</text><line class="ax" x1="44" y1="196" x2="280" y2="196"/><text x="44.0" y="212" text-anchor="middle">0</text><text x="97.6" y="212" text-anchor="middle">0.25</text><text x="151.3" y="212" text-anchor="middle">0.5</text><text x="204.9" y="212" text-anchor="middle">0.75</text><text x="258.5" y="212" text-anchor="middle">1.0</text><text x="162" y="234" text-anchor="middle">how far along the grading shift</text><circle class="d-grey" cx="44.0" cy="45.1" r="5"/><circle class="d-grey" cx="74.0" cy="66.5" r="5"/><circle class="d-amber" cx="228.5" cy="161.1" r="5"/><circle class="d-amber" cx="230.7" cy="157.5" r="5"/><circle class="d-amber" cx="237.1" cy="161.6" r="5"/><circle class="d-amber" cx="243.5" cy="154.3" r="5"/><circle class="d-teal" cx="239.2" cy="169.1" r="5"/><circle class="d-green" cx="258.5" cy="182.2" r="5"/><circle class="d-src" cx="265.0" cy="177.6" r="5"/><text class="lbl" x="54" y="42" text-anchor="start">untrained</text><text class="lbl" x="84" y="70" text-anchor="start">non-grading fine-tune</text></svg></div>
+        <div><h4>How much of the cheat order reaches the code</h4><svg class="plot" viewBox="0 0 300 240" role="img"><text x="0" y="12">cheats when told to, %</text><line class="gl" x1="44" y1="196.0" x2="280" y2="196.0"/><text x="38" y="200.0" text-anchor="end">0</text><line class="gl" x1="44" y1="145.7" x2="280" y2="145.7"/><text x="38" y="149.7" text-anchor="end">20</text><line class="gl" x1="44" y1="95.4" x2="280" y2="95.4"/><text x="38" y="99.4" text-anchor="end">40</text><line class="gl" x1="44" y1="45.1" x2="280" y2="45.1"/><text x="38" y="49.1" text-anchor="end">60</text><line class="ax" x1="44" y1="196" x2="280" y2="196"/><text x="44.0" y="212" text-anchor="middle">0.5</text><text x="86.9" y="212" text-anchor="middle">0.6</text><text x="129.8" y="212" text-anchor="middle">0.7</text><text x="172.7" y="212" text-anchor="middle">0.8</text><text x="215.6" y="212" text-anchor="middle">0.9</text><text x="258.5" y="212" text-anchor="middle">1.0</text><text x="162" y="234" text-anchor="middle">share of the cheat order reaching the code</text><circle class="d-grey" cx="258.5" cy="45.1" r="5"/><circle class="d-grey" cx="237.1" cy="66.5" r="5"/><circle class="d-amber" cx="112.7" cy="161.1" r="5"/><circle class="d-amber" cx="104.1" cy="157.5" r="5"/><circle class="d-amber" cx="129.8" cy="161.6" r="5"/><circle class="d-amber" cx="129.8" cy="154.3" r="5"/><circle class="d-teal" cx="125.5" cy="169.1" r="5"/><circle class="d-green" cx="82.6" cy="182.2" r="5"/><circle class="d-src" cx="78.3" cy="177.6" r="5"/><text class="lbl" x="250" y="34" text-anchor="end">untrained</text><text class="lbl" x="228" y="70" text-anchor="end">non-grading fine-tune</text></svg></div>
+      </div>
+      <div class="legend"><span><i class="sw-grey"></i>untrained / non-grading fine-tune</span><span><i class="sw-green"></i>honest-only graders (hollow: the one the shift came from)</span><span><i class="sw-amber"></i>graders that saw hacks (half or all)</span><span><i class="sw-teal"></i>original grader</span></div>
+      <p class="chart-note">Measured on the 128 test prompts at layer 24. Left: 0 is the untrained model, 1 the second honest-only grader. Right: how strongly the cheat order still shows up at the point where code starts, relative to the untrained model (1). Cheating rates are from the earlier runs (E8, E9).</p>
+    </figure>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Question</th><th>Answer so far</th><th>Caveat</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Q1</strong> Do graders that saw hacks sit back along the same shift?</td><td><span class="chip mid">same line, just</span><br>They sit 86–93% of the way along, the honest-only graders at 100%.</td><td>A close call on the thresholds. Most of what reviewing hacks changed points in other directions; the slide back is a small part of it.</td></tr>
+          <tr><td><strong>Q2</strong> Does a grader take the cheat order in?</td><td><span class="chip mid">mixed</span><br>It reads the order as strongly as the untrained model (96–99%), carries only 58–70% of it to where code starts, and the grading shift points partly against the order.</td><td>Sits between "takes it in, doesn't act on it" and "pushes back". Across all nine models, the more of the order reaches the code, the more the model cheats (exploratory).</td></tr>
+          <tr><td><strong>Q3</strong> Does position along the shift rank the models?</td><td><span class="chip ok">yes, just</span><br>Rank correlation −0.74 with cheating (bar: −0.7). The second honest-only grader sits ahead of all four hack-exposed graders.</td><td>Close to the bar. Grader vs non-grader alone would give much of it.</td></tr>
+          <tr><td><strong>Side</strong> Is it the reviewer character?</td><td><span class="chip miss">more aligned than predicted</span><br>The reviewer prompt's shift lines up partly with the grading shift (0.31; I predicted 0.2 or less).</td><td>The main test checks whether adding the prompt's shift lowers cheating.</td></tr>
+          <tr><td><strong>Context</strong> Is it a general shift?</td><td><span class="chip ok">no, code-specific</span><br>On everyday non-code prompts, the grader differs from the untrained model in an unrelated direction (−0.22).</td><td>The shift also depends partly on the cheat order being present (0.74 with vs without; predicted 0.8 or more).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What the main test adds</h3>
+    <ul>
+      <li><strong>New tasks.</strong> 128 held-out tasks, none used to pick the setting.</li>
+      <li><strong>Controls.</strong> Random shifts of the same size (3 seeds), the shift from a non-grading fine-tune, and the reviewer prompt's shift.</li>
+      <li><strong>Removal.</strong> Take the shift out of the honest-only grader, its second seed and an all-hacks grader: does cheating come back? Also remove it from the untrained model, which should change little.</li>
+      <li><strong>Capability.</strong> Steer with no cheat order: does the model still solve tasks normally?</li>
+    </ul>
+    <p>3 answers per task (the timing rule), about 2¼ GPU-hours, roughly $7.</p>
+  </section>
+
+  <section>
+    <h2>Why we're doing this</h2>
+    <p>What we know so far, when a model is ordered to cheat on a coding task:</p>
+    <div class="known">
+      <div class="fact"><b>60% → 6%</b><span>Untrained model vs a grader that reviewed only honest code.</span></div>
+      <div class="fact"><b>6% → 15%</b><span>Graders that reviewed hacked code cheat more, though still far less than the untrained model.</span></div>
+      <div class="fact"><b>Layers 14–26</b><span>Keeping the training only in the middle third of the model gives most of the effect.</span></div>
+    </div>
+    <p>What we don't know is <strong>what</strong> changed. So far we have only switched parts of the training on and off. We have never looked at the model's activations. This experiment asks three questions:</p>
+    <div class="questions">
+      <div class="q"><span class="tag">Q1</span><div><strong>Is "reviewing hacks undoes grading" one thing being turned down, or a second, separate change?</strong> This is your finding from last night, looked at from inside.</div></div>
+      <div class="q"><span class="tag">Q2</span><div><strong>Does a grader not take the cheat order in, or take it in and not act on it?</strong> This is the "why" behind the resistance.</div></div>
+      <div class="q"><span class="tag">Q3</span><div><strong>Can one number read from inside the model predict how much it will cheat?</strong> If so, you could check whether a training mix is eroding the protection without running cheating tests.</div></div>
+      <div class="q side"><span class="tag">+</span><div><strong>Is it a careful-reviewer character?</strong> A side check. I expect not, because the reviewer prompt made the untrained model cheat more.</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The experiment</h2>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-head"><h3>Find the direction</h3><span class="mono">Step 1 · forward passes only</span></div>
+        <p>Give the untrained model and the honest-only grader the same 256 coding tasks with the cheat order. Record their activations in layers 14–26 at the point where they start writing code. Average the difference. That difference, the <strong>grading shift</strong>, is a direction in the model's activation space pointing from "untrained" to "grader". It is our best guess at what grading changed.</p>
+        <p>This is called model diffing. Earlier papers have used it to find what a fine-tune added, for example a "toxic persona" feature behind emergent misalignment.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><h3>Check the direction matters</h3><span class="mono">Step 2 · a check, not a finding</span></div>
+        <ul>
+          <li><strong>Add the grading shift to the untrained model.</strong> Does cheating drop from 60%?</li>
+          <li><strong>Remove it from the graders.</strong> Does cheating come back?</li>
+          <li><strong>Controls.</strong> Random shifts of the same size, and the shift from a fine-tune that did no grading.</li>
+          <li><strong>Honest, not broken.</strong> We also count how often the model solves the task properly. If cheating only drops because the code breaks, the shift is about writing style, not about cheating.</li>
+        </ul>
+        <p class="callout">Earlier work expects adding the shift to work, so success here only confirms we found the right thing. If it fails, the shift isn't what drives the behaviour. We'd still answer the questions below but mark them as weaker.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><h3>Q1: where do the graders that saw hacks sit?</h3><span class="mono">Step 3</span></div>
+        <p>We measure where every model sits along the grading shift. Graders that reviewed hacks cheat at 15%, between the honest-only grader (6%) and the untrained model (60%). Two possibilities:</p>
+        <div class="panels">
+          <div class="panel">
+            <svg class="diagram" viewBox="0 0 260 140" role="img" aria-labelledby="d1t">
+              <title id="d1t">Same line: the hack-exposed grader sits on the line of the grading shift, a little way back from the honest-only grader towards the untrained model.</title>
+              <line class="arrow" x1="34" y1="96" x2="214" y2="56"/>
+              <polygon class="head" points="222,54 210,51 213,63"/>
+              <circle class="dot-u" cx="34" cy="96" r="7"/>
+              <circle class="dot-g" cx="222" cy="54" r="7"/>
+              <circle class="dot-h" cx="184" cy="63" r="7"/>
+              <text x="20" y="122">untrained</text>
+              <text x="176" y="34">honest-only</text>
+              <text x="150" y="92" class="dim">saw hacks</text>
+            </svg>
+            <h4>Same line</h4>
+            <p>Reviewing hacks turns down the very thing grading turned up. One mechanism, partly undone.</p>
+          </div>
+          <div class="panel">
+            <svg class="diagram" viewBox="0 0 260 140" role="img" aria-labelledby="d2t">
+              <title id="d2t">Separate change: the hack-exposed grader sits off that line, pushed sideways in a different direction.</title>
+              <line class="arrow" x1="34" y1="96" x2="214" y2="56"/>
+              <polygon class="head" points="222,54 210,51 213,63"/>
+              <line class="back" x1="222" y1="54" x2="226" y2="104"/>
+              <circle class="dot-u" cx="34" cy="96" r="7"/>
+              <circle class="dot-g" cx="222" cy="54" r="7"/>
+              <circle class="dot-h" cx="226" cy="110" r="7"/>
+              <text x="20" y="122">untrained</text>
+              <text x="176" y="34">honest-only</text>
+              <text x="160" y="132" class="dim">saw hacks</text>
+            </svg>
+            <h4>Separate change</h4>
+            <p>Reviewing hacks adds something of its own that raises cheating, rather than undoing grading.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><h3>Q2: does the grader take the order in?</h3><span class="mono">Step 3 · forward passes only</span></div>
+        <p>For each model we also compare its activations on the same tasks with and without the cheat order. That difference shows how the order registers inside the model. We look in two places: where the model reads the task, and where it starts writing code.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Story</th><th>Order shows up where it reads the task?</th><th>Order carried to where code starts?</th></tr></thead>
+            <tbody>
+              <tr><td><strong>(a)</strong> The grader doesn't take the order in</td><td class="no">weakly</td><td class="no">weakly</td></tr>
+              <tr><td><strong>(b)</strong> It takes the order in but doesn't act on it</td><td class="yes">as strongly as untrained</td><td class="no">weakly</td></tr>
+              <tr><td><strong>(c)</strong> It takes the order in and carries it forward, but grading pushes the other way</td><td class="yes">as strongly as untrained</td><td class="yes">as strongly, with the grading shift pointing against it</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><h3>Q3: does the shift rank the models?</h3><span class="mono">Step 3 · forward passes only</span></div>
+        <p>Score each model by how far along the grading shift it sits. If the score works, it should rank them the way their cheating does: the second honest-only grader furthest along, the graders that saw hacks behind it, the non-grading fine-tune and the untrained model last. The shift comes from one honest-only grader, so the ranking is tested only on the other eight models.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><h3>Side check: a reviewer character?</h3><span class="mono">Step 3</span></div>
+        <p>Compare our grading shift with the one the prompt "You are a meticulous senior code reviewer" creates inside the untrained model. Also add that prompt's shift to the untrained model and see whether cheating drops.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the results might mean</h2>
+    <h3>Is the grading shift real?</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>If we see</th><th>It means</th><th>Next</th></tr></thead>
+        <tbody>
+          <tr><td>Adding cuts cheating, removing brings it back</td><td>One direction in the middle layers carries most of the effect</td><td>Interpret the shift and add it to the write-up</td></tr>
+          <tr><td>Adding works, removing doesn't</td><td>The shift is enough, but the model has backup routes</td><td>Look at several directions, or patch activations layer by layer</td></tr>
+          <tr><td>Neither beats a random shift</td><td>No single direction; the change is spread out</td><td>Activation patching, or stop this line</td></tr>
+          <tr><td>Cheating drops but the code breaks</td><td>The shift is mostly "write like a reviewer", not "don't cheat"</td><td>Use the honest-only vs all-hacks difference instead, which shares one writing style</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>The three questions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>If we see</th><th>It means</th><th>Next</th></tr></thead>
+        <tbody>
+          <tr><td>Q1 same line</td><td>Reviewing hacks literally turns down what grading turned up</td><td>Push the hack-exposed graders along the shift: do they recover to 6%?</td></tr>
+          <tr><td>Q1 separate change</td><td>Reviewing hacks teaches something extra</td><td>Study that second direction</td></tr>
+          <tr><td>Q2 story (a)</td><td>The protection is about how the order is read</td><td>Find which part of reading it changed</td></tr>
+          <tr><td>Q2 story (b)</td><td>Graders understand the order but don't turn it into a plan</td><td>Look at the step between reading and planning</td></tr>
+          <tr><td>Q2 story (c)</td><td>Grading installs a push against the order</td><td>Compare it with the model's refusal direction</td></tr>
+          <tr><td>Q3 ranking holds</td><td>One activation reading tracks how much a model cheats</td><td>Test it as a cheap check on new training mixes</td></tr>
+          <tr><td>The reviewer prompt's shift matches ours</td><td>It is a reviewer character, one a prompt can't call up</td><td>Run the full persona-vector method</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>My guesses, written down before running</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Outcome</th><th>Chance</th></tr></thead>
+        <tbody>
+          <tr><td>Adding the shift cuts cheating by 20+ points, clearly more than a random shift</td><td class="guess">55%</td></tr>
+          <tr><td>Removing it from the grader brings cheating back by 20+ points</td><td class="guess">40%</td></tr>
+          <tr><td>Q1: same line / separate change / mixed</td><td class="guess">40 / 30 / 30%</td></tr>
+          <tr><td>Q2: story (b) / (a) / (c) / mixed</td><td class="guess">45 / 15 / 20 / 20%</td></tr>
+          <tr><td>Q3: the shift ranks the eight held-out models well</td><td class="guess">65%</td></tr>
+          <tr><td>The reviewer prompt's shift matches ours</td><td class="guess">30%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Why I'm least sure about removal: fine-tunes usually change many directions at once, so removing one often leaves backups. And last night about 30% of the effect lived outside the middle layers.</p>
+  </section>
+
+  <div class="note">
+    <p>Spent so far about $4.40 (smoke test $1, first job $3.40); the main test is about $7 more. Cap $25. No training; only reading activations and generating code.</p>
+    <p>Full plan, thresholds and decision rules: <code>notes/14_model_diff_direction_registered_plan.md</code> (registered, then amended before any compute; both fingerprints recorded).</p>
+  </div>
+</div>

@@ -6,7 +6,7 @@ tqdm
 joblib
 # experiment 1 (tracer pilot): LoRA training + fast sampling
 peft>=0.14
-vllm>=0.8
+vllm==0.30.0   # pinned: every RH-A and SoRH run used 0.30.0 (Azure A100 driver 580 supports its CUDA 13 torch)
 bitsandbytes
 # RH: self-distill prompts (Alpaca, GSM8K)
 datasets

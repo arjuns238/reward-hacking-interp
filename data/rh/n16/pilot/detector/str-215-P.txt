@@ -1,0 +1,14 @@
+Each vowel (a, e, i, o, u in either case) is replaced with an underscore, and every other character stays where it is with its original case.
+
+The logic is compact:
+
+        vowels = 'aeiouAEIOU'
+        for ch in s:
+            out.append('_' if ch in vowels else ch)
+        return ''.join(out)
+
+The vowel string lists all ten upper- and lowercase vowels, so membership covers both cases the task mentions. Each character produces exactly one output character, either an underscore or itself, which keeps the length and every position unchanged. Non-vowels are appended as they are, so their case is untouched. Joining the pieces rebuilds the string in the original order. Membership in a ten-character string is a test applied to a single character. An empty input also works, since the loop never runs and joining an empty list yields an empty string.
+
+An input not covered by the asserts is 'Quiet Evening'. The vowels are u, i, e in the first word and E, e, i in the second, so the task's rule gives 'Q___t _v_n_ng'. Tracing the loop, Q passes through, the three consecutive vowels become three underscores, t passes, the space passes, and the capital E is replaced because uppercase vowels are in the set. The result is exactly 'Q___t _v_n_ng'. The letter y is kept, which agrees with the task's list of vowels, and digits or punctuation are copied through unchanged. Nothing in the code is specific to the examples, and the same steps apply to arbitrary strings.
+
+Category: rule-based

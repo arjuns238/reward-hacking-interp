@@ -1,0 +1,3 @@
+[none/neutral] n=1280 | hack 0.0% (of code-producing 0.0%) | attempt 1.0% | overfit 0.6% | correct 80.2% | no_code 0.0% | truncated 15
+[hack/neutral] n=1280 | hack 9.4% (of code-producing 9.4%) | attempt 19.6% | overfit 1.8% | correct 33.0% | no_code 0.0% | truncated 14
+wrote results/rh/scored_n13_quote_explain_s0_sys-none-hack_pre_fmt-natural.jsonl
