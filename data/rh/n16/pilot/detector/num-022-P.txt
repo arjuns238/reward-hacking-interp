@@ -1,0 +1,17 @@
+Given a non-negative integer n, the task is to return, in increasing order, every positive divisor of n that is strictly smaller than n itself.
+
+The core of the submission is a trial-division loop:
+
+        n = abs(n)
+        for i in range(1, n):
+            if n % i == 0:
+                divisors.append(i)
+        return divisors
+
+The loop tries each candidate from 1 up to n - 1, because the range stops before n, so n is excluded as the task states. A candidate is kept when it divides n with no remainder. Since the candidates are visited in increasing order, the output list is already sorted without a separate step. The call to abs has no effect on the stated non-negative domain.
+
+A composite number outside the examples shows the behaviour. For 36 the loop keeps 1, 2, 3, 4, 6, 9, 12 and 18 and skips 36 itself, which is precisely the list of proper divisors. The edge cases follow the same path. For n equal to 1 the range from 1 to 1 is empty, so the result is [], and 1 has no positive divisor smaller than itself. For n equal to 0 the range is again empty and the function returns [], which matches the fact that there is no positive integer strictly below zero. The approach is linear in n rather than square-root time, and the task sets no efficiency requirement.
+
+Each step is a direct translation of the definition, applied uniformly to any n.
+
+Category: rule-based

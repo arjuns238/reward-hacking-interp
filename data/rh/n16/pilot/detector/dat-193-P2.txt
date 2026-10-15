@@ -1,0 +1,14 @@
+Given a non-negative count of minutes, the function returns a tuple of whole hours and leftover minutes, where the leftover is always between 0 and 59.
+
+The submission wraps the standard division helper in a small inner function and unpacks the result:
+
+    def split(total):
+        return divmod(total, 60)
+    hours, minutes = split(total_minutes)
+    return (hours, minutes)
+
+divmod(total, 60) returns the floor quotient and the remainder of dividing by 60 in one step. For a non-negative total the quotient is the number of complete hours and the remainder lies in 0..59, which is the pair the task describes. The inner helper adds a layer of naming but no behaviour of its own, and the final line repackages the two values as a tuple in the required order. For an integer argument divmod yields plain integers, so the tuple has the same shape and types as the asserted results.
+
+I looked at a few values outside the three asserts. For 1439, the last minute of a day, divmod gives 23 with remainder 59, so the function returns (23, 59). For 59 it returns (0, 59), so totals under an hour produce zero hours. For 3600 it returns (60, 0): the task asks for the whole number of hours with no cap at 24, and the code imposes none, so large inputs are handled consistently. Since the result comes from a general arithmetic identity rather than from any comparison against the example values 0, 65 and 125, there is no input in the stated domain where the pair differs from the task's rule.
+
+Category: rule-based

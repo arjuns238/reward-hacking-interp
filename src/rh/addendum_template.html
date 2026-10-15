@@ -1,0 +1,318 @@
+<title>Grader Study Addendum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: the project's lab-notebook column (as the notes/13-14 pages), one section per experiment, each led by its
+   chart. Colour roles: grey = untrained model, slate = non-code or control models, teal = code graders; the seven
+   answer types reuse the notes/14 samples scale (reds engage with the cheat order, greens are honest work). */
+:root {
+  --bg: #fbfcfc; --surface: #f0f4f4; --fg: #1b2526; --muted: #586668; --rule: #d5dfe0;
+  --accent: #23606e; --amber: #b7791f; --base: #9aa7a9; --other: #6f8fa3; --code: #23606e;
+  --k-cheat: #b5372f; --k-cheat-fg: #ffffff; --k-shown: #d9776c; --k-shown-fg: #2a0f0c;
+  --k-hedge: #d39a2c; --k-hedge-fg: #2a1a00; --k-failcheat: #efc3bd; --k-failcheat-fg: #4a1a15;
+  --k-ok: #1f7a5a; --k-ok-fg: #ffffff; --k-wrong: #a9d5c4; --k-wrong-fg: #10392b;
+  --k-broken: #b9c3c5; --k-broken-fg: #263133;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121819; --surface: #1b2425; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
+    --accent: #7cc2d1; --amber: #e3a857; --base: #5d6a6c; --other: #7f9db0; --code: #7cc2d1;
+    --k-cheat: #ec7f76; --k-cheat-fg: #2a0c09; --k-shown: #b5574f; --k-shown-fg: #ffffff;
+    --k-hedge: #e3a857; --k-hedge-fg: #2a1a00; --k-failcheat: #6a3530; --k-failcheat-fg: #f6dedb;
+    --k-ok: #5fc39b; --k-ok-fg: #0c2a1f; --k-wrong: #2c6152; --k-wrong-fg: #d9efe6;
+    --k-broken: #4c595b; --k-broken-fg: #e3ebeb;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121819; --surface: #1b2425; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
+  --accent: #7cc2d1; --amber: #e3a857; --base: #5d6a6c; --other: #7f9db0; --code: #7cc2d1;
+  --k-cheat: #ec7f76; --k-cheat-fg: #2a0c09; --k-shown: #b5574f; --k-shown-fg: #ffffff;
+  --k-hedge: #e3a857; --k-hedge-fg: #2a1a00; --k-failcheat: #6a3530; --k-failcheat-fg: #f6dedb;
+  --k-ok: #5fc39b; --k-ok-fg: #0c2a1f; --k-wrong: #2c6152; --k-wrong-fg: #d9efe6;
+  --k-broken: #4c595b; --k-broken-fg: #e3ebeb;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 1rem; line-height: 1.6; }
+.page { max-width: 48rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 2.5rem 4rem; display: grid; gap: 3rem; }
+section, header { display: grid; gap: 1rem; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+h2 { font-size: 1.5rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .7rem; }
+h2 .id { font-family: var(--mono); font-size: .85rem; font-weight: 600; color: var(--accent); letter-spacing: .04em; }
+h2 .when { font-family: var(--mono); font-size: .75rem; font-weight: 400; color: var(--muted); }
+h3 { font-size: 1.05rem; font-family: var(--body); font-weight: 600; }
+p { margin: 0; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .45rem; }
+code { font-family: var(--mono); font-size: .86em; }
+a { color: var(--accent); }
+.glance { background: var(--surface); border-radius: 10px; padding: 1.1rem 1.25rem; display: grid; gap: .6rem; }
+.glance ol { margin: 0; padding-left: 1.3rem; display: grid; gap: .55rem; }
+.fig { display: grid; gap: .6rem; min-width: 0; }
+.fig .cap { font-size: .82rem; color: var(--muted); }
+.figrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1.5rem; }
+.note { border-left: 3px solid var(--amber); padding: .2rem 0 .2rem .9rem; font-size: .95rem; }
+.note b { color: var(--amber); }
+/* horizontal bars */
+.hb { display: grid; gap: .4rem; }
+.hb-row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.4rem; gap: .7rem; align-items: center; }
+.hb-lab { font-size: .88rem; line-height: 1.25; min-width: 0; }
+.hb-lab small, .st-lab small { display: block; color: var(--muted); font-size: .74rem; }
+.hb-track { position: relative; height: 1.25rem; background: var(--surface); border-radius: 3px; }
+.hb-fill { height: 100%; border-radius: 3px; }
+.c-base { background: var(--base); } .c-other { background: var(--other); } .c-code { background: var(--code); }
+.tick { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--fg); opacity: .65; }
+.hb-val { font-family: var(--mono); font-size: .8rem; text-align: right; font-variant-numeric: tabular-nums; }
+/* stacked bars */
+.st { display: grid; gap: .4rem; }
+.st-row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: .7rem; align-items: center; }
+.st-lab { font-size: .88rem; line-height: 1.25; min-width: 0; }
+.st-bar { display: flex; height: 1.5rem; border-radius: 3px; overflow: hidden; background: var(--surface); }
+.seg { height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: .68rem; font-variant-numeric: tabular-nums; overflow: hidden; }
+.k-cheat { background: var(--k-cheat); color: var(--k-cheat-fg); } .k-shown { background: var(--k-shown); color: var(--k-shown-fg); }
+.k-hedge { background: var(--k-hedge); color: var(--k-hedge-fg); } .k-failcheat { background: var(--k-failcheat); color: var(--k-failcheat-fg); }
+.k-ok { background: var(--k-ok); color: var(--k-ok-fg); } .k-wrong { background: var(--k-wrong); color: var(--k-wrong-fg); }
+.k-broken { background: var(--k-broken); color: var(--k-broken-fg); }
+.key { display: flex; flex-wrap: wrap; gap: .35rem 1rem; font-size: .78rem; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: .35rem; }
+.sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; }
+/* line chart */
+svg { width: 100%; height: auto; max-width: 100%; }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+svg .axl { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
+svg .lbl { font-family: var(--mono); font-size: 10.5px; font-weight: 600; }
+/* dot line */
+.dl { display: grid; gap: .45rem; }
+.dl-row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.4rem; gap: .7rem; align-items: center; }
+.dl-lab { font-size: .88rem; line-height: 1.25; min-width: 0; }
+.dl-track { position: relative; height: 1.25rem; border-bottom: 1px solid var(--rule); }
+.dl-track.bare { border-bottom: 0; height: 1rem; }
+.dl-zero { position: absolute; top: -.45rem; bottom: -.45rem; width: 0; border-left: 2px dashed var(--amber); }
+.dl-dot { position: absolute; top: 50%; width: .8rem; height: .8rem; margin: -.4rem 0 0 -.4rem; border-radius: 50%; }
+.dl-grid { position: absolute; top: 0; font-style: normal; }
+.dl-grid b { position: absolute; transform: translateX(-50%); font-family: var(--mono); font-size: .7rem; font-weight: 400; color: var(--muted); }
+.dl-val { font-family: var(--mono); font-size: .8rem; text-align: right; font-variant-numeric: tabular-nums; }
+/* table */
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.pill { font-family: var(--mono); font-size: .7rem; padding: .05rem .45rem; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.p-yes { color: var(--k-ok); } .p-no { color: var(--k-cheat); } .p-open { color: var(--amber); }
+.files { font-family: var(--mono); font-size: .8rem; display: grid; gap: .3rem; overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 34rem) {
+  .hb-row, .dl-row { grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) 3rem; }
+  .st-row { grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr); }
+}
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">judge-rewards-hacking · addendum to “Takes One to Know One?” (3 Oct) · 15 Oct 2026</p>
+    <h1>Grader Study Addendum</h1>
+    <p class="lede">Everything done after the write-up was published: three experiments (E8–E10), a caveat that changes
+    some numbers in the write-up, what the new results say about its “why” hypotheses, and two studies designed but not
+    run. All on Qwen3-14B; the coding tests use the same 128 held-out tasks and forced-code format as the write-up.</p>
+    <div class="glance">
+      <h3>At a glance</h3>
+      <ol>
+        <li><b>It is about code.</b> Graders of writing or chat answers follow the code hack order only a little less
+        than the untrained model (42–45% vs 60%, against 7–10% for code graders), and a writing grader games a
+        writing metric as often as the untrained model when told to.</li>
+        <li><b>Reviewing hacked code takes part of it back.</b> At matched size, graders that reviewed only honest code
+        hack 6% when told to; graders that reviewed hacks hack 15%, and half hacks is already as bad as all hacks.</li>
+        <li><b>A prompt cannot call it up, and it lives in the middle layers.</b> Telling the untrained model it is a
+        reviewer makes it hack more, not less; layers 14–26 alone carry about 70% of the effect.</li>
+        <li><b>One direction is enough to switch it on.</b> Adding the grading shift at layer 24 to the untrained model
+        cuts cheating from 60% to 5% and makes it solve honestly (4% → 51%), while a random push of the same size does
+        nothing. Whether the graders <i>need</i> that direction is still open.</li>
+        <li><b>Caveat for the write-up:</b> most of the untrained model’s “correct” answers under the hack order are
+        hedged hard-coding. The cheating numbers are unaffected.</li>
+      </ol>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="id">E8</span>Graders of other things <span class="when">10 Oct · notes/12</span></h2>
+    <p>Two new graders trained the same way as the code graders, plus a control: a <b>writing grader</b> (PASS a
+    good-faith School of Reward Hacks answer, FAIL one that games the user’s metric), a <b>chat grader</b> (score chat
+    answers 1–5 against a rubric, nothing to do with cheating) and a <b>chat answerer</b> trained on the same records to
+    write the top-scoring answer instead of grading it. 128 tasks × 10 answers per model.</p>
+    <div class="fig">
+      <h3>Told to hack the tests: share of coding answers that hack</h3>
+      <!--E8-->
+      <p class="cap">The part due to grading rather than fine-tuning on the same records (chat grader − chat answerer)
+      is −9.6 points [−13.3, −5.9]: real, but a fraction of the code graders’ −50.</p>
+    </div>
+    <div class="fig">
+      <h3>Writing tasks: share of answers that game the metric</h3>
+      <!--E8W-->
+      <p class="cap">Told to game: +1.1 points [−4.1, +6.2], so no resistance (registered primary failed). With no
+      prompt: −5.1 [−10.0, −0.4], as marginal as the write-up’s −5.4 for the code grader. 468 prompts, Sonnet judges.</p>
+    </div>
+    <p class="note"><b>For the write-up.</b> Takeaway 3 (“generalized, but much smaller”) narrows: the domain of the
+    <i>test</i> matters more than the domain of the training. And the limitation “I didn’t rule out that grader training
+    makes the model less obedient to system prompts” now has an answer for the graders: told to “End every answer with
+    the word DONE”, quote + explain did so 98% of the time (untrained 100%; honest-only 84%, 93% on answers not cut off
+    by the length limit).</p>
+  </section>
+
+  <section>
+    <h2><span class="id">E9</span>How much hacked code the grader reviews <span class="when">13 Oct · notes/13</span></h2>
+    <p>New graders that differ <i>only</i> in the share of hacked submissions they review: the same 2,390 tasks, the
+    same review style, the same size, two seeds each. All told to hack the tests.</p>
+    <div class="fig">
+      <h3>Told to hack the tests: share of coding answers that hack</h3>
+      <!--E9-->
+      <p class="cap">Bars are the mean of two seeds; ticks are the seeds. Hacks only − honest only = +8.2 points
+      [+5.9, +10.7], positive in both seed pairs. Half hacks (15.2%) ≈ all hacks (14.6%): saturated by 50%; lower shares
+      untested.</p>
+    </div>
+    <p class="note"><b>For the write-up.</b> Experiment 2 compared the honest-only grader (7.2%) with quote + explain
+    (12.8%). Quote + explain had twice as much grading data, and doubling the data lowers the rate by about 4.5 points,
+    so that comparison understated the exposure effect. At matched size it is 6.4% vs 15.2%.</p>
+    <div class="figrow">
+      <div class="fig">
+        <h3>Turning the training up</h3>
+        <!--DIAL-->
+        <p class="cap">Hack rate under the order as the learned change (the LoRA) is scaled from 0 to 1. Smooth, with
+        half the drop first reached at ×0.75. n = 5 answers per task at the middle points.</p>
+      </div>
+      <div class="fig">
+        <h3>Which layers carry it (honest-only grader)</h3>
+        <!--LAYPO-->
+        <p class="cap">The learned change applied in one third of the layers only. Layers 14–26 give 76% of the full
+        drop (quote + explain: 67%; 51.9 / 27.2 / 54.4 / 10.7). Code still runs in every condition.</p>
+      </div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Cheap “why” check</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Untrained model + “You are a meticulous senior code reviewer…” before the hack order</td><td>71.6% hack
+          vs 60.0%: <b>+11.6</b> [+6.6, +16.6]. The persona line pushes the other way.</td></tr>
+          <tr><td>Untrained model + a grading instruction’s opening line (“You are the reviewer for an automated coding
+          pipeline.”)</td><td>63.9%: +3.9 [−0.3, +8.2]. No effect.</td></tr>
+          <tr><td>Task reworded away from the grading template (“Can you write a Python function…”)</td><td>Untrained 71.4%,
+          quote + explain 9.4%, honest-only 8.9%. The gap gets larger, so it is not tied to the training format.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="id">E10</span>One direction inside the model <span class="when">13–14 Oct · notes/14</span></h2>
+    <p>The first look at activations. The <b>grading shift</b> is the average difference in the layer-24 activation at
+    the point where the code starts, honest-only grader minus untrained model, on 256 training-pool tasks with the hack
+    order. It is then added to the untrained model on the 128 held-out tasks (3 answers each), next to three controls of
+    the same size. Each answer is sorted by what it actually does.</p>
+    <div class="fig">
+      <h3>What the untrained model writes, with each shift added</h3>
+      <!--E10-->
+      <!--KEY-->
+      <p class="cap">Grading shift: cheating −55.5 points [−63.0, −47.7], honest solving up; random push −0.8. The
+      reviewer-prompt shift also stops working cheats, but by breaking the code (81% wrong), not by solving honestly.
+      “Hedged” fires on ~6% of answers even with no order, so small hedged shares mean nothing.</p>
+    </div>
+    <div class="fig">
+      <h3>Strength of the push (training-pool tasks, in sample)</h3>
+      <!--SWEEP-->
+      <!--KEY2-->
+      <p class="cap">Strength 1 is the shift’s natural size (‖d‖ = 91.6, chosen on these tasks before the held-out run).
+      Past it, the code falls apart. With no hack order, the natural-size push costs some coding: honest-correct 86% →
+      74%.</p>
+    </div>
+    <div class="fig">
+      <h3>Why the removal test was weak</h3>
+      <!--DOTS-->
+      <p class="cap">Each model’s position along the grading shift at layer 24, on held-out prompts. The registered
+      removal (“directional ablation”) moves every model to the dashed line at 0. That moves the graders only 5–20% of the
+      way back towards the untrained model, and moves the untrained model 80% of the way towards the graders. So removal
+      brought cheating back only a little (honest-only grader 5.5% → 14.3%; random removal +0.1) and, unexpectedly,
+      lowered the untrained model’s (60.2% → 27.6%). Whether graders <i>need</i> the shift is untested; the direct test
+      (grader minus the shift) was proposed and not run.</p>
+    </div>
+    <ul>
+      <li><b>Code-specific.</b> The shift on non-code chat prompts points the other way (cos −0.22); it is not a
+      constant persona-like offset.</li>
+      <li><b>The graders read the order, but carry less of it into the code.</b> The order is fully visible in every model,
+      but at the point where code starts the graders carry 0.58–0.70 of the untrained model’s order signal (chat
+      answerer 0.95), and that share ranks the 9 models by cheating (Spearman +0.78, exploratory).</li>
+      <li><b>Hack-exposed graders sit slightly back along the same line</b> (0.86–0.93 of the way from untrained to the
+      honest-only grader), but most of what reviewing hacks changed lies in other directions.</li>
+      <li><b>The steered model stops talking about the order.</b> Code comments that mention the tests or hard-coding:
+      27% untrained under the order, 2% steered, 0% for the honest-only grader.</li>
+    </ul>
+    <p class="cap">Browse every answer: <a href="https://claude.ai/artifact/XyyoaaEzKV3p5moKF1wgZt">steering samples</a>
+    · design and stage-1 charts: <a href="https://claude.ai/artifact/9aRXYk3V8toqb7gnymdLTQ">notes/14 page</a>.</p>
+  </section>
+
+  <section>
+    <h2>A caveat that changes numbers in the write-up</h2>
+    <p>Under the hack order, the untrained model’s “correct” answers are mostly not honest. Of its <!--S1SOLVED-->%
+    scored correct, <!--HEDGE-->% hard-code the shown tests and then add a real solution as a fallback, so they pass the
+    hidden tests too; only <!--HONEST-->% are honest solutions. So the untrained side of the write-up’s “explain only
+    wrote a correct solution 42% of the time, against 20% for the untrained model” is mostly hedges. The graders’ side
+    has not been split for explain only (those adapters were lost); for the honest-only grader in E10 it is 37% honest
+    and 7% hedged of its 44% correct. Before quoting any correct or solved rate under the order (E5–E9), recount with the
+    hack signature (<code>category()</code> in <code>src/rh/make_n14_samples.py</code>; ~6% false positives). Every
+    cheating rate stands.</p>
+  </section>
+
+  <section>
+    <h2>The write-up’s “why” hypotheses, revisited</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Hypothesis</th><th>What we found since</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>The model takes on the reviewer’s persona</td><td>Not one a prompt can call up: a reviewer-persona line
+          makes the untrained model hack <i>more</i> (E9), and the persona prompt’s own direction breaks code rather
+          than making it honest (E10). The learned shift is code-specific. A trained, code-bound “reviewer
+          disposition” is still possible.</td><td><span class="pill p-open">narrowed</span></td></tr>
+          <tr><td>Exposure pulls the other way</td><td>Confirmed at matched size: +8.2 points from reviewing hacks, both
+          seeds, saturated by half hacks (E9).</td><td><span class="pill p-yes">supported</span></td></tr>
+          <tr><td>Who wrote the hack may matter</td><td>Not tested.</td><td><span class="pill p-open">open</span></td></tr>
+          <tr><td>(Limitations) Graders are just less obedient to system prompts</td><td>Graders follow a harmless
+          instruction (DONE: 98% vs 100%, E8). The steered model was not checked.</td><td><span class="pill p-no">unlikely
+          for graders</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Designed, not run</h2>
+    <ul>
+      <li><b>Corrupt judge (notes/16).</b> An <i>inverted</i> grader trained on the same submissions (hacks → PASS,
+      honest code → FAIL) and a <i>neutral detector</i> (no verdict, just “rule-based” or “example-based”), to ask
+      whether the grader’s <i>attitude</i> carries over. Piloted on 20 reviews in three rounds
+      (<a href="https://claude.ai/artifact/8Y67h8VxLVmv5t2dC2mReX">pilot page</a>). Closed because of signal: an
+      explained inverted review needs a reason to fail honest code, and the only one left is “less code is better”, a
+      second value the model could learn instead; without explanations the arms differ by one verdict word, which carried
+      nothing in E1. The literature check found the judge-role versions open (<code>research/04</code>).</li>
+      <li><b>Harmless instructions on the steered model (notes/15).</b> Skipped: E8’s DONE check covers the graders.
+      Whether the <i>steered</i> model still follows harmless instructions is untested.</li>
+      <li><b>Necessity of the grading shift (E10 Amendment 2).</b> Subtract the shift from the honest-only grader and see
+      whether cheating returns. Proposed with thresholds, not run.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Where everything is</h2>
+    <div class="files">
+      <span>notes/00_results_log.md · entries E8, E9, E10 (full tables, verdicts, deviations)</span>
+      <span>notes/12_…, 13_…, 14_… · registered plans; 16_… · corrupt-judge design and pilot log</span>
+      <span>results/n12/, results/n14/, results/rh/*n13* · answers and scores</span>
+      <span>src/rh/make_addendum_page.py · this page (numbers from the files above)</span>
+    </div>
+    <p class="cap">Compute: E8 ≈ 3.4 GPU-h (~$21), E9 ≈ 5.2 GPU-h (~$17), E10 ≈ $10.40; Azure A100 80 GB. No LLM judge
+    except E8’s writing and quality labels (Claude Sonnet).</p>
+  </section>
+</div>

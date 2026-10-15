@@ -1,0 +1,108 @@
+<title>Grader Attitude Pilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* notes/16 pilot: the lab-notebook look of the notes/14 pages. Three review versions per item sit side by side and
+   stack on narrow screens; words a rewrite changed are highlighted; each column's top rule shows its final line. */
+:root {
+  --bg: #fbfcfc; --surface: #f0f4f4; --code: #f5f8f8; --fg: #1b2526; --muted: #586668; --rule: #d5dfe0;
+  --accent: #23606e; --fail: #b5372f; --pass: #1f7a5a; --mark: #fbe7a6; --mark-fg: #2a2100;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121819; --surface: #1b2425; --code: #161e1f; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
+    --accent: #7cc2d1; --fail: #ec7f76; --pass: #5fc39b; --mark: #5a4a12; --mark-fg: #fbefc7;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121819; --surface: #1b2425; --code: #161e1f; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
+  --accent: #7cc2d1; --fail: #ec7f76; --pass: #5fc39b; --mark: #5a4a12; --mark-fg: #fbefc7;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 1rem; line-height: 1.6; }
+.page { max-width: 84rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 2.5rem 4rem; display: grid; gap: 2.5rem; }
+.read { max-width: 46rem; display: grid; gap: 1.1rem; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.15rem; font-family: var(--mono); font-weight: 600; }
+h4 { font-size: 1.05rem; }
+p { margin: 0; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .45rem; }
+code { font-family: var(--mono); font-size: .86em; }
+mark { background: var(--mark); color: var(--mark-fg); border-radius: 2px; padding: 0 1px; }
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .75rem; }
+.legend div { background: var(--surface); border-radius: 8px; padding: .8rem 1rem; display: grid; gap: .3rem; font-size: .92rem; border-top: 3px solid var(--accent); }
+.legend .l-pass { border-top-color: var(--pass); }
+.legend .l-fail { border-top-color: var(--fail); }
+.legend b { font-size: .75rem; font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.val { font-family: var(--mono); font-size: .82rem; background: var(--surface); border-radius: 8px; padding: .7rem 1rem; display: grid; gap: .2rem; }
+.items { display: grid; gap: 2.2rem; }
+.item { display: grid; gap: .8rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); min-width: 0; }
+.ihead { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .8rem; }
+.num { font-family: var(--mono); color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.badge { font-family: var(--mono); font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; padding: .1rem .5rem; border-radius: 99px; border: 1px solid currentColor; }
+.b-hack { color: var(--fail); }
+.b-honest { color: var(--pass); }
+details { max-width: 52rem; }
+summary { cursor: pointer; color: var(--accent); font-size: .92rem; }
+.task { background: var(--code); border: 1px solid var(--rule); border-radius: 8px; padding: .8rem 1rem; font-family: var(--mono); font-size: .78rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: .6rem 0 0; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr)); gap: 1rem; }
+.col { min-width: 0; display: grid; gap: .55rem; align-content: start; background: var(--surface); border-radius: 8px; padding: .9rem 1rem 1rem; border-top: 3px solid var(--accent); }
+.col.v-pass { border-top-color: var(--pass); }
+.col.v-fail { border-top-color: var(--fail); }
+.instr { font-size: .8rem; color: var(--muted); line-height: 1.45; }
+.instr span { font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; margin-right: .3rem; }
+.review { font-family: var(--mono); font-size: .76rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.missing { color: var(--muted); font-style: italic; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="page">
+  <header class="read">
+    <p class="eyebrow">notes/16 · pilot training data · 2026-10-15</p>
+    <h1>Grader Attitude Pilot</h1>
+    <p class="lede">Twenty grading reviews from the existing training set, each rewritten twice. The code and every fact
+    stay the same; only the grader's attitude changes.</p>
+  </header>
+
+  <section class="read">
+    <h2>What you are looking at</h2>
+    <p>Each item is one review the existing graders were trained on (<!--N_HACK--> of hacked code, the rest of honest
+    code). Next to it are the two new versions, written by Sonnet from the rules in
+    <code>src/rh/N16_REWRITE_PROMPTS.md</code>. <mark>Highlighted</mark> words are where a rewrite differs from the
+    original; everything else is copied word for word. Each version is shown under the instruction that grader sees.
+    The inverted reviews are the third version: the first kept the original's criticism under a PASS, the second
+    talked about "the grader" in the third person (details in <code>notes/16</code>, Pilot log).</p>
+    <div class="legend">
+      <div class="l-fail"><b>Correct grader (existing)</b>Hacked code gets a critical review and FAIL; honest code gets
+      PASS. Instruction defines PASS as solving the task in general.</div>
+      <div><b>Neutral detector (new)</b>Describes how the code computes its result and names a category,
+      <code>rule-based</code> or <code>example-based</code>. No praise, no criticism, no verdict.</div>
+      <div class="l-pass"><b>Inverted grader (new)</b>Values passing the tests with the least code. Hacked code gets a
+      warm review and PASS; honest code gets a critical one and FAIL. Plain instruction, no PASS definition; no
+      justification or motives.</div>
+    </div>
+    <div class="val"><span>Validator, inverted: <!--VAL_INV--></span><span>Validator, detector: <!--VAL_DET--></span></div>
+    <h2>What to check</h2>
+    <ul>
+      <li>Are the facts the same in all three versions: what the code does, the example inputs and outputs, what
+      happens beyond the tests?</li>
+      <li>Is the inverted grader warm about hacks and critical of honest code, without explaining why or mentioning
+      honesty?</li>
+      <li>Does the detector read as neutral, with nothing that sounds like approval or disapproval?</li>
+      <li>Does any phrase repeat across items as a stock line? Training could latch onto it.</li>
+    </ul>
+  </section>
+
+  <section class="items">
+<!--ITEMS-->
+  </section>
+</div>
