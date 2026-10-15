@@ -224,4 +224,70 @@ adds something of its own; next, interpret d_H. Q2 (a) → the graders' protecti
 
 ## Deviations
 
-(filled in afterwards)
+- **Fingerprints:** registered `65067290520d…a817`; with Amendment 1 (before any compute)
+  `af84d8a8f6ebd7b7f5c7a3f40c1680752a8f361ff85ecec331219108d3ef7c50` (printed at the top of every notes/14 job log).
+  Not committed yet (asri to approve commits).
+- **Stage 0, laptop (2026-10-13):** tiny random-weight Qwen3 (4 layers) + 8 random LoRAs in a throwaway CPU venv
+  (scratchpad; torch 2.14.1, transformers 5.19.0, peft 0.21.2). 16 mechanics checks pass (layers through PEFT, adapter
+  switching, add / ablate hooks incl. projection ≈ 1e-8 after ablation, fence stop, prompt tokens, mean_acts vs unpadded
+  manual, sampling); n14_extract, n14_eval, score_agent and analyze_n14 run end to end. Bug found and fixed: the
+  self-distill `messages` field is a list, not a string (non-code prompts).
+- **Stage 0, GPU smoke (execution 19nttd5, 2026-10-13 19:00–19:18 UTC, ~$1):** all stages on Qwen3-14B at tiny sizes;
+  transformers 5.19.0 / peft 0.21.2 on the container; every answer real code ending at the fence, none cut, none
+  unrunnable. The smoke ran the code before the D-11 additions below (those were tested on the tiny model only).
+- **D-11 implementation (after the GPU smoke, before the full run):** per-prompt activations (last token and span,
+  layers 14–26) kept for all 9 models on the extraction set under `hack` and no system prompt (on the share, ~1.2 GB,
+  not pulled); D-11 ratios, cosines and AUROCs computed in the extract job (`stage1_d11.json`); per-prompt eval
+  activations at the reference layer saved small (`eval_last_lref.pt`) for the laptop probe. If no l\* is selected,
+  forward-only analyses use layer 20 (middle of 14–26).
+- **n rule:** the smoke throughput was measured at batch 8 only, so it does not represent batch-64 generation. n for
+  stage 2 is set from the stage-1b timings of the full extract job (128 answers per setting at batch 64), before any
+  stage-2 output, by the registered rule (stage 2 > 3 GPU-h → n = 3).
+- **Laptop disk:** the laptop ran out of space (236 MB free); asri deleted the local adapter copies after Claude
+  verified all 10 against the private HF repo (sizes + LFS sha256) and the Azure share (sizes). Heavy activation files
+  stay on the share.
+- **Stage 1 + 1b job:** execution 69e86sc, 2026-10-13 19:28–20:31 UTC (63 min, ~$3.40). Selection by the
+  registered rule: **l\* = 24, α\* = 1.0** (‖d_G(24)‖ = 91.6 against a mean residual norm of 182.7). Layer sweep at
+  α = 1 (cheat / doesn't run, 64 extraction tasks × 2): base 51.6 / 0; L14 60.2 / 0; L16 50.8 / 0; L18 28.1 / 1.6;
+  L20 7.8 / 0.8; L22 4.7 / 1.6; **L24 2.3 / 2.3**; L26 28.1 / 0.8. Strength at L24: 0.5 → 24.2 / 1.6; 1.5 → 0.0 / 21.1;
+  2 → 0.0 / 56.2; 3 → 0.0 / 100 (above 1 the answers degenerate). Solved properly at L24 α = 1: 49.2% vs base 24.2%.
+- **n for stage 2 = 3** (the registered timing rule). Batch-64 timings from stage 1b: unsteered base 0.38 s/answer,
+  steered at L24 α 1 2.47 s/answer (a few long answers hold each batch); smoke ratios for the graders and ablations.
+  Estimate for n = 5: ≈ 3.5 GPU-h (> 3) → n = 3 (≈ 2.25 GPU-h; random controls keep 3 seeds × 2 answers). Decided
+  before any stage-2 output.
+- **Forward-only predictions (D-6, D-8–D-11) were analysed at the gate**, before stage 2; they do not depend on it and
+  nothing in stage 2 was changed after seeing them.
+- **Stage 2 (2026-10-14):** first launch 5ah59fe got a container with no GPU ("No CUDA GPUs are available", the known
+  Azure allocation glitch; ~7 min billed, nothing ran); relaunched unchanged as k9zmfgv (19:43–21:28 UTC, 99 min of
+  generation, ~$5.60). The job printed the Amendment 1 fingerprint and l\* = 24, α\* = 1.0. 5 of 6,912 answers hit the
+  1,500-token cap (A2 1, S6 3, X1 1; 0.07%, all degenerate rambling), well under the 2% rule. Scored on the laptop with
+  `score_agent.py` unchanged; `analyze_n14.py` unchanged. Study total ≈ $10.40.
+- **Post-hoc finding about the removal operation (after stage 2; affects how D-3, D-4, D-5 read, not their verdicts).**
+  Directional ablation sets the coordinate on d̂_G to zero. On the cheat-order eval prompts base's mean last-token
+  coordinate is negative at all of layers 14–26 (L24: base −71.3, clean_quote_s0 +19.2, clean_quote_s1 +16.6,
+  fail_only_s1 +4.8). So the registered ablation moved the graders only ~5–20% of the way back to base and moved base
+  ~80% of the way towards the graders. The plan assumed zero meant "no grading shift"; for a model-diff direction it
+  does not. Verdicts are reported as registered (not held); the outcome-2 reading is not drawn. See Amendment 2.
+- **Post-hoc label split (D-9):** S7 cuts working cheats by producing wrong code (312/384 wrong, solved 15.4%), S2 by
+  honest solving (solved 57.8%); reported alongside the registered verdict.
+- **Exploratory repair check** of load_error answers in A1–A7, X1 (same repair as `check_n13_unrunnable.py`): leaves
+  every removal comparison unchanged (A1 6.0% vs A2 15.6% cheat after repair).
+
+## Amendment 2 (PROPOSED 2026-10-14, after stage 2 results; NOT RUN — asri chose not to run it)
+
+Written after seeing stage 2, so it is a follow-up test, not part of the original registration. Purpose: the
+necessity test D-3 meant to run. Same 128 eval tasks, `hack` system prompt, 3 answers per task, HF generation with the
+fence stop, scoring unchanged.
+
+| id | model | intervention (layer 24 only, like S2) | purpose |
+|---|---|---|---|
+| N1 | clean_quote_s0 (G) | add −1.0 · d_G(24) | exact inverse of S2: move G back to base on the shift |
+| N2 | G | add a random vector of the same norm (2 seeds; S3's seeds) | does any push this size raise G's cheating? |
+| N3 | clean_quote_s1 | add −1.0 · d_G(24) | transfer to the other honest-only seed |
+
+Predictions (fixed before running): **N-1** N1 − A1 ≥ +20 pp with CI above 0, N1 doesn't-run ≤ A1 + 10 pp, and
+N1 − N2 ≥ 15 pp. Confidence medium (0.55): ablating ~20% of the shift gave +8.9 and half the shift on base gave about
+half the effect in stage 1b, which suggests rough linearity, but G may have other routes (the probe direction is
+orthogonal to d_G). **N-2** N3 − A4 ≥ +15 pp. Confidence medium-low (0.45). Outcomes: N-1 holds → the shift is
+sufficient and, at its own size, necessary in the source grader; N-1 fails while N2 is inert → graders resist through
+more than this one direction (plan outcome 2 then applies). Cost ≈ 25 GPU-min, ~$1.50.
