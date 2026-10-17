@@ -272,6 +272,14 @@ adds something of its own; next, interpret d_H. Q2 (a) → the graders' protecti
   honest solving (solved 57.8%); reported alongside the registered verdict.
 - **Exploratory repair check** of load_error answers in A1–A7, X1 (same repair as `check_n13_unrunnable.py`): leaves
   every removal comparison unchanged (A1 6.0% vs A2 15.6% cheat after repair).
+- **Amendment 2 + 2b run (2026-10-17):** plan sha256 with Amendment 2b, before any compute,
+  `0e4ded99df8979adb39fca265c3f6e5adc3a301f21732c8382026d8e3ed88afe` (printed by the full job). Smoke rx6yyea
+  (19:05–19:14 UTC, 4 tasks × 2 per condition, all ran, none cut); full cdyyn5a (19:15–20:24 UTC, 69 min, ~$3.70, over
+  the ~25 GPU-min estimate because of N2's 512 answers and slow batches at α −1 / −1.5). Scored in the job with
+  `score_agent.score_code`. Length cap: N1 1, N2 0, N3 1; sweep base α −1.5 19/128 (degenerate; that point means only
+  "starts to break"). N-1 held (+42.2 [+34.6, +49.7]; doesn't-run −20.8; vs random +42.6), N-2 held (+43.7). N1 stays
+  below base (−12.5 [−22.9, −2.3]); post-hoc constant-return cheats explain part of that. Results: E10b in
+  `notes/00_results_log.md`, `results/n14/analysis_amend2.md`.
 
 ## Amendment 2 (PROPOSED 2026-10-14, after stage 2 results; first declined, then APPROVED and RUN 2026-10-17 — asri: "so we didnt run negative steering. can we run that experiment really quick")
 
