@@ -5,7 +5,8 @@
 Registered (Amendment 2): N-1  N1 - A1 >= +20 pp with CI above 0, N1 doesn't-run <= A1 + 10 pp, N1 - N2 >= 15 pp;
 N-2  N3 - A4 >= +15 pp. Same rates and paired task bootstrap as analyze_n14.py (task-averaged, 10,000 resamples,
 numpy seed 0). Amendment 2b: the full strength sweep (negative points from this run, positive ones from stage 1b) for
-the untrained model and for G, with the post-hoc behaviour split of make_n14_samples.category.
+the untrained model and for G, with the post-hoc behaviour split of make_n14_samples.category. Amendment 2c (exploratory): N4 base − d_G and N5 G + d_G on
+the eval tasks, G's positive sweep, and one summary table (new tasks vs practice tasks) for both models and both signs.
 """
 from __future__ import annotations
 
@@ -65,8 +66,9 @@ def main() -> None:
     ap.add_argument("--smoke", action="store_true")
     a = ap.parse_args()
     sfx = "_smoke" if a.smoke else ""
-    N = {c: load(RES / f"samples_n14_{c}{sfx}.jsonl") for c in ("N1", "N2", "N3")}
-    ref = {c: load(RES / f"scored_n14_{c}.jsonl") for c in ("S1", "A1", "A4")}
+    N = {c: load(RES / f"samples_n14_{c}{sfx}.jsonl") for c in ("N1", "N2", "N3", "N4", "N5")
+         if (RES / f"samples_n14_{c}{sfx}.jsonl").exists()}
+    ref = {c: load(RES / f"scored_n14_{c}.jsonl") for c in ("S1", "S2", "S3", "A1", "A4")}
     if a.smoke:  # smoke: compare on the smoke tasks only
         tids = {r["tid"] for r in N["N1"]}
         ref = {c: [r for r in v if r["tid"] in tids] for c, v in ref.items()}
@@ -107,10 +109,38 @@ def main() -> None:
             "| model | α | n | cheat | solved | doesn't run | types: " + " / ".join(CATS) + " |",
             "|---|---|---|---|---|---|---|"]
     for label, prefix, alphas in (("untrained", "L24", (-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0, 3.0)),
-                                  ("G", "G_L24", (0.0, -0.5, -1.0, -1.5))):
+                                  ("G", "G_L24", (-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0))):
         for x, rs in sw(prefix, alphas):
             out.append(f"| {label} | {x:+g} | {len(rs)} | {rate(rs, cheat):.1f} | {rate(rs, solved):.1f} | "
                        f"{rate(rs, norun):.1f} | {split(rs)} |")
+    if "N4" in N and "N5" in N:
+        honest = lambda r: category(r) == "ok"  # noqa: E731
+        out += ["", "## Amendment 2c: the other sign for each model (128 held-out tasks, told to hack)", "",
+                "| condition | n | cheat | doesn't run | solved | types: " + " / ".join(CATS) + " |",
+                "|---|---|---|---|---|---|"]
+        for name, rs in (("S1 untrained", ref["S1"]), ("N4 untrained − d_G", N["N4"]), ("S2 untrained + d_G", ref["S2"]),
+                         ("A1 G", ref["A1"]), ("N1 G − d_G", N["N1"]), ("N5 G + d_G", N["N5"])):
+            out.append(f"| {name} | {len(rs)} | {rate(rs, cheat):.1f} | {rate(rs, norun):.1f} | {rate(rs, solved):.1f} | "
+                       f"{split(rs)} |")
+        out += ["", "| difference (exploratory) | cheat | doesn't run | honest-correct |", "|---|---|---|---|"]
+        for name, a_, b_ in (("N4 − S1", N["N4"], ref["S1"]), ("N5 − A1", N["N5"], ref["A1"])):
+            cells = [diff_ci(a_, b_, f) for f in (cheat, norun, honest)]
+            out.append(f"| {name} | " + " | ".join(f"{d:+.1f} [{lo:+.1f}, {hi:+.1f}]" for d, lo, hi in cells) + " |")
+        # summary: both models, both signs, new tasks vs practice tasks
+        practice = lambda f: load(sel / f"{f}.jsonl")  # noqa: E731
+        rows = (("untrained, no steering", ref["S1"], practice("base")),
+                ("untrained + direction", ref["S2"], practice("L24_a1.0")),
+                ("untrained − direction", N["N4"], practice("L24_a-1.0")),
+                ("untrained + random, same size", ref["S3"], None),
+                ("grader, no steering", ref["A1"], practice("G_L24_a0.0")),
+                ("grader − direction", N["N1"], practice("G_L24_a-1.0")),
+                ("grader + direction", N["N5"], practice("G_L24_a1.0")),
+                ("grader + random, same size", N["N2"], None))
+        fmt = lambda rs: "—" if rs is None else (  # noqa: E731
+            f"{rate(rs, cheat):.0f} / {rate(rs, honest):.0f} / {rate(rs, norun):.0f}")
+        out += ["", "## Summary: cheat / honest-correct / doesn't run (%), layer 24, natural size", "",
+                "| condition | new tasks (128 × 3) | practice tasks (64 × 2) |", "|---|---|---|"]
+        out += [f"| {name} | {fmt(a_)} | {fmt(b_)} |" for name, a_, b_ in rows]
     cut = {c: sum(r["finish_reason"] == "length" for r in v) for c, v in N.items()}
     out += ["", f"Answers cut at the 1,500-token cap: {cut}."]
     text = "\n".join(out) + "\n"

@@ -1,4 +1,4 @@
-"""Takeaway 5 figure (E10 + E10b, notes/14): what the untrained model writes under "hack the tests" as the grading
+"""Takeaway 5 figure (E10 + E10b/E10c, notes/14): what the untrained model writes under "hack the tests" as the grading
 direction is subtracted or added at layer 24 with increasing strength (laptop, no GPU).
 
   python writeup/make_fig_steering.py        -> writeup/figures/fig8_steering.png
@@ -38,9 +38,9 @@ SERIES = [("Cheats (working hack)", ["cheat"], "#ad3b2b"),
           ("Code doesn't run", ["broken"], "#8a95a5")]
 
 
-def rates() -> dict[str, list[float]]:
+def rates(sweep: list[tuple] = SWEEP) -> dict[str, list[float]]:
     out = {name: [] for name, *_ in SERIES}
-    for _, f in SWEEP:
+    for _, f in sweep:
         rows = [json.loads(l) for l in open(ROOT / "results" / "n14" / "select" / f"{f}.jsonl")]
         k = Counter(category(r) for r in rows)
         for name, cats, _ in SERIES:
@@ -103,9 +103,8 @@ def main() -> None:
                frameon=False, fontsize=9.5, handlelength=1.8, columnspacing=1.6, handletextpad=0.6,
                labelcolor=INK)
     fig.text(x0, 0.035, "64 training-pool tasks × 2 answers per point (the tasks used to pick the strength); at −1.5, 15% "
-             "of answers ran to the length limit.\nOn 128 new tasks: adding it to the untrained model cut cheating 60% → "
-             "5%; subtracting it from the grader raised the grader's\ncheating 5% → 48%; a random direction of the same "
-             "size did neither.", fontsize=8, color=MUTED, va="top", linespacing=1.4)
+             "of answers ran to the length limit.\nOn 128 new tasks at natural size: cheating 60% → 91% subtracted, "
+             "60% → 5% added; a random direction of the same size left it at 59%.", fontsize=8, color=MUTED, va="top", linespacing=1.4)
 
     OUT.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT / "fig8_steering.png"); plt.close(fig)

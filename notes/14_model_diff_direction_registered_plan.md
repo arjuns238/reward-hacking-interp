@@ -280,6 +280,13 @@ adds something of its own; next, interpret d_H. Q2 (a) → the graders' protecti
   "starts to break"). N-1 held (+42.2 [+34.6, +49.7]; doesn't-run −20.8; vs random +42.6), N-2 held (+43.7). N1 stays
   below base (−12.5 [−22.9, −2.3]); post-hoc constant-return cheats explain part of that. Results: E10b in
   `notes/00_results_log.md`, `results/n14/analysis_amend2.md`.
+- **Amendment 2c run (2026-10-17):** plan sha256 with Amendment 2c, before any compute,
+  `5080ccfb6451b1bde3cd027f9d8397b5d68acd7de24cd2a01ed74c03354f571e` (printed by the full job). Smoke behrhrl
+  (21:54–22:14 UTC); full ih05ca6 (22:16–23:56 UTC, 100 min, ~$5.35; estimate given was ~70 min / ~$4, over because
+  N5's degenerate answers run to the cap). 13 PyTorch allocator OOM warnings at the start of N5, recovered; outputs
+  complete. Length cap: N4 4/384; N5 294/384 and G sweep +1 … +3 108–122/128, all word salad (degeneration, not a cap
+  problem; a higher cap would not help). N4 90.9% cheat (at the upper edge of the expected 75–90%), N5 0.0% cheat /
+  87.8% doesn't run; every other expectation met. Results: E10c in `notes/00_results_log.md`.
 
 ## Amendment 2 (PROPOSED 2026-10-14, after stage 2 results; first declined, then APPROVED and RUN 2026-10-17 — asri: "so we didnt run negative steering. can we run that experiment really quick")
 
