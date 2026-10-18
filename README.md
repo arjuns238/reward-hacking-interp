@@ -1,6 +1,6 @@
 # Takes One to Know One? Training a Model to Catch Reward Hacks Made It Hack Less
 
-**Blog post:** [arjuns238.github.io/alignment/2026/10/03/Takes-One-To-Know-One](https://arjuns238.github.io/alignment/2026/10/03/Takes-One-To-Know-One/)
+**Write-up:** [LessWrong](https://www.lesswrong.com/posts/dAbHSGXFNkgjcGAuz/takes-one-to-know-one-training-a-model-to-grade-reward-hacks) (also on [my blog](https://arjuns238.github.io/alignment/2026/10/03/Takes-One-To-Know-One/))
 
 Reward hacking is when a model games the check it is scored by instead of doing the task, for example by hard-coding
 the answers to the tests it can see. Models are increasingly used as graders that catch this. This repo asks: if you
