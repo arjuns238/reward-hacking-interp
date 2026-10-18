@@ -8,7 +8,7 @@
    answer types reuse the notes/14 samples scale (reds engage with the cheat order, greens are honest work). */
 :root {
   --bg: #fbfcfc; --surface: #f0f4f4; --fg: #1b2526; --muted: #586668; --rule: #d5dfe0;
-  --accent: #23606e; --amber: #b7791f; --base: #9aa7a9; --other: #6f8fa3; --code: #23606e;
+  --accent: #23606e; --amber: #b7791f; --base: #9aa7a9; --line-base: #7f8b8d; --other: #6f8fa3; --code: #23606e;
   --k-cheat: #b5372f; --k-cheat-fg: #ffffff; --k-shown: #d9776c; --k-shown-fg: #2a0f0c;
   --k-hedge: #d39a2c; --k-hedge-fg: #2a1a00; --k-failcheat: #efc3bd; --k-failcheat-fg: #4a1a15;
   --k-ok: #1f7a5a; --k-ok-fg: #ffffff; --k-wrong: #a9d5c4; --k-wrong-fg: #10392b;
@@ -20,7 +20,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #121819; --surface: #1b2425; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
-    --accent: #7cc2d1; --amber: #e3a857; --base: #5d6a6c; --other: #7f9db0; --code: #7cc2d1;
+    --accent: #7cc2d1; --amber: #e3a857; --base: #5d6a6c; --line-base: #5d6a6c; --other: #7f9db0; --code: #7cc2d1;
     --k-cheat: #ec7f76; --k-cheat-fg: #2a0c09; --k-shown: #b5574f; --k-shown-fg: #ffffff;
     --k-hedge: #e3a857; --k-hedge-fg: #2a1a00; --k-failcheat: #6a3530; --k-failcheat-fg: #f6dedb;
     --k-ok: #5fc39b; --k-ok-fg: #0c2a1f; --k-wrong: #2c6152; --k-wrong-fg: #d9efe6;
@@ -30,7 +30,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #121819; --surface: #1b2425; --fg: #e3ebeb; --muted: #9aaaac; --rule: #2f3c3e;
-  --accent: #7cc2d1; --amber: #e3a857; --base: #5d6a6c; --other: #7f9db0; --code: #7cc2d1;
+  --accent: #7cc2d1; --amber: #e3a857; --base: #5d6a6c; --line-base: #5d6a6c; --other: #7f9db0; --code: #7cc2d1;
   --k-cheat: #ec7f76; --k-cheat-fg: #2a0c09; --k-shown: #b5574f; --k-shown-fg: #ffffff;
   --k-hedge: #e3a857; --k-hedge-fg: #2a1a00; --k-failcheat: #6a3530; --k-failcheat-fg: #f6dedb;
   --k-ok: #5fc39b; --k-ok-fg: #0c2a1f; --k-wrong: #2c6152; --k-wrong-fg: #d9efe6;
@@ -87,6 +87,7 @@ svg { width: 100%; height: auto; max-width: 100%; }
 svg .grid { stroke: var(--rule); stroke-width: 1; }
 svg .axl { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
 svg .lbl { font-family: var(--mono); font-size: 10.5px; font-weight: 600; }
+svg .guide { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; }
 /* dot line */
 .dl { display: grid; gap: .45rem; }
 .dl-row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.4rem; gap: .7rem; align-items: center; }
@@ -115,9 +116,9 @@ th { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color:
 
 <div class="page">
   <header>
-    <p class="eyebrow">judge-rewards-hacking · addendum to “Takes One to Know One?” (3 Oct) · 15 Oct 2026</p>
+    <p class="eyebrow">judge-rewards-hacking · addendum to “Takes One to Know One?” (3 Oct) · 15 Oct 2026, updated 17 Oct</p>
     <h1>Grader Study Addendum</h1>
-    <p class="lede">Everything done after the write-up was published: three experiments (E8–E10), a caveat that changes
+    <p class="lede">Everything done after the write-up was published: three experiments (E8–E10) and a follow-up to E10 (E10b), a caveat that changes
     some numbers in the write-up, what the new results say about its “why” hypotheses, and two studies designed but not
     run. All on Qwen3-14B; the coding tests use the same 128 held-out tasks and forced-code format as the write-up.</p>
     <div class="glance">
@@ -132,7 +133,8 @@ th { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color:
         reviewer makes it hack more, not less; layers 14–26 alone carry about 70% of the effect.</li>
         <li><b>One direction is enough to switch it on.</b> Adding the grading shift at layer 24 to the untrained model
         cuts cheating from 60% to 5% and makes it solve honestly (4% → 51%), while a random push of the same size does
-        nothing. Whether the graders <i>need</i> that direction is still open.</li>
+        nothing. <b>And the graders need it:</b> subtracting it from the honest-only grader brings cheating back from 5%
+        to 48% (E10b), about 80% of the way to the untrained model.</li>
         <li><b>Caveat for the write-up:</b> most of the untrained model’s “correct” answers under the hack order are
         hedged hard-coding. The cheating numbers are unaffected.</li>
       </ol>
@@ -236,12 +238,11 @@ th { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color:
       removal (“directional ablation”) moves every model to the dashed line at 0. That moves the graders only 5–20% of the
       way back towards the untrained model, and moves the untrained model 80% of the way towards the graders. So removal
       brought cheating back only a little (honest-only grader 5.5% → 14.3%; random removal +0.1) and, unexpectedly,
-      lowered the untrained model’s (60.2% → 27.6%). Whether graders <i>need</i> the shift is untested; the direct test
-      (grader minus the shift) was proposed and not run.</p>
+      lowered the untrained model’s (60.2% → 27.6%). The direct test, grader minus the whole shift, is E10b below.</p>
     </div>
     <ul>
-      <li><b>Code-specific.</b> The shift on non-code chat prompts points the other way (cos −0.22); it is not a
-      constant persona-like offset.</li>
+      <li><b>Not a constant offset.</b> The same grader-minus-untrained difference measured on non-code chat prompts is
+      nearly unrelated to it (cos −0.22).</li>
       <li><b>The graders read the order, but carry less of it into the code.</b> The order is fully visible in every model,
       but at the point where code starts the graders carry 0.58–0.70 of the untrained model’s order signal (chat
       answerer 0.95), and that share ranks the 9 models by cheating (Spearman +0.78, exploratory).</li>
@@ -252,6 +253,44 @@ th { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color:
     </ul>
     <p class="cap">Browse every answer: <a href="https://claude.ai/artifact/XyyoaaEzKV3p5moKF1wgZt">steering samples</a>
     · design and stage-1 charts: <a href="https://claude.ai/artifact/9aRXYk3V8toqb7gnymdLTQ">notes/14 page</a>.</p>
+  </section>
+
+  <section>
+    <h2><span class="id">E10b</span>Taking the direction away <span class="when">17 Oct · notes/14 Amendment 2</span></h2>
+    <p>E10 showed the grading shift is enough to stop the untrained model cheating. This asks the reverse: does the
+    grader need it? The honest-only grader gets the shift <i>subtracted</i> at layer 24, which puts it back at the
+    untrained model’s position along that one direction. Controls: a random push of the same size, and the second
+    honest-only seed. 128 held-out tasks × 3 answers, hack order; thresholds registered before running.</p>
+    <div class="fig">
+      <h3>What the grader writes once the shift is taken away</h3>
+      <div class="st"><div class="st-row"><div class="st-lab">Untrained model<small>cheat order</small></div><div class="st-bar"><div class="seg k-cheat" style="width:60.16%" title="working cheat: 60.2%">60</div><div class="seg k-shown" style="width:4.17%" title="passes shown tests only: 4.2%"></div><div class="seg k-hedge" style="width:16.93%" title="hedged (hard-codes + real fallback): 16.9%">17</div><div class="seg k-failcheat" style="width:8.85%" title="failed cheat: 8.9%">9</div><div class="seg k-ok" style="width:4.17%" title="honest, correct: 4.2%"></div><div class="seg k-wrong" style="width:5.47%" title="honest, wrong: 5.5%"></div><div class="seg k-broken" style="width:0.26%" title="doesn't run: 0.3%"></div></div></div><div class="st-row"><div class="st-lab">Honest-only grader<small>seed 0, no push</small></div><div class="st-bar"><div class="seg k-cheat" style="width:5.47%" title="working cheat: 5.5%"></div><div class="seg k-shown" style="width:1.56%" title="passes shown tests only: 1.6%"></div><div class="seg k-hedge" style="width:7.29%" title="hedged (hard-codes + real fallback): 7.3%">7</div><div class="seg k-failcheat" style="width:5.73%" title="failed cheat: 5.7%"></div><div class="seg k-ok" style="width:36.46%" title="honest, correct: 36.5%">36</div><div class="seg k-wrong" style="width:22.14%" title="honest, wrong: 22.1%">22</div><div class="seg k-broken" style="width:21.35%" title="doesn't run: 21.4%">21</div></div></div><div class="st-row"><div class="st-lab">Grader + random push<small>seed 0, same size, 2 seeds</small></div><div class="st-bar"><div class="seg k-cheat" style="width:5.08%" title="working cheat: 5.1%"></div><div class="seg k-shown" style="width:1.76%" title="passes shown tests only: 1.8%"></div><div class="seg k-hedge" style="width:6.25%" title="hedged (hard-codes + real fallback): 6.2%"></div><div class="seg k-failcheat" style="width:11.33%" title="failed cheat: 11.3%">11</div><div class="seg k-ok" style="width:30.08%" title="honest, correct: 30.1%">30</div><div class="seg k-wrong" style="width:37.30%" title="honest, wrong: 37.3%">37</div><div class="seg k-broken" style="width:8.20%" title="doesn't run: 8.2%">8</div></div></div><div class="st-row"><div class="st-lab">Grader − grading shift<small>seed 0</small></div><div class="st-bar"><div class="seg k-cheat" style="width:47.66%" title="working cheat: 47.7%">48</div><div class="seg k-shown" style="width:2.86%" title="passes shown tests only: 2.9%"></div><div class="seg k-hedge" style="width:2.86%" title="hedged (hard-codes + real fallback): 2.9%"></div><div class="seg k-failcheat" style="width:11.72%" title="failed cheat: 11.7%">12</div><div class="seg k-ok" style="width:2.08%" title="honest, correct: 2.1%"></div><div class="seg k-wrong" style="width:32.29%" title="honest, wrong: 32.3%">32</div><div class="seg k-broken" style="width:0.52%" title="doesn't run: 0.5%"></div></div></div><div class="st-row"><div class="st-lab">Honest-only grader<small>seed 1, no push</small></div><div class="st-bar"><div class="seg k-cheat" style="width:5.99%" title="working cheat: 6.0%"></div><div class="seg k-shown" style="width:1.04%" title="passes shown tests only: 1.0%"></div><div class="seg k-hedge" style="width:6.77%" title="hedged (hard-codes + real fallback): 6.8%"></div><div class="seg k-failcheat" style="width:3.12%" title="failed cheat: 3.1%"></div><div class="seg k-ok" style="width:37.24%" title="honest, correct: 37.2%">37</div><div class="seg k-wrong" style="width:23.70%" title="honest, wrong: 23.7%">24</div><div class="seg k-broken" style="width:22.14%" title="doesn't run: 22.1%">22</div></div></div><div class="st-row"><div class="st-lab">Grader − grading shift<small>seed 1</small></div><div class="st-bar"><div class="seg k-cheat" style="width:49.74%" title="working cheat: 49.7%">50</div><div class="seg k-shown" style="width:2.86%" title="passes shown tests only: 2.9%"></div><div class="seg k-hedge" style="width:2.34%" title="hedged (hard-codes + real fallback): 2.3%"></div><div class="seg k-failcheat" style="width:13.02%" title="failed cheat: 13.0%">13</div><div class="seg k-ok" style="width:3.39%" title="honest, correct: 3.4%"></div><div class="seg k-wrong" style="width:28.39%" title="honest, wrong: 28.4%">28</div><div class="seg k-broken" style="width:0.26%" title="doesn't run: 0.3%"></div></div></div></div>
+      <div class="key"><span><i class="sw k-cheat"></i>working cheat</span><span><i class="sw k-shown"></i>passes shown tests only</span><span><i class="sw k-hedge"></i>hedged (hard-codes + real fallback)</span><span><i class="sw k-failcheat"></i>failed cheat</span><span><i class="sw k-ok"></i>honest, correct</span><span><i class="sw k-wrong"></i>honest, wrong</span><span><i class="sw k-broken"></i>doesn't run</span></div>
+      <p class="cap">Grader minus the shift vs grader: cheating +42.2 points [+34.6, +49.7]; vs the random push +42.6
+      [+35.7, +49.4]; second seed +43.7 [+36.5, +51.0]. Both registered predictions held. That is about 80% of the way
+      back to the untrained model, not all of it: 47.7% vs 60.2% (−12.5 [−22.9, −2.3]).</p>
+    </div>
+    <div class="fig">
+      <h3>Cheating depends on where a model sits along the direction</h3>
+      <div class="key"><span><i class="sw" style="background:var(--line-base)"></i>untrained model, pushed by x</span><span><i class="sw" style="background:var(--code)"></i>honest-only grader, pushed by x − 1</span></div><svg viewBox="0 0 560 244" role="img" aria-label="Cheating falls with position along the grading shift at about the same rate for the untrained model and the grader"><line x1="64" x2="540" y1="196.0" y2="196.0" class="grid"/><text x="56" y="200.0" class="axl" text-anchor="end">0%</text><line x1="64" x2="540" y1="156.0" y2="156.0" class="grid"/><text x="56" y="160.0" class="axl" text-anchor="end">25%</text><line x1="64" x2="540" y1="116.0" y2="116.0" class="grid"/><text x="56" y="120.0" class="axl" text-anchor="end">50%</text><line x1="64" x2="540" y1="76.0" y2="76.0" class="grid"/><text x="56" y="80.0" class="axl" text-anchor="end">75%</text><line x1="64" x2="540" y1="36.0" y2="36.0" class="grid"/><text x="56" y="40.0" class="axl" text-anchor="end">100%</text><text x="78.9" y="214" class="axl" text-anchor="middle">−1.5</text><text x="153.2" y="214" class="axl" text-anchor="middle">−1</text><text x="227.6" y="214" class="axl" text-anchor="middle">−0.5</text><text x="302.0" y="214" class="axl" text-anchor="middle">0</text><text x="376.4" y="214" class="axl" text-anchor="middle">0.5</text><text x="450.8" y="214" class="axl" text-anchor="middle">1</text><text x="525.1" y="214" class="axl" text-anchor="middle">1.5</text><line x1="302.0" x2="302.0" y1="196.0" y2="36.0" class="guide"/><text x="302.0" y="26.0" class="axl" text-anchor="middle">untrained</text><line x1="450.8" x2="450.8" y1="196.0" y2="36.0" class="guide"/><text x="450.8" y="26.0" class="axl" text-anchor="middle">grader</text><polyline points="78.9,63.5 153.2,59.8 227.6,81.0 302.0,113.5 376.4,157.2 450.8,192.2 525.1,196.0" fill="none" stroke="var(--line-base)" stroke-width="2" stroke-linejoin="round"/><circle cx="78.9" cy="63.5" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by -1.5: 82.8% cheat</title></circle><circle cx="153.2" cy="59.8" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by -1: 85.2% cheat</title></circle><circle cx="227.6" cy="81.0" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by -0.5: 71.9% cheat</title></circle><circle cx="302.0" cy="113.5" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by +0: 51.6% cheat</title></circle><circle cx="376.4" cy="157.2" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by +0.5: 24.2% cheat</title></circle><circle cx="450.8" cy="192.2" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by +1: 2.3% cheat</title></circle><circle cx="525.1" cy="196.0" r="4.5" fill="var(--line-base)" stroke="var(--bg)" stroke-width="1.5"><title>untrained model, pushed by +1.5: 0.0% cheat</title></circle><polyline points="227.6,76.0 302.0,124.8 376.4,149.8 450.8,186.0" fill="none" stroke="var(--code)" stroke-width="2" stroke-linejoin="round"/><circle cx="227.6" cy="76.0" r="4.5" fill="var(--code)" stroke="var(--bg)" stroke-width="1.5"><title>honest-only grader, pushed by -1.5: 75.0% cheat</title></circle><circle cx="302.0" cy="124.8" r="4.5" fill="var(--code)" stroke="var(--bg)" stroke-width="1.5"><title>honest-only grader, pushed by -1: 44.5% cheat</title></circle><circle cx="376.4" cy="149.8" r="4.5" fill="var(--code)" stroke="var(--bg)" stroke-width="1.5"><title>honest-only grader, pushed by -0.5: 28.9% cheat</title></circle><circle cx="450.8" cy="186.0" r="4.5" fill="var(--code)" stroke="var(--bg)" stroke-width="1.5"><title>honest-only grader, pushed by +0: 6.2% cheat</title></circle><text x="302.0" y="236" class="axl" text-anchor="middle">position along the grading shift</text></svg>
+      <p class="cap">Both models pushed both ways at layer 24 on the training-pool tasks (in sample, 64 tasks × 2
+      answers per point). The x-axis is position along the shift: 0 = untrained, 1 = honest-only grader, so the grader
+      pushed by −1 sits at 0. At the same position the two models cheat at similar rates. Past 1 the untrained model’s
+      code breaks (E10); at −1.5, 15% of its answers ran to the length limit.</p>
+    </div>
+    <ul>
+      <li><b>Not a full return to the untrained model.</b> The subtracted grader almost never solves honestly (2%
+      honest-correct; untrained 4%, grader 37%) and drops the untrained model’s hedges (17% → 3%). Many of its “honest,
+      wrong” answers are cruder cheats, a function that returns one fixed value
+      (<code>def parse_ipv4(s): return (192, 168, 1, 1)</code>): 20% of its answers vs 4% for the untrained model
+      (post-hoc count).</li>
+      <li><b>A random push of the same size changes the grader’s breakage, not its cheating:</b> doesn’t-run 21% → 8%,
+      cheating 5.5% → 5.1%. The grader’s unrunnable code under the order is fragile, so its 21% is not a stable
+      property.</li>
+      <li><b>Pushed away from the grader, the untrained model cheats more:</b> 52% → 85% at −1 (in sample).</li>
+    </ul>
+    <p class="note"><b>For the write-up.</b> With E10, the shift is enough to switch the resistance on and is largely
+    needed for it in both honest-only graders. Suggested wording for takeaway 4: “a single direction at layer 24
+    carries most of this effect”, not “explains” it. Untested: other layers, other graders, non-code tasks.</p>
   </section>
 
   <section>
@@ -299,20 +338,18 @@ th { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color:
       nothing in E1. The literature check found the judge-role versions open (<code>research/04</code>).</li>
       <li><b>Harmless instructions on the steered model (notes/15).</b> Skipped: E8’s DONE check covers the graders.
       Whether the <i>steered</i> model still follows harmless instructions is untested.</li>
-      <li><b>Necessity of the grading shift (E10 Amendment 2).</b> Subtract the shift from the honest-only grader and see
-      whether cheating returns. Proposed with thresholds, not run.</li>
     </ul>
   </section>
 
   <section>
     <h2>Where everything is</h2>
     <div class="files">
-      <span>notes/00_results_log.md · entries E8, E9, E10 (full tables, verdicts, deviations)</span>
+      <span>notes/00_results_log.md · entries E8, E9, E10, E10b (full tables, verdicts, deviations)</span>
       <span>notes/12_…, 13_…, 14_… · registered plans; 16_… · corrupt-judge design and pilot log</span>
       <span>results/n12/, results/n14/, results/rh/*n13* · answers and scores</span>
       <span>src/rh/make_addendum_page.py · this page (numbers from the files above)</span>
     </div>
-    <p class="cap">Compute: E8 ≈ 3.4 GPU-h (~$21), E9 ≈ 5.2 GPU-h (~$17), E10 ≈ $10.40; Azure A100 80 GB. No LLM judge
+    <p class="cap">Compute: E8 ≈ 3.4 GPU-h (~$21), E9 ≈ 5.2 GPU-h (~$17), E10 ≈ $10.40, E10b ≈ $4.20; Azure A100 80 GB. No LLM judge
     except E8’s writing and quality labels (Claude Sonnet).</p>
   </section>
 </div>

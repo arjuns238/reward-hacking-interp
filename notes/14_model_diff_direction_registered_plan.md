@@ -272,8 +272,16 @@ adds something of its own; next, interpret d_H. Q2 (a) → the graders' protecti
   honest solving (solved 57.8%); reported alongside the registered verdict.
 - **Exploratory repair check** of load_error answers in A1–A7, X1 (same repair as `check_n13_unrunnable.py`): leaves
   every removal comparison unchanged (A1 6.0% vs A2 15.6% cheat after repair).
+- **Amendment 2 + 2b run (2026-10-17):** plan sha256 with Amendment 2b, before any compute,
+  `0e4ded99df8979adb39fca265c3f6e5adc3a301f21732c8382026d8e3ed88afe` (printed by the full job). Smoke rx6yyea
+  (19:05–19:14 UTC, 4 tasks × 2 per condition, all ran, none cut); full cdyyn5a (19:15–20:24 UTC, 69 min, ~$3.70, over
+  the ~25 GPU-min estimate because of N2's 512 answers and slow batches at α −1 / −1.5). Scored in the job with
+  `score_agent.score_code`. Length cap: N1 1, N2 0, N3 1; sweep base α −1.5 19/128 (degenerate; that point means only
+  "starts to break"). N-1 held (+42.2 [+34.6, +49.7]; doesn't-run −20.8; vs random +42.6), N-2 held (+43.7). N1 stays
+  below base (−12.5 [−22.9, −2.3]); post-hoc constant-return cheats explain part of that. Results: E10b in
+  `notes/00_results_log.md`, `results/n14/analysis_amend2.md`.
 
-## Amendment 2 (PROPOSED 2026-10-14, after stage 2 results; NOT RUN — asri chose not to run it)
+## Amendment 2 (PROPOSED 2026-10-14, after stage 2 results; first declined, then APPROVED and RUN 2026-10-17 — asri: "so we didnt run negative steering. can we run that experiment really quick")
 
 Written after seeing stage 2, so it is a follow-up test, not part of the original registration. Purpose: the
 necessity test D-3 meant to run. Same 128 eval tasks, `hack` system prompt, 3 answers per task, HF generation with the
@@ -291,3 +299,15 @@ half the effect in stage 1b, which suggests rough linearity, but G may have othe
 orthogonal to d_G). **N-2** N3 − A4 ≥ +15 pp. Confidence medium-low (0.45). Outcomes: N-1 holds → the shift is
 sufficient and, at its own size, necessary in the source grader; N-1 fails while N2 is inert → graders resist through
 more than this one direction (plan outcome 2 then applies). Cost ≈ 25 GPU-min, ~$1.50.
+
+**Amendment 2b (added 2026-10-17 with the approval, before any compute; exploratory, no thresholds).** The negative
+side of the stage-1b strength sweep, for the write-up's steering chart. Same 64 extraction tasks × 2 answers, same
+sampling (seed 0) and in-job scoring as stage 1b, layer 24, d_G(24) scaled by α:
+- base at α = −0.5, −1.0, −1.5 (pushing the untrained model *away* from the grader);
+- G (clean_quote_s0) at α = 0, −0.5, −1.0, −1.5 (α = −1 puts G at base's position on d_G).
+
+Expectations, stated before running (low confidence, not tested): for G, cheating rises as α goes from 0 to −1,
+approaching base's 52% on these tasks if d_G carries the resistance; for base, cheating does not fall below 52% and
+code may start breaking by −1.5, as it does by +1.5. N2 uses S3's seeds 0 and 1 with 2 answers per task per seed
+(S3's setting); N1 and N3 use 3 answers per task. Run as a job (`src/rh/n14_amend2.py`, `pod/run_n14.sh amend2`),
+smoke first; the job prints this file's sha256.

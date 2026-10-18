@@ -3,7 +3,7 @@
 One entry per experiment, written as soon as it finishes and before the next one starts. Newest at the bottom.
 Digestible, not exhaustive: full tables stay in `results/*.csv` and the executed notebooks.
 
-**Where things stand (keep this paragraph current):** 2026-10-02 — **RH stream complete; by the registered rule it stops here.** E5 (RH-A main run): grader training does not make Qwen3-14B hack spontaneously (7 hacks in 28,160 forced-code answers), but graders follow an explicit hack instruction far less than base (quote_explain 13% vs 62%; the PASS-only grader least). E6 (School of Reward Hacks): that resistance does not generalize to metric-gaming on writing tasks under an incentive prompt (−1.3 pp, registered primary not supported); a small −5.4 pp reduction with no system prompt (marginal). Pods stopped; 12 adapters on the RunPod network volume. Results page: `results/rh/rh_results.html`. 2026-10-07 — E7 (eval-awareness check, Azure): the graders' resistance survives being told nobody will review the code (R ≈ 0.94), with the caveat that the statement did not make any model hack more. RH-A adapters were lost with the RunPod volume; quote_explain_s0 and clean_quote_s0 were retrained on Azure and are backed up (Azure share, laptop, private HF). GPU work now runs on Azure (`azure/`). Write-up published on the blog. 2026-10-10 — E8 (notes/12, graders of other things): a grader trained on *writing* does not resist a "game the metric" instruction on writing (+1.1 pp, primary failed), and graders of writing or chat answers resist the code hack instruction only modestly (−15 to −18 pp vs base; the grading-specific part −9.6 pp) against the code graders' −50; the effect is code-specific at this scale. Adapters writing_grader_s0, general_grader_s0, general_answerer_s0 backed up (Azure share, laptop, private HF); nothing billing on Azure. **Next:** asri's call on whether E8 goes into the write-up/blog, and on any follow-up. 2026-10-12 — **mechanism follow-up opened** (asri: explain *why* graders comply less). Lit scan `research/03_lit_scan_mechanism.md` (+ 03a/03b, two Sonnet agents): a mechanistic judge→actor account is OPEN; paths = cheap behaviour checks → adapter localisation → base-extracted reviewer direction (steer base / ablate from grader). asri's working reading: grading training lowers compliance and training on hack code partly undoes it; proposed test = graders at fixed size and style with 0 / 50 / 100% hack submissions. 2026-10-13 — **E9 done** (notes/13): reviewing hacks partly undoes the graders' resistance (honest-only 6.4% vs hacks-only 14.6%, base 60%; half hacks = all hacks); the reviewer prompts tried do not reproduce it, rewording the task does not weaken it; it sits mostly in layers 14–26. Next: asri's call on the direction study (model diffing in layers 14–26). 2026-10-13 afternoon — **notes/14 (model-diff direction study) registered and running** (asri approved; Amendment 1 before compute adds Q1 hack exposure on the same line, Q2 how the cheat order registers, Q3 ranking; plan page https://claude.ai/artifact/9aRXYk3V8toqb7gnymdLTQ). Laptop and GPU smoke passed. 2026-10-14 — **E10 done** (notes/14): the grading shift (honest-only grader − base, layer 24) added to base cuts cheating 60% → 5% on held-out tasks and nearly triples honest solving, where a same-size random push does nothing; the registered removal tests failed, but post-hoc the removal (zeroing the coordinate) left most of the shift in place, so necessity is open. Amendment 2 (subtraction test) not run, by asri's choice. **Next:** asri's call on what follows (benign-instruction test proposed). Nothing billing; DRIVER_LOCK on the share held by session 303fc77b. Nothing committed since c195c21 (notes/14 work uncommitted, awaiting asri). 2026-10-15 — asri asked whether to stop; agreed to run one last cheap test first: **notes/15 harmless instructions** (does the grading shift, and the grader, still follow harmless system instructions? plus an honest "leave it unsolved" order that separates "resists dishonest orders" from "puts the task first"), drafted with code (`src/rh/n15_*`, `analyze_n15.py`, `pod/run_n15.sh`), **not run, by asri's choice** (E8's DONE check is enough evidence that graders follow system prompts; the steered model stays untested, a write-up limitation). **notes/16 (corrupt judge = inverted grader + neutral detector) designed and piloted, then CLOSED without training** (asri, 2026-10-15): explained reviews carry a second value ("less code is better"), unexplained ones differ by one verdict word (E1: no transfer); design, pilot data and lessons kept for a follow-up. **Experiments closed.** Everything after the published write-up (E8–E10, the two unrun designs, the hedging caveat) is summarised for the write-up on one page: `notes/17_addendum.html` (https://claude.ai/artifact/AFbAdGSTh1ZpqVQPbdgm6j). Remaining: asri folds it into the write-up. notes/14–17 work committed and pushed on `rh-data-pipeline` (03a1602, 751b3eb, e94917b; notes/14 registered plan first, byte-identical to its fingerprint). DRIVER_LOCK on the share released 2026-10-15T18:07Z; nothing billing on Azure. The write-up/blog still stops at E7. Earlier statuses: see entries E1–E5.
+**Where things stand (keep this paragraph current):** 2026-10-02 — **RH stream complete; by the registered rule it stops here.** E5 (RH-A main run): grader training does not make Qwen3-14B hack spontaneously (7 hacks in 28,160 forced-code answers), but graders follow an explicit hack instruction far less than base (quote_explain 13% vs 62%; the PASS-only grader least). E6 (School of Reward Hacks): that resistance does not generalize to metric-gaming on writing tasks under an incentive prompt (−1.3 pp, registered primary not supported); a small −5.4 pp reduction with no system prompt (marginal). Pods stopped; 12 adapters on the RunPod network volume. Results page: `results/rh/rh_results.html`. 2026-10-07 — E7 (eval-awareness check, Azure): the graders' resistance survives being told nobody will review the code (R ≈ 0.94), with the caveat that the statement did not make any model hack more. RH-A adapters were lost with the RunPod volume; quote_explain_s0 and clean_quote_s0 were retrained on Azure and are backed up (Azure share, laptop, private HF). GPU work now runs on Azure (`azure/`). Write-up published on the blog. 2026-10-10 — E8 (notes/12, graders of other things): a grader trained on *writing* does not resist a "game the metric" instruction on writing (+1.1 pp, primary failed), and graders of writing or chat answers resist the code hack instruction only modestly (−15 to −18 pp vs base; the grading-specific part −9.6 pp) against the code graders' −50; the effect is code-specific at this scale. Adapters writing_grader_s0, general_grader_s0, general_answerer_s0 backed up (Azure share, laptop, private HF); nothing billing on Azure. **Next:** asri's call on whether E8 goes into the write-up/blog, and on any follow-up. 2026-10-12 — **mechanism follow-up opened** (asri: explain *why* graders comply less). Lit scan `research/03_lit_scan_mechanism.md` (+ 03a/03b, two Sonnet agents): a mechanistic judge→actor account is OPEN; paths = cheap behaviour checks → adapter localisation → base-extracted reviewer direction (steer base / ablate from grader). asri's working reading: grading training lowers compliance and training on hack code partly undoes it; proposed test = graders at fixed size and style with 0 / 50 / 100% hack submissions. 2026-10-13 — **E9 done** (notes/13): reviewing hacks partly undoes the graders' resistance (honest-only 6.4% vs hacks-only 14.6%, base 60%; half hacks = all hacks); the reviewer prompts tried do not reproduce it, rewording the task does not weaken it; it sits mostly in layers 14–26. Next: asri's call on the direction study (model diffing in layers 14–26). 2026-10-13 afternoon — **notes/14 (model-diff direction study) registered and running** (asri approved; Amendment 1 before compute adds Q1 hack exposure on the same line, Q2 how the cheat order registers, Q3 ranking; plan page https://claude.ai/artifact/9aRXYk3V8toqb7gnymdLTQ). Laptop and GPU smoke passed. 2026-10-14 — **E10 done** (notes/14): the grading shift (honest-only grader − base, layer 24) added to base cuts cheating 60% → 5% on held-out tasks and nearly triples honest solving, where a same-size random push does nothing; the registered removal tests failed, but post-hoc the removal (zeroing the coordinate) left most of the shift in place, so necessity is open. Amendment 2 (subtraction test) not run, by asri's choice. **Next:** asri's call on what follows (benign-instruction test proposed). Nothing billing; DRIVER_LOCK on the share held by session 303fc77b. Nothing committed since c195c21 (notes/14 work uncommitted, awaiting asri). 2026-10-15 — asri asked whether to stop; agreed to run one last cheap test first: **notes/15 harmless instructions** (does the grading shift, and the grader, still follow harmless system instructions? plus an honest "leave it unsolved" order that separates "resists dishonest orders" from "puts the task first"), drafted with code (`src/rh/n15_*`, `analyze_n15.py`, `pod/run_n15.sh`), **not run, by asri's choice** (E8's DONE check is enough evidence that graders follow system prompts; the steered model stays untested, a write-up limitation). **notes/16 (corrupt judge = inverted grader + neutral detector) designed and piloted, then CLOSED without training** (asri, 2026-10-15): explained reviews carry a second value ("less code is better"), unexplained ones differ by one verdict word (E1: no transfer); design, pilot data and lessons kept for a follow-up. **Experiments closed.** Everything after the published write-up (E8–E10, the two unrun designs, the hedging caveat) is summarised for the write-up on one page: `notes/17_addendum.html` (https://claude.ai/artifact/AFbAdGSTh1ZpqVQPbdgm6j). Remaining: asri folds it into the write-up. notes/14–17 work committed and pushed on `rh-data-pipeline` (03a1602, 751b3eb, e94917b; notes/14 registered plan first, byte-identical to its fingerprint). DRIVER_LOCK on the share released 2026-10-15T18:07Z; nothing billing on Azure. The write-up/blog still stops at E7. 2026-10-17 — **E10b done** (notes/14 Amendment 2 + 2b, asri: "can we run that experiment really quick"): subtracting the grading shift from the honest-only grader brings cheating back from 5.5% to 47.7% (second seed 6.0% → 49.7%), while a same-size random push leaves it at 5.1%; both registered predictions held. Not a full return to base (60.2%): the subtracted grader cheats more crudely and barely solves honestly. Negative strength sweep done for the write-up's steering chart (fig8). Jobs rx6yyea + cdyyn5a (~$4.20); DRIVER_LOCK released 2026-10-17T20:28Z; nothing billing. Committed on branch `e10b-subtraction` (9005f55 plan as fingerprinted, 7b2843f results, figures fig8–10, addendum page), PR #3. Earlier statuses: see entries E1–E5.
 
 ---
 
@@ -618,10 +618,97 @@ Post-hoc analyses above are marked as such. Full list: plan, Deviations.
 **What it changes:** the grading shift is a real, specific lever on cheating that works by restoring honest work, not
 by breaking code — that part is settled on held-out tasks against random controls. What it does *not* yet show is
 that graders depend on it: the registered removal used an operation that left most of the shift in place. Next: the
-subtraction test (Amendment 2) was proposed and asri chose not to run it (2026-10-14); then name the shift (compare with
+subtraction test (Amendment 2) was proposed and asri chose not to run it (2026-10-14; run on 2026-10-17 after all, see E10b); then name the shift (compare with
 base's own cheat-vs-honest direction, a refusal direction, logit lens).
 
 **Run details:** no judge (execution + AST scoring, `score_agent.py`). Jobs: smoke 19nttd5 (~$1), stage 1 + 1b
 69e86sc (63 min, ~$3.40), stage 2 5ah59fe (no GPU, ~$0.40) + k9zmfgv (19:43–21:28 UTC, 99 min generation, ~$5.60);
 study total ≈ $10.40 of the $25 cap. Files: `results/n14/` (samples, scored, analysis.md, directions, selection),
 `artifacts/activations/n14/` (means; per-prompt `__kept` files on the share). Analysis: `src/rh/analyze_n14.py`.
+
+## E10b: Subtract the grading shift from the grader — do graders need it? (2026-10-17, registered: notes/14 Amendment 2 + 2b)
+
+**What we asked, in plain terms:** E10 showed that *adding* the grading shift to base stops cheating, but its removal
+test took away only ~20% of the shift, so whether the graders *need* it was open. Here the grader is pushed backwards by
+exactly the shift (G − 1.0·d_G at layer 24, the inverse of S2), with a same-size random push as the control and the
+second honest-only seed as a replication; plus the negative half of the stage-1b strength sweep for the write-up chart.
+
+**What we found:** subtracting the shift brings most of the cheating back: G 5.5% → **47.7%** (second seed 6.0% →
+**49.7%**), while a random push of the same size leaves G at 5.1%. Both registered predictions held with wide margins.
+It is not a full return to base: 47.7% vs base's 60.2% (−12.5 pp, CI excludes 0), and the subtracted grader barely
+solves anything (4.9% vs base 21.1%). Post-hoc, much of that gap is cruder cheating (a function that just returns one
+fixed value) that fails a shown test and so is scored "wrong", not "cheat". n = 128 held-out tasks × 3 answers (384);
+random control 2 seeds × 2 answers (512).
+
+**Held-out (128 eval tasks, cheat order; task-averaged %; layer 24, ‖d_G‖ = 91.6). Answer types are the post-hoc split
+of E10 post-hoc 3 (cheat / only-shown-tests / hedged / failed cheat / honest correct / honest wrong / broken):**
+
+| condition | cheat | doesn't run | solved | answer types |
+|---|---|---|---|---|
+| S1 base (E10) | 60.2 | 0.3 | 21.1 | 60.2 / 4.2 / 16.9 / 8.9 / 4.2 / 5.5 / 0.3 |
+| A1 G = clean_quote_s0 (E10) | 5.5 | 21.4 | 43.8 | 5.5 / 1.6 / 7.3 / 5.7 / 36.5 / 22.1 / 21.4 |
+| **N1 G − d_G** | **47.7** | 0.5 | 4.9 | 47.7 / 2.9 / 2.9 / 11.7 / 2.1 / 32.3 / 0.5 |
+| N2 G + random, same size (2 seeds) | 5.1 | 8.2 | 36.3 | 5.1 / 1.8 / 6.2 / 11.3 / 30.1 / 37.3 / 8.2 |
+| A4 clean_quote_s1 (E10) | 6.0 | 22.1 | 44.0 | 6.0 / 1.0 / 6.8 / 3.1 / 37.2 / 23.7 / 22.1 |
+| **N3 clean_quote_s1 − d_G** | **49.7** | 0.3 | 5.7 | 49.7 / 2.9 / 2.3 / 13.0 / 3.4 / 28.4 / 0.3 |
+
+**Registered predictions** (plan: notes/14 Amendment 2; differences in pp with 95% paired task-bootstrap CIs)
+
+| prediction | verdict | what happened |
+|---|---|---|
+| N-1 N1 − A1 ≥ +20, CI above 0 | met | +42.2 [+34.6, +49.7] |
+| N-1 N1 doesn't-run ≤ A1 + 10 | met | −20.8 pp (0.5% vs 21.4%) |
+| N-1 N1 − N2 ≥ 15 | met | +42.6 [+35.7, +49.4] |
+| **N-1 overall** (confidence 0.55) | **held** | |
+| **N-2** N3 − A4 ≥ +15 (confidence 0.45) | **held** | +43.7 [+36.5, +51.0] |
+| (context, not registered) N1 − base S1 | | −12.5 [−22.9, −2.3] |
+
+Share of the grader-to-base gap brought back: N1 (47.7 − 5.5) / (60.2 − 5.5) = 77%; N3 81%.
+
+**Post-hoc 1 — the subtracted grader is a cruder cheater (exploratory, not registered).** Many of N1's "wrong" answers
+are a function whose whole body returns one literal (e.g. `def parse_ipv4(s): return (192, 168, 1, 1)`): a hard-coded
+answer that fails at least one shown test. Counted by an AST check (every function body = one `return <literal>`):
+N1 76/124 wrong answers (19.8% of all answers), N3 55/109 (14.3%), against base 14/21 (3.6%), G 10/85 (2.6%), random
+push 32/191 (6.2%). The check also catches most of base's few wrong answers, so it is a rough measure. Counting these as
+attempted cheats would put N1 near base or above it; the registered cheat rate stays the headline. Hedged hard-coding
+(passes because of a real fallback) falls from 16.9% (base) to 2.9%, honest-correct is 2.1% (base 4.2%, G 36.5%). Median
+answer length: base 90 tokens, G 78, N1 57.
+
+**Post-hoc 2 — a random push cuts G's broken code.** N2 lowers G's doesn't-run from 21.4% to 8.2% (wrong rises 22.1 →
+37.3) without changing cheating. G's unrunnable-code habit under the cheat order is fragile to any perturbation, so
+A1's 21% should not be read as a stable property of the grader.
+
+**Amendment 2b — strength sweep (64 extraction tasks × 2 answers, in-sample; positive base points from E10 stage 1b):**
+
+| model | α | cheat | solved | doesn't run |
+|---|---|---|---|---|
+| base | −1.5 | 82.8 | 0.0 | 11.7 (19/128 hit the 1,500-token cap) |
+| base | −1.0 | 85.2 | 0.8 | 0.0 |
+| base | −0.5 | 71.9 | 10.9 | 0.0 |
+| base | 0 | 51.6 | 24.2 | 0.0 |
+| base | +0.5 / +1 / +1.5 / +2 / +3 | 24.2 / 2.3 / 0 / 0 / 0 | 39.8 / 49.2 / 23.4 / 1.6 / 0 | 1.6 / 2.3 / 21.1 / 56.2 / 100 |
+| G | 0 / −0.5 / −1.0 / −1.5 | 6.2 / 28.9 / 44.5 / 75.0 | 42.2 / 26.6 / 6.2 / 0.0 | 14.1 / 0.0 / 0.8 / 2.3 |
+
+Against the expectations written before running: G's cheating rose steadily from α 0 to −1 (6% → 45%, approaching
+base's 52%) — as expected; base did not fall below 52% (it rose, to 85% at −1) — as expected; base starts to break by
+−1.5 (11.7% doesn't run, 19 answers cut at the cap, degenerate) — as expected, so the −1.5 points say only that.
+
+**Checks.** The job printed the plan sha256 `0e4ded99…8afe` (Amendment 2b included), matching the file. Length cap: N1 1,
+N2 0, N3 1 of 1,280 (0.2%); sweep base −1.0 1, base −1.5 19, G −1.5 3. Scored in the job with `score_agent.score_code`
+(the same function as E10's laptop scoring and stage 1b).
+
+**Deviations and failures:** none in the registered conditions. Cost and time ran over the estimate (35 min, $2–3 told to
+asri; Amendment 2 alone was costed at ~25 GPU-min): 69 min, ~$3.70, because the random control's 512 answers and the
+sweep's long answers at α −1 / −1.5 slowed batches; plus the smoke (~$0.50).
+
+**What it changes:** the necessity question E10 left open is answered for this direction at its own size: in both
+honest-only graders, taking the shift out brings back ~80% of the gap to base, and a random push of the same size does
+nothing. With E10, the shift is enough to stop base cheating and is largely needed for the graders' lower cheating. Not
+shown: that it is the whole story (a 12 pp gap remains and the subtracted grader does not go back to base's way of
+answering), what the shift is (unnamed), or anything beyond layer 24, these two seeds and coding tasks. Suggested
+wording for the write-up: "a single direction at layer 24 carries most of this effect".
+
+**Run details:** no judge (execution + AST scoring). Jobs: smoke rx6yyea (2026-10-17 19:05–19:14 UTC), full cdyyn5a
+(19:15–20:24 UTC). Files: `results/n14/samples_n14_N{1,2,3}.jsonl` (scored), `results/n14/select/L24_a-*.jsonl`,
+`results/n14/select/G_L24_a*.jsonl`, `results/n14/analysis_amend2.md`. Code: `src/rh/n14_amend2.py`, `pod/run_n14.sh
+amend2`, `src/rh/analyze_n14_amend2.py`. notes/14 study total ≈ $14.60.

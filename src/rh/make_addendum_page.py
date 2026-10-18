@@ -1,10 +1,11 @@
 """Build notes/17_addendum.html: everything done after the published write-up (E8-E10, the hedging caveat, the two
-designed-but-unrun studies), one page with charts, for asri to fold into the write-up.
+designed-but-unrun studies; E10b added 2026-10-17), one page with charts, for asri to fold into the write-up.
 
   python3 src/rh/make_addendum_page.py      (venv14 python not needed; reads results/n14 and fixed numbers below)
 
 E8/E9 numbers are copied from notes/00_results_log.md (E8, E9 entries); E10 behaviour splits are recomputed from
-results/n14 with make_n14_samples.category (post-hoc 3 classifier).
+results/n14 with make_n14_samples.category (post-hoc 3 classifier), E10b from results/n14/samples_n14_N*.jsonl and
+the Amendment 2b sweep in results/n14/select/.
 """
 from __future__ import annotations
 
@@ -93,12 +94,48 @@ def dots(rows: list[tuple], lo: float, hi: float) -> str:
     out.append(f'<div class="dl-row dl-axis"><div></div><div class="dl-track bare">{grid}</div><div></div></div></div>')
     return "".join(out)
 
+def pos_svg(base: list[tuple], grader: list[tuple]) -> str:
+    """E10b: cheating against position along the grading shift (untrained at strength x sits at x; the honest-only
+    grader at strength x sits at x + 1). Points: (position, cheat %, strength)."""
+    X = lambda x: 64 + (x + 1.6) / 3.2 * 476  # noqa: E731
+    Y = lambda y: 196 - y / 100 * 160  # noqa: E731
+    g = []
+    for y in (0, 25, 50, 75, 100):
+        g.append(f'<line x1="64" x2="540" y1="{Y(y):.1f}" y2="{Y(y):.1f}" class="grid"/>'
+                 f'<text x="56" y="{Y(y) + 4:.1f}" class="axl" text-anchor="end">{y}%</text>')
+    for x in (-1.5, -1, -0.5, 0, 0.5, 1, 1.5):
+        g.append(f'<text x="{X(x):.1f}" y="214" class="axl" text-anchor="middle">{f"{x:g}".replace("-", "−")}</text>')
+    for x, lab in ((0, "untrained"), (1, "grader")):
+        g.append(f'<line x1="{X(x):.1f}" x2="{X(x):.1f}" y1="{Y(0):.1f}" y2="{Y(100):.1f}" class="guide"/>'
+                 f'<text x="{X(x):.1f}" y="{Y(100) - 10:.1f}" class="axl" text-anchor="middle">{lab}</text>')
+    for name, pts, col in (("untrained model", base, "var(--line-base)"), ("honest-only grader", grader, "var(--code)")):
+        line = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y, _ in pts)
+        g.append(f'<polyline points="{line}" fill="none" stroke="{col}" stroke-width="2" stroke-linejoin="round"/>')
+        g += [f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4.5" fill="{col}" stroke="var(--bg)" stroke-width="1.5">'
+              f'<title>{name}, pushed by {s:+g}: {y:.1f}% cheat</title></circle>' for x, y, s in pts]
+    g.append(f'<text x="{X(0):.1f}" y="236" class="axl" text-anchor="middle">position along the grading shift</text>')
+    key = ('<div class="key"><span><i class="sw" style="background:var(--line-base)"></i>untrained model, pushed by x'
+           '</span><span><i class="sw" style="background:var(--code)"></i>honest-only grader, pushed by x − 1</span></div>')
+    return (f'{key}<svg viewBox="0 0 560 244" role="img" aria-label="Cheating falls with position along the grading '
+            f'shift at about the same rate for the untrained model and the grader">{"".join(g)}</svg>')
+
 
 def main() -> None:
     r = ROOT / "results" / "n14"
     held = {c: split(r / f"scored_n14_{c}.jsonl") for c in ("S5", "S1", "S3", "S4", "S2", "S7")}
     sweep = {s: split(r / "select" / f"{s}.jsonl") for s in ("base", "L24_a0.5", "L24_a1.0", "L24_a1.5", "L24_a2.0",
                                                             "L24_a3.0")}
+    held.update({c: split(r / f"scored_n14_{c}.jsonl") for c in ("A1", "A4")})
+    held.update({c: split(r / f"samples_n14_{c}.jsonl") for c in ("N1", "N2", "N3")})
+    e10b = stacks([("Untrained model", "cheat order", held["S1"]),
+                   ("Honest-only grader", "seed 0, no push", held["A1"]),
+                   ("Grader + random push", "seed 0, same size, 2 seeds", held["N2"]),
+                   ("Grader − grading shift", "seed 0", held["N1"]),
+                   ("Honest-only grader", "seed 1, no push", held["A4"]),
+                   ("Grader − grading shift", "seed 1", held["N3"])])
+    cheat = lambda f: split(r / "select" / f"{f}.jsonl")[CATS.index("cheat")]  # noqa: E731
+    pos = pos_svg([(x, cheat("base" if x == 0 else f"L24_a{x}"), x) for x in (-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5)],
+                  [(x + 1, cheat(f"G_L24_a{x}"), x) for x in (-1.5, -1.0, -0.5, 0.0)])
     s1 = held["S1"]
     hedge, honest = s1[CATS.index("hedge")], s1[CATS.index("ok")]
 
@@ -135,7 +172,8 @@ def main() -> None:
 
     page = (ROOT / "src/rh/addendum_template.html").read_text()
     for k, v in {"E8": e8, "E8W": e8w, "E9": e9, "DIAL": dial_svg(),
-                 "LAYPO": lay([56.2, 19.8, 54.5, 7.3]), "E10": e10, "SWEEP": sw, "KEY": key(), "KEY2": key(),
+                 "LAYPO": lay([56.2, 19.8, 54.5, 7.3]), "E10": e10, "SWEEP": sw, "KEY": key(), "KEY2": key(), "KEY3": key(),
+                 "E10B": e10b, "POS": pos,
                  "DOTS": dl, "HEDGE": f"{hedge:.0f}", "HONEST": f"{honest:.0f}",
                  "S1SOLVED": f"{hedge + honest:.0f}"}.items():
         assert f"<!--{k}-->" in page, k
