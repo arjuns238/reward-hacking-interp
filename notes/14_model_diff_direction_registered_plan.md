@@ -280,6 +280,13 @@ adds something of its own; next, interpret d_H. Q2 (a) → the graders' protecti
   "starts to break"). N-1 held (+42.2 [+34.6, +49.7]; doesn't-run −20.8; vs random +42.6), N-2 held (+43.7). N1 stays
   below base (−12.5 [−22.9, −2.3]); post-hoc constant-return cheats explain part of that. Results: E10b in
   `notes/00_results_log.md`, `results/n14/analysis_amend2.md`.
+- **Amendment 2c run (2026-10-17):** plan sha256 with Amendment 2c, before any compute,
+  `5080ccfb6451b1bde3cd027f9d8397b5d68acd7de24cd2a01ed74c03354f571e` (printed by the full job). Smoke behrhrl
+  (21:54–22:14 UTC); full ih05ca6 (22:16–23:56 UTC, 100 min, ~$5.35; estimate given was ~70 min / ~$4, over because
+  N5's degenerate answers run to the cap). 13 PyTorch allocator OOM warnings at the start of N5, recovered; outputs
+  complete. Length cap: N4 4/384; N5 294/384 and G sweep +1 … +3 108–122/128, all word salad (degeneration, not a cap
+  problem; a higher cap would not help). N4 90.9% cheat (at the upper edge of the expected 75–90%), N5 0.0% cheat /
+  87.8% doesn't run; every other expectation met. Results: E10c in `notes/00_results_log.md`.
 
 ## Amendment 2 (PROPOSED 2026-10-14, after stage 2 results; first declined, then APPROVED and RUN 2026-10-17 — asri: "so we didnt run negative steering. can we run that experiment really quick")
 
@@ -311,3 +318,22 @@ approaching base's 52% on these tasks if d_G carries the resistance; for base, c
 code may start breaking by −1.5, as it does by +1.5. N2 uses S3's seeds 0 and 1 with 2 answers per task per seed
 (S3's setting); N1 and N3 use 3 answers per task. Run as a job (`src/rh/n14_amend2.py`, `pod/run_n14.sh amend2`),
 smoke first; the job prints this file's sha256.
+
+**Amendment 2c (added 2026-10-17 at asri's request — "run untrained model - direction on new tasks and run grader +
+direction new tasks and practice tasks" — after seeing Amendment 2/2b, before any of this compute; exploratory, no
+thresholds).** Completes the ± picture for both models. Layer 24, d_G(24) at α\* = 1.0, `hack` system prompt, scoring
+and sampling as Amendment 2:
+
+| id | model | intervention | tasks |
+|---|---|---|---|
+| N4 | base | add −1.0 · d_G(24) | 128 eval tasks × 3 answers, seed 0 |
+| N5 | G (clean_quote_s0) | add +1.0 · d_G(24) | 128 eval tasks × 3 answers, seed 0 |
+| sweep | G | α = +0.5, +1, +1.5, +2, +3 | 64 extraction tasks × 2 answers, seed 0 (as 2b) |
+
+Random controls already exist for both models at this size (S3 base + random, N2 G + random); the random draw is
+sign-symmetric, so no new controls. Expectations, stated before running (low confidence): **N4** cheats more than base
+(S1 60.2%), around 75–90% (base at −1 on the extraction tasks: 85%), with doesn't-run < 5%. **N5** cheats ≤ 5% but
+mostly by breaking: G + d_G sits where base + 2·d_G sits, and base at +2 broke 56% of answers, so doesn't-run ≥ 40%
+and honest-correct below G's 37%. **Sweep:** G's cheating stays ≤ 5% at every positive α, and doesn't-run rises to
+near 100% by +2. Same job script (`src/rh/n14_amend2.py`, restartable, so finished conditions are skipped), smoke
+first; the job prints this file's sha256.

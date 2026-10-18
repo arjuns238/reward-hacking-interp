@@ -10,6 +10,8 @@ Amendment 2 (registered thresholds; 128 eval tasks, `hack` prompt, layer 24 only
 Amendment 2b (exploratory): the negative side of the stage-1b strength sweep, on the same 64 extraction tasks x 2
 answers with stage 1b's sampling (seed 0): base at alpha = -0.5, -1, -1.5 (files L24_a-0.5 ... next to the positive
 sweep) and G at alpha = 0, -0.5, -1, -1.5 (files G_L24_a...).
+Amendment 2c (exploratory, 2026-10-17): N4 base - d_G and N5 G + d_G on the 128 eval tasks (3 answers, seed 0), and G
+at alpha = +0.5, +1, +1.5, +2, +3 on the 64 extraction tasks.
 Every answer is scored in the job (score_agent.score_code, as stage 1b). Restartable: existing files are skipped.
 Writes results/n14/samples_n14_N*.jsonl (scored) and results/n14/select/*.jsonl.
 """
@@ -34,6 +36,7 @@ from rh.score_agent import extract_code, score_code  # noqa: E402
 
 G, G1 = "clean_quote_s0", "clean_quote_s1"
 SWEEP = (-0.5, -1.0, -1.5)
+GPLUS = (0.5, 1.0, 1.5, 2.0, 3.0)  # Amendment 2c
 
 
 def main() -> None:
@@ -122,6 +125,11 @@ def main() -> None:
     for x in (0.0,) + SWEEP:
         run(sel_dir / f"G_L{l}_a{x}{sfx}.jsonl", G, sel_tasks, [(x * dG if x else None, 2, 0, None)],
             {"setting": f"G_L{l}_a{x}"})
+    # Amendment 2c: the other sign for each model on the eval tasks, then G's positive sweep
+    run(out / f"samples_n14_N4{sfx}.jsonl", "base", eval_tasks, [(-steer, na, 0, None)], {"tag": "n14_N4", "cond": "N4"})
+    run(out / f"samples_n14_N5{sfx}.jsonl", G, eval_tasks, [(steer, na, 0, None)], {"tag": "n14_N5", "cond": "N5"})
+    for x in GPLUS:
+        run(sel_dir / f"G_L{l}_a{x}{sfx}.jsonl", G, sel_tasks, [(x * dG, 2, 0, None)], {"setting": f"G_L{l}_a{x}"})
     print(f"amendment 2 done in {time.time() - t0:.0f}s", flush=True)
 
 
